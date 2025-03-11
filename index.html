@@ -73,36 +73,6 @@
             text-align: center;
             display: none;
         }
-
-        button {
-            margin: 5px;
-            padding: 5px 10px;
-            font-size: 14px;
-            cursor: pointer;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background-color: #cc0000;
-        }
-
-        .select-circle {
-            width: 20px;
-            height: 20px;
-            background-color: #ff0000;
-            border-radius: 50%;
-            border: none;
-            display: inline-block;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .select-circle:hover {
-            background-color: #cc0000;
-        }
     </style>
 </head>
 <body>
@@ -113,89 +83,68 @@
             <div class="team-name-display" id="displayTeam1" onclick="editTeamName(1)">Team 1</div>
             <input type="text" id="team1" class="team-name-input" onblur="saveTeamName(1)">
             <div class="timer" id="timer1">60</div>
-            <button class="select-circle" onclick="selectTimer(1)"></button>
         </div>
         <div class="timer-container" id="timerBox2">
             <div class="team-name-display" id="displayTeam2" onclick="editTeamName(2)">Team 2</div>
             <input type="text" id="team2" class="team-name-input" onblur="saveTeamName(2)">
             <div class="timer" id="timer2">60</div>
-            <button class="select-circle" onclick="selectTimer(2)"></button>
+        </div>
+        <div class="timer-container" id="timerBox3">
+            <div class="team-name-display" id="displayTeam3" onclick="editTeamName(3)">Team 3</div>
+            <input type="text" id="team3" class="team-name-input" onblur="saveTeamName(3)">
+            <div class="timer" id="timer3">60</div>
+        </div>
+        <div class="timer-container" id="timerBox4">
+            <div class="team-name-display" id="displayTeam4" onclick="editTeamName(4)">Team 4</div>
+            <input type="text" id="team4" class="team-name-input" onblur="saveTeamName(4)">
+            <div class="timer" id="timer4">60</div>
         </div>
     </div>
     
     <button onclick="startStopTimer()">Start/Stop</button>
     <button onclick="resetTimer()">Reset</button>
     <button onclick="adjustTime(10)">+10 sec</button>
-    <button onclick="adjustTime(-10)">-10 sec</button>
+    <button onclick="adjustTime(20)">+20 sec</button>
+    <button onclick="adjustTime(30)">+30 sec</button>
+    <button onclick="adjustTime(40)">+40 sec</button>
+    <button onclick="adjustTime(50)">+50 sec</button>
+    <button onclick="adjustTime(-20)">-20 sec</button>
 
     <script>
+        let timers = { 1: 60, 2: 60, 3: 60, 4: 60 };
         let selectedTimer = 1;
-        let timers = { 1: 60, 2: 60 };
-        let intervals = { 1: null, 2: null };
+        let timerRef = database.ref('timers');
 
-        const timerRef = database.ref('timers'); // Firebase database-referentie
-
-        // Timer synchroniseren bij wijzigingen in Firebase
         timerRef.on('value', (snapshot) => {
             if (snapshot.exists()) {
                 timers = snapshot.val();
-                document.getElementById("timer1").textContent = timers[1];
-                document.getElementById("timer2").textContent = timers[2];
+                for (let i = 1; i <= 4; i++) {
+                    document.getElementById(`timer${i}`).textContent = timers[i];
+                }
             }
         });
 
-        function selectTimer(timerNumber) {
-            selectedTimer = timerNumber;
-            document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
-            document.querySelector(`#timerBox${timerNumber}`).classList.add("selected");
-        }
-
         function startStopTimer() {
-            if (intervals[selectedTimer]) {
-                clearInterval(intervals[selectedTimer]);
-                intervals[selectedTimer] = null;
-            } else {
-                intervals[selectedTimer] = setInterval(() => {
-                    if (timers[selectedTimer] > 0) {
-                        timers[selectedTimer]--;
-                        timerRef.set(timers); // Update Firebase-database
-                    } else {
-                        clearInterval(intervals[selectedTimer]);
-                        alert("Tijd is om!");
-                    }
-                }, 1000);
-            }
+            let interval = setInterval(() => {
+                if (timers[selectedTimer] > 0) {
+                    timers[selectedTimer]--;
+                    timerRef.set(timers);
+                } else {
+                    clearInterval(interval);
+                    alert(`Tijd is om voor Team ${selectedTimer}!`);
+                }
+            }, 1000);
         }
 
         function resetTimer() {
-            clearInterval(intervals[selectedTimer]);
             timers[selectedTimer] = 60;
-            timerRef.set(timers); // Reset Firebase-database
+            timerRef.set(timers);
         }
 
         function adjustTime(amount) {
             timers[selectedTimer] += amount;
             if (timers[selectedTimer] < 0) timers[selectedTimer] = 0;
-            timerRef.set(timers); // Update Firebase-database
-        }
-
-        function editTeamName(teamNumber) {
-            let display = document.getElementById(`displayTeam${teamNumber}`);
-            let input = document.getElementById(`team${teamNumber}`);
-            display.style.display = "none";
-            input.style.display = "block";
-            input.value = display.textContent;
-            input.focus();
-        }
-
-        function saveTeamName(teamNumber) {
-            let display = document.getElementById(`displayTeam${teamNumber}`);
-            let input = document.getElementById(`team${teamNumber}`);
-            if (input.value.trim() !== "") {
-                display.textContent = input.value;
-            }
-            input.style.display = "none";
-            display.style.display = "block";
+            timerRef.set(timers);
         }
     </script>
 </body>
