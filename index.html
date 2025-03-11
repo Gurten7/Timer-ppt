@@ -89,6 +89,21 @@
         .select-circle:hover {
             background-color: #cc0000;
         }
+
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #cc0000;
+        }
     </style>
 </head>
 <body>
@@ -107,18 +122,6 @@
             <div class="timer" id="timer2">60</div>
             <button class="select-circle" onclick="selectTimer(2)"></button>
         </div>
-        <div class="timer-container" id="timerBox3">
-            <div class="team-name-display" id="displayTeam3" onclick="editTeamName(3)">Team 3</div>
-            <input type="text" id="team3" class="team-name-input" onblur="saveTeamName(3)">
-            <div class="timer" id="timer3">60</div>
-            <button class="select-circle" onclick="selectTimer(3)"></button>
-        </div>
-        <div class="timer-container" id="timerBox4">
-            <div class="team-name-display" id="displayTeam4" onclick="editTeamName(4)">Team 4</div>
-            <input type="text" id="team4" class="team-name-input" onblur="saveTeamName(4)">
-            <div class="timer" id="timer4">60</div>
-            <button class="select-circle" onclick="selectTimer(4)"></button>
-        </div>
     </div>
     
     <button onclick="startStopTimer()">Start/Stop</button>
@@ -131,23 +134,31 @@
     <button onclick="adjustTime(-20)">-20 sec</button>
 
     <script>
-        function editTeamName(teamNumber) {
-            let display = document.getElementById(`displayTeam${teamNumber}`);
-            let input = document.getElementById(`team${teamNumber}`);
-            display.style.display = "none";
-            input.style.display = "block";
-            input.value = display.textContent;
-            input.focus();
+        let selectedTimer = 1;
+        let timers = { 1: 60, 2: 60 };
+        let intervals = { 1: null, 2: null };
+
+        function selectTimer(timerNumber) {
+            selectedTimer = timerNumber;
+            document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
+            document.querySelector(`#timerBox${timerNumber}`).classList.add("selected");
         }
 
-        function saveTeamName(teamNumber) {
-            let display = document.getElementById(`displayTeam${teamNumber}`);
-            let input = document.getElementById(`team${teamNumber}`);
-            if (input.value.trim() !== "") {
-                display.textContent = input.value;
+        function startStopTimer() {
+            if (intervals[selectedTimer]) {
+                clearInterval(intervals[selectedTimer]);
+                intervals[selectedTimer] = null;
+            } else {
+                intervals[selectedTimer] = setInterval(() => {
+                    if (timers[selectedTimer] > 0) {
+                        timers[selectedTimer]--;
+                        document.getElementById(`timer${selectedTimer}`).textContent = timers[selectedTimer];
+                    } else {
+                        clearInterval(intervals[selectedTimer]);
+                        alert("Tijd is om!");
+                    }
+                }, 1000);
             }
-            input.style.display = "none";
-            display.style.display = "block";
         }
     </script>
 </body>
