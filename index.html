@@ -150,6 +150,8 @@
 
     <script>
         let selectedTimer = 1;
+        let timerRunning = false;
+        let interval;
 
         function selectTimer(timerNumber) {
             selectedTimer = timerNumber;
@@ -175,9 +177,6 @@
             }
             input.style.display = "none";
             display.style.display = "block";
-            display.style.color = "black";  // Terug naar normale stijl
-            display.style.background = "transparent";
-            display.style.borderRadius = "0px";
         }
 
         function adjustTime(amount) {
@@ -189,12 +188,25 @@
             });
         }
 
-        function resetTimer() {
-            timerRef.set({ timer1: 60, timer2: 60, timer3: 60, timer4: 60 });
-        }
-
         function startStopTimer() {
-            alert("Timer start/stop functie moet nog worden toegevoegd!");
+            if (timerRunning) {
+                clearInterval(interval);
+                timerRunning = false;
+            } else {
+                timerRunning = true;
+                interval = setInterval(() => {
+                    timerRef.child(`timer${selectedTimer}`).get().then(snapshot => {
+                        let time = snapshot.exists() ? snapshot.val() : 60;
+                        if (time > 0) {
+                            time--;
+                            timerRef.child(`timer${selectedTimer}`).set(time);
+                        } else {
+                            clearInterval(interval);
+                            timerRunning = false;
+                        }
+                    });
+                }, 1000);
+            }
         }
     </script>
 </body>
