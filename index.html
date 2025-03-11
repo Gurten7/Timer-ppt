@@ -45,6 +45,7 @@
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             width: 120px;
+            position: relative;
         }
 
         .timer-container.selected {
@@ -73,6 +74,21 @@
             text-align: center;
             display: none;
         }
+
+        .select-circle {
+            width: 20px;
+            height: 20px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            border: none;
+            display: inline-block;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .select-circle:hover {
+            background-color: #cc0000;
+        }
     </style>
 </head>
 <body>
@@ -83,21 +99,25 @@
             <div class="team-name-display" id="displayTeam1" onclick="editTeamName(1)">Team 1</div>
             <input type="text" id="team1" class="team-name-input" onblur="saveTeamName(1)">
             <div class="timer" id="timer1">60</div>
+            <button class="select-circle" onclick="selectTimer(1)"></button>
         </div>
         <div class="timer-container" id="timerBox2">
             <div class="team-name-display" id="displayTeam2" onclick="editTeamName(2)">Team 2</div>
             <input type="text" id="team2" class="team-name-input" onblur="saveTeamName(2)">
             <div class="timer" id="timer2">60</div>
+            <button class="select-circle" onclick="selectTimer(2)"></button>
         </div>
         <div class="timer-container" id="timerBox3">
             <div class="team-name-display" id="displayTeam3" onclick="editTeamName(3)">Team 3</div>
             <input type="text" id="team3" class="team-name-input" onblur="saveTeamName(3)">
             <div class="timer" id="timer3">60</div>
+            <button class="select-circle" onclick="selectTimer(3)"></button>
         </div>
         <div class="timer-container" id="timerBox4">
             <div class="team-name-display" id="displayTeam4" onclick="editTeamName(4)">Team 4</div>
             <input type="text" id="team4" class="team-name-input" onblur="saveTeamName(4)">
             <div class="timer" id="timer4">60</div>
+            <button class="select-circle" onclick="selectTimer(4)"></button>
         </div>
     </div>
     
@@ -111,40 +131,23 @@
     <button onclick="adjustTime(-20)">-20 sec</button>
 
     <script>
-        let timers = { 1: 60, 2: 60, 3: 60, 4: 60 };
-        let selectedTimer = 1;
-        let timerRef = database.ref('timers');
+        function editTeamName(teamNumber) {
+            let display = document.getElementById(`displayTeam${teamNumber}`);
+            let input = document.getElementById(`team${teamNumber}`);
+            display.style.display = "none";
+            input.style.display = "block";
+            input.value = display.textContent;
+            input.focus();
+        }
 
-        timerRef.on('value', (snapshot) => {
-            if (snapshot.exists()) {
-                timers = snapshot.val();
-                for (let i = 1; i <= 4; i++) {
-                    document.getElementById(`timer${i}`).textContent = timers[i];
-                }
+        function saveTeamName(teamNumber) {
+            let display = document.getElementById(`displayTeam${teamNumber}`);
+            let input = document.getElementById(`team${teamNumber}`);
+            if (input.value.trim() !== "") {
+                display.textContent = input.value;
             }
-        });
-
-        function startStopTimer() {
-            let interval = setInterval(() => {
-                if (timers[selectedTimer] > 0) {
-                    timers[selectedTimer]--;
-                    timerRef.set(timers);
-                } else {
-                    clearInterval(interval);
-                    alert(`Tijd is om voor Team ${selectedTimer}!`);
-                }
-            }, 1000);
-        }
-
-        function resetTimer() {
-            timers[selectedTimer] = 60;
-            timerRef.set(timers);
-        }
-
-        function adjustTime(amount) {
-            timers[selectedTimer] += amount;
-            if (timers[selectedTimer] < 0) timers[selectedTimer] = 0;
-            timerRef.set(timers);
+            input.style.display = "none";
+            display.style.display = "block";
         }
     </script>
 </body>
