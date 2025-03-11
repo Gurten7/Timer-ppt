@@ -67,6 +67,14 @@
             font-weight: bold;
             cursor: pointer;
             padding: 8px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .team-name-display.disabled {
+            color: gray;
+            background: #e0e0e0;
+            border-radius: 5px;
+            pointer-events: none;
         }
 
         .team-name-input {
@@ -137,7 +145,7 @@
             <button class="select-circle" onclick="selectTimer(4)"></button>
         </div>
     </div>
-    
+
     <button onclick="startStopTimer()">Start/Stop</button>
     <button onclick="resetTimer()">Reset</button>
     <button onclick="adjustTime(10)">+10 sec</button>
@@ -148,16 +156,6 @@
     <button onclick="adjustTime(-20)">-20 sec</button>
 
     <script>
-        let selectedTimer = 1;
-        let timers = [60, 60, 60, 60];
-        let intervals = [null, null, null, null];
-
-        function selectTimer(timerNumber) {
-            selectedTimer = timerNumber;
-            document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
-            document.querySelector(`#timerBox${timerNumber}`).classList.add("selected");
-        }
-
         function editTeamName(teamNumber) {
             let display = document.getElementById(`displayTeam${teamNumber}`);
             let input = document.getElementById(`team${teamNumber}`);
@@ -176,39 +174,33 @@
             }
             input.style.display = "none";
             display.style.display = "block";
+            display.classList.add("disabled");
         }
+
+        teamRef.on("value", snapshot => {
+            if (snapshot.exists()) {
+                let data = snapshot.val();
+                Object.keys(data).forEach(key => {
+                    let teamNumber = key.replace("team", "");
+                    let display = document.getElementById(`displayTeam${teamNumber}`);
+                    if (display) {
+                        display.textContent = data[key];
+                        display.classList.add("disabled");
+                    }
+                });
+            }
+        });
 
         function adjustTime(amount) {
-            timers[selectedTimer - 1] += amount;
-            if (timers[selectedTimer - 1] < 0) timers[selectedTimer - 1] = 0;
-            document.getElementById(`timer${selectedTimer}`).textContent = timers[selectedTimer - 1];
-        }
-
-        function startStopTimer() {
-            let index = selectedTimer - 1;
-            let timerElement = document.getElementById(`timer${selectedTimer}`);
-
-            if (intervals[index]) {
-                clearInterval(intervals[index]);
-                intervals[index] = null;
-                return;
-            }
-
-            intervals[index] = setInterval(() => {
-                if (timers[index] > 0) {
-                    timers[index]--;
-                    timerElement.textContent = timers[index];
-                } else {
-                    clearInterval(intervals[index]);
-                    intervals[index] = null;
-                    alert(`Tijd is om voor ${document.getElementById(`displayTeam${selectedTimer}`).textContent}!`);
-                }
-            }, 1000);
+            timerRef.child(`timer${selectedTimer}`).set(amount);
         }
 
         function resetTimer() {
-            timers = [60, 60, 60, 60];
-            document.querySelectorAll('.timer').forEach((el, i) => el.textContent = timers[i]);
+            timerRef.set({ timer1: 60, timer2: 60, timer3: 60, timer4: 60 });
+        }
+
+        function startStopTimer() {
+            alert("Timer start/stop functie moet nog worden toegevoegd!");
         }
     </script>
 </body>
