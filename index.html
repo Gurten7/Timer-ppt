@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -115,25 +116,25 @@
         <div class="timer-container" id="timerBox1">
             <div class="team-name-display" id="displayTeam1" onclick="editTeamName(1)">Team 1</div>
             <input type="text" id="team1" class="team-name-input" onblur="saveTeamName(1)">
-            <div class="timer" id="timer1" onclick="selectTimer(1)">60</div>
+            <div class="timer" id="timer1">60</div>
             <button class="select-circle" onclick="selectTimer(1)"></button>
         </div>
         <div class="timer-container" id="timerBox2">
             <div class="team-name-display" id="displayTeam2" onclick="editTeamName(2)">Team 2</div>
             <input type="text" id="team2" class="team-name-input" onblur="saveTeamName(2)">
-            <div class="timer" id="timer2" onclick="selectTimer(2)">60</div>
+            <div class="timer" id="timer2">60</div>
             <button class="select-circle" onclick="selectTimer(2)"></button>
         </div>
         <div class="timer-container" id="timerBox3">
             <div class="team-name-display" id="displayTeam3" onclick="editTeamName(3)">Team 3</div>
             <input type="text" id="team3" class="team-name-input" onblur="saveTeamName(3)">
-            <div class="timer" id="timer3" onclick="selectTimer(3)">60</div>
+            <div class="timer" id="timer3">60</div>
             <button class="select-circle" onclick="selectTimer(3)"></button>
         </div>
         <div class="timer-container" id="timerBox4">
             <div class="team-name-display" id="displayTeam4" onclick="editTeamName(4)">Team 4</div>
             <input type="text" id="team4" class="team-name-input" onblur="saveTeamName(4)">
-            <div class="timer" id="timer4" onclick="selectTimer(4)">60</div>
+            <div class="timer" id="timer4">60</div>
             <button class="select-circle" onclick="selectTimer(4)"></button>
         </div>
     </div>
@@ -148,6 +149,14 @@
     <button onclick="adjustTime(-20)">-20 sec</button>
 
     <script>
+        let selectedTimer = 1;
+
+        function selectTimer(timerNumber) {
+            selectedTimer = timerNumber;
+            document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
+            document.querySelector(`#timerBox${timerNumber}`).classList.add("selected");
+        }
+
         function editTeamName(teamNumber) {
             let display = document.getElementById(`displayTeam${teamNumber}`);
             let input = document.getElementById(`team${teamNumber}`);
@@ -178,4 +187,3 @@
     </script>
 </body>
 </html>
-
