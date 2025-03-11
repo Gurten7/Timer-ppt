@@ -75,36 +75,6 @@
             text-align: center;
             display: none;
         }
-
-        .select-circle {
-            width: 20px;
-            height: 20px;
-            background-color: #ff0000;
-            border-radius: 50%;
-            border: none;
-            display: inline-block;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .select-circle:hover {
-            background-color: #cc0000;
-        }
-
-        button {
-            margin: 5px;
-            padding: 5px 10px;
-            font-size: 14px;
-            cursor: pointer;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background-color: #cc0000;
-        }
     </style>
 </head>
 <body>
@@ -145,5 +115,34 @@
     <button onclick="adjustTime(40)">+40 sec</button>
     <button onclick="adjustTime(50)">+50 sec</button>
     <button onclick="adjustTime(-20)">-20 sec</button>
+
+    <script>
+        let selectedTimer = 1;
+        let timers = { 1: 60, 2: 60, 3: 60, 4: 60 };
+        let intervals = { 1: null, 2: null, 3: null, 4: null };
+
+        function selectTimer(timerNumber) {
+            selectedTimer = timerNumber;
+            document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
+            document.querySelector(`#timerBox${timerNumber}`).classList.add("selected");
+        }
+
+        function startStopTimer() {
+            if (intervals[selectedTimer]) {
+                clearInterval(intervals[selectedTimer]);
+                intervals[selectedTimer] = null;
+            } else {
+                intervals[selectedTimer] = setInterval(() => {
+                    if (timers[selectedTimer] > 0) {
+                        timers[selectedTimer]--;
+                        document.getElementById(`timer${selectedTimer}`).textContent = timers[selectedTimer];
+                    } else {
+                        clearInterval(intervals[selectedTimer]);
+                        alert("Tijd is om!");
+                    }
+                }, 1000);
+            }
+        }
+    </script>
 </body>
 </html>
