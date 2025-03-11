@@ -171,6 +171,7 @@
             let input = document.getElementById(`team${teamNumber}`);
             if (input.value.trim() !== "") {
                 display.textContent = input.value;
+                display.style.color = "grey";
                 teamRef.child(teamNumber).set(input.value);
             }
             input.style.display = "none";
