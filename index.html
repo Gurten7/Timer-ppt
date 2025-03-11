@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wie is de slimste Kameraad</title>
     <link rel="stylesheet" href="style.css">
-    
+
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
@@ -19,6 +19,91 @@
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
     </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .timers {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .timer-container {
+            text-align: center;
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 120px;
+        }
+
+        .timer-container.selected {
+            border: 3px solid #ff0000;
+        }
+
+        .timer {
+            font-size: 40px;
+            font-weight: bold;
+            color: #ff5722;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .team-name-display {
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .team-name-input {
+            font-size: 18px;
+            padding: 5px;
+            width: 100%;
+            text-align: center;
+            display: none;
+        }
+
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #cc0000;
+        }
+
+        .select-circle {
+            width: 20px;
+            height: 20px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            border: none;
+            display: inline-block;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .select-circle:hover {
+            background-color: #cc0000;
+        }
+    </style>
 </head>
 <body>
     <h1>Wie is de slimste Kameraad</h1>
@@ -30,6 +115,12 @@
             <div class="timer" id="timer1">60</div>
             <button class="select-circle" onclick="selectTimer(1)"></button>
         </div>
+        <div class="timer-container" id="timerBox2">
+            <div class="team-name-display" id="displayTeam2" onclick="editTeamName(2)">Team 2</div>
+            <input type="text" id="team2" class="team-name-input" onblur="saveTeamName(2)">
+            <div class="timer" id="timer2">60</div>
+            <button class="select-circle" onclick="selectTimer(2)"></button>
+        </div>
     </div>
     
     <button onclick="startStopTimer()">Start/Stop</button>
@@ -38,29 +129,38 @@
     <button onclick="adjustTime(-10)">-10 sec</button>
 
     <script>
-        let timerValue = 60;
-        let timerInterval;
-        const timerRef = database.ref('timer'); // Firebase database-referentie
+        let selectedTimer = 1;
+        let timers = { 1: 60, 2: 60 };
+        let intervals = { 1: null, 2: null };
+
+        const timerRef = database.ref('timers'); // Firebase database-referentie
 
         // Timer synchroniseren bij wijzigingen in Firebase
         timerRef.on('value', (snapshot) => {
             if (snapshot.exists()) {
-                timerValue = snapshot.val();
-                document.getElementById("timer1").textContent = timerValue;
+                timers = snapshot.val();
+                document.getElementById("timer1").textContent = timers[1];
+                document.getElementById("timer2").textContent = timers[2];
             }
         });
 
+        function selectTimer(timerNumber) {
+            selectedTimer = timerNumber;
+            document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
+            document.querySelector(`#timerBox${timerNumber}`).classList.add("selected");
+        }
+
         function startStopTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
+            if (intervals[selectedTimer]) {
+                clearInterval(intervals[selectedTimer]);
+                intervals[selectedTimer] = null;
             } else {
-                timerInterval = setInterval(() => {
-                    if (timerValue > 0) {
-                        timerValue--;
-                        timerRef.set(timerValue); // Update Firebase-database
+                intervals[selectedTimer] = setInterval(() => {
+                    if (timers[selectedTimer] > 0) {
+                        timers[selectedTimer]--;
+                        timerRef.set(timers); // Update Firebase-database
                     } else {
-                        clearInterval(timerInterval);
+                        clearInterval(intervals[selectedTimer]);
                         alert("Tijd is om!");
                     }
                 }, 1000);
@@ -68,9 +168,34 @@
         }
 
         function resetTimer() {
-            clearInterval(timerInterval);
-            timerValue = 60;
-            timerRef.set(timerValue); // Reset Firebase-database
+            clearInterval(intervals[selectedTimer]);
+            timers[selectedTimer] = 60;
+            timerRef.set(timers); // Reset Firebase-database
+        }
+
+        function adjustTime(amount) {
+            timers[selectedTimer] += amount;
+            if (timers[selectedTimer] < 0) timers[selectedTimer] = 0;
+            timerRef.set(timers); // Update Firebase-database
+        }
+
+        function editTeamName(teamNumber) {
+            let display = document.getElementById(`displayTeam${teamNumber}`);
+            let input = document.getElementById(`team${teamNumber}`);
+            display.style.display = "none";
+            input.style.display = "block";
+            input.value = display.textContent;
+            input.focus();
+        }
+
+        function saveTeamName(teamNumber) {
+            let display = document.getElementById(`displayTeam${teamNumber}`);
+            let input = document.getElementById(`team${teamNumber}`);
+            if (input.value.trim() !== "") {
+                display.textContent = input.value;
+            }
+            input.style.display = "none";
+            display.style.display = "block";
         }
     </script>
 </body>
