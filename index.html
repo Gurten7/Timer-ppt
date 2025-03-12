@@ -120,7 +120,6 @@
         document.addEventListener("DOMContentLoaded", function() {
             console.log("Pagina geladen!");
 
-            // ✅ Firebase correct initialiseren
             const firebaseConfig = {
                 databaseURL: "https://de-slimste-kameraad-timer-ppt-default-rtdb.europe-west1.firebasedatabase.app/"
             };
@@ -128,8 +127,22 @@
             firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
             const teamRef = database.ref('teams');
+            const timerRef = database.ref('timers');
+            const selectedRef = database.ref('selectedTimer');
 
-            // ✅ Oplossing: Zorg dat editTeamName beschikbaar is
+            let intervals = {};
+
+            window.selectTimer = function(timerNumber) {
+                selectedRef.set(timerNumber);
+            };
+
+            selectedRef.on("value", snapshot => {
+                document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
+                if (snapshot.exists()) {
+                    document.querySelector(`#timerBox${snapshot.val()}`).classList.add("selected");
+                }
+            });
+
             window.editTeamName = function(teamNumber) {
                 let display = document.getElementById(`displayTeam${teamNumber}`);
                 let input = document.getElementById(`team${teamNumber}`);
@@ -139,7 +152,6 @@
                 input.focus();
             };
 
-            // ✅ Oplossing: Zorg dat saveTeamName beschikbaar is
             window.saveTeamName = function(teamNumber) {
                 let display = document.getElementById(`displayTeam${teamNumber}`);
                 let input = document.getElementById(`team${teamNumber}`);
@@ -151,7 +163,6 @@
                 display.style.display = "block";
             };
 
-            // ✅ Firebase luistert naar teamnaam-wijzigingen en past UI aan
             teamRef.on("value", snapshot => {
                 if (snapshot.exists()) {
                     let data = snapshot.val();
@@ -164,6 +175,39 @@
                     });
                 }
             });
+
+            window.startTimer = function() {
+                selectedRef.get().then(snapshot => {
+                    if (snapshot.exists()) {
+                        let timerKey = `timer${snapshot.val()}`;
+                        if (intervals[timerKey]) {
+                            return;
+                        }
+                        intervals[timerKey] = setInterval(() => {
+                            timerRef.child(timerKey).get().then(timeSnap => {
+                                let time = timeSnap.exists() ? timeSnap.val() : 60;
+                                if (time > 0) {
+                                    time--;
+                                    timerRef.child(timerKey).set(time);
+                                } else {
+                                    clearInterval(intervals[timerKey]);
+                                    intervals[timerKey] = null;
+                                }
+                            });
+                        }, 1000);
+                    }
+                });
+            };
+
+            window.stopTimer = function() {
+                selectedRef.get().then(snapshot => {
+                    if (snapshot.exists()) {
+                        let timerKey = `timer${snapshot.val()}`;
+                        clearInterval(intervals[timerKey]);
+                        intervals[timerKey] = null;
+                    }
+                });
+            };
         });
     </script>
 </body>
