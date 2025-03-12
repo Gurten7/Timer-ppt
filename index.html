@@ -84,22 +84,22 @@
     <h1>De slimste kameraad</h1>
 
     <div class="timers">
-        <div class="timer-container" id="timerBox1">
+        <div class="timer-container" id="timerBox1" onclick="selectTimer(1)">
             <div class="team-name-display" id="displayTeam1" onclick="editTeamName(1)">Team 1</div>
             <input type="text" id="team1" class="team-name-input" onblur="saveTeamName(1)">
             <div class="timer" id="timer1">60</div>
         </div>
-        <div class="timer-container" id="timerBox2">
+        <div class="timer-container" id="timerBox2" onclick="selectTimer(2)">
             <div class="team-name-display" id="displayTeam2" onclick="editTeamName(2)">Team 2</div>
             <input type="text" id="team2" class="team-name-input" onblur="saveTeamName(2)">
             <div class="timer" id="timer2">60</div>
         </div>
-        <div class="timer-container" id="timerBox3">
+        <div class="timer-container" id="timerBox3" onclick="selectTimer(3)">
             <div class="team-name-display" id="displayTeam3" onclick="editTeamName(3)">Team 3</div>
             <input type="text" id="team3" class="team-name-input" onblur="saveTeamName(3)">
             <div class="timer" id="timer3">60</div>
         </div>
-        <div class="timer-container" id="timerBox4">
+        <div class="timer-container" id="timerBox4" onclick="selectTimer(4)">
             <div class="team-name-display" id="displayTeam4" onclick="editTeamName(4)">Team 4</div>
             <input type="text" id="team4" class="team-name-input" onblur="saveTeamName(4)">
             <div class="timer" id="timer4">60</div>
@@ -132,6 +132,18 @@
 
             let intervals = {};
 
+            window.selectTimer = function(timerNumber) {
+                selectedRef.set(timerNumber);
+            };
+
+            selectedRef.on("value", snapshot => {
+                document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
+                if (snapshot.exists()) {
+                    document.querySelector(`#timerBox${snapshot.val()}`).classList.add("selected");
+                }
+            });
+
+            // ✅ Correcte koppeling van editTeamName en saveTeamName aan window-object
             window.editTeamName = function(teamNumber) {
                 let display = document.getElementById(`displayTeam${teamNumber}`);
                 let input = document.getElementById(`team${teamNumber}`);
