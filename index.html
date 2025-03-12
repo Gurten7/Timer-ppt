@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wie is de slimste Kameraad</title>
-    <link rel="stylesheet" href="style.css">
     
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
@@ -39,15 +38,17 @@
             input.focus();
         }
 
-        function saveTeamName(teamNumber) {
-            let display = document.getElementById(`displayTeam${teamNumber}`);
-            let input = document.getElementById(`team${teamNumber}`);
-            if (input.value.trim() !== "") {
-                display.textContent = input.value;
-                teamRef.child(`team${teamNumber}`).set(input.value);
+        function saveTeamName(event, teamNumber) {
+            if (event.key === "Enter" || event.type === "blur") {
+                let display = document.getElementById(`displayTeam${teamNumber}`);
+                let input = document.getElementById(`team${teamNumber}`);
+                if (input.value.trim() !== "") {
+                    display.textContent = input.value;
+                    teamRef.child(`team${teamNumber}`).set(input.value);
+                }
+                input.style.display = "none";
+                display.style.display = "block";
             }
-            input.style.display = "none";
-            display.style.display = "block";
         }
 
         function adjustTime(amount) {
@@ -139,6 +140,7 @@
             border-radius: 15px;
             box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
             width: 160px;
+            cursor: pointer;
         }
 
         .timer-container.selected {
@@ -150,7 +152,6 @@
             font-weight: bold;
             color: #ff5722;
             margin-top: 15px;
-            cursor: pointer;
         }
 
         .team-name-display {
@@ -158,7 +159,6 @@
             font-weight: bold;
             cursor: pointer;
             padding: 8px;
-            transition: background 0.3s, color 0.3s;
         }
 
         .team-name-input {
@@ -183,32 +183,21 @@
         button:hover {
             background-color: #cc0000;
         }
-
-        .select-circle {
-            width: 30px;
-            height: 30px;
-            background-color: #ff0000;
-            border-radius: 50%;
-            border: none;
-            display: inline-block;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-
-        .select-circle:hover {
-            background-color: #cc0000;
-        }
     </style>
 </head>
 <body>
     <h1>Wie is de slimste Kameraad</h1>
     
     <div class="timers">
-        <div class="timer-container" id="timerBox1">
+        <div class="timer-container" id="timerBox1" onclick="selectTimer(1)">
             <div class="team-name-display" id="displayTeam1" onclick="editTeamName(1)">Team 1</div>
-            <input type="text" id="team1" class="team-name-input" onblur="saveTeamName(1)">
+            <input type="text" id="team1" class="team-name-input" onblur="saveTeamName(event, 1)" onkeydown="saveTeamName(event, 1)">
             <div class="timer" id="timer1">60</div>
-            <button class="select-circle" onclick="selectTimer(1)"></button>
+        </div>
+        <div class="timer-container" id="timerBox2" onclick="selectTimer(2)">
+            <div class="team-name-display" id="displayTeam2" onclick="editTeamName(2)">Team 2</div>
+            <input type="text" id="team2" class="team-name-input" onblur="saveTeamName(event, 2)" onkeydown="saveTeamName(event, 2)">
+            <div class="timer" id="timer2">60</div>
         </div>
     </div>
 
