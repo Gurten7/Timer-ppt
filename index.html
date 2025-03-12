@@ -20,6 +20,97 @@
         const database = firebase.database();
         const timerRef = database.ref('timers');
         const teamRef = database.ref('teams');
+
+        let selectedTimer = 1;
+        let intervals = {};
+
+        function selectTimer(timerNumber) {
+            selectedTimer = timerNumber;
+            document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
+            document.querySelector(`#timerBox${timerNumber}`).classList.add("selected");
+        }
+
+        function editTeamName(teamNumber) {
+            let display = document.getElementById(`displayTeam${teamNumber}`);
+            let input = document.getElementById(`team${teamNumber}`);
+            display.style.display = "none";
+            input.style.display = "block";
+            input.value = display.textContent;
+            input.focus();
+        }
+
+        function saveTeamName(teamNumber) {
+            let display = document.getElementById(`displayTeam${teamNumber}`);
+            let input = document.getElementById(`team${teamNumber}`);
+            if (input.value.trim() !== "") {
+                display.textContent = input.value;
+                teamRef.child(`team${teamNumber}`).set(input.value);
+            }
+            input.style.display = "none";
+            display.style.display = "block";
+        }
+
+        function adjustTime(amount) {
+            let timerKey = `timer${selectedTimer}`;
+            timerRef.child(timerKey).get().then(snapshot => {
+                let time = snapshot.exists() ? snapshot.val() : 60;
+                time += amount;
+                if (time < 0) time = 0;
+                timerRef.child(timerKey).set(time);
+            });
+        }
+
+        function startStopTimer() {
+            let timerKey = `timer${selectedTimer}`;
+
+            if (intervals[timerKey]) {
+                clearInterval(intervals[timerKey]);
+                intervals[timerKey] = null;
+                return;
+            }
+
+            intervals[timerKey] = setInterval(() => {
+                timerRef.child(timerKey).get().then(snapshot => {
+                    let time = snapshot.exists() ? snapshot.val() : 60;
+                    if (time > 0) {
+                        time--;
+                        timerRef.child(timerKey).set(time);
+                    } else {
+                        clearInterval(intervals[timerKey]);
+                        intervals[timerKey] = null;
+                        alert(`Tijd is om voor ${document.getElementById(`displayTeam${selectedTimer}`).textContent}!`);
+                    }
+                });
+            }, 1000);
+        }
+
+        function resetTimer() {
+            timerRef.set({
+                timer1: 60, timer2: 60, timer3: 60, timer4: 60
+            });
+        }
+
+        timerRef.on("value", snapshot => {
+            if (snapshot.exists()) {
+                let data = snapshot.val();
+                Object.keys(data).forEach(key => {
+                    document.getElementById(key).textContent = data[key];
+                });
+            }
+        });
+
+        teamRef.on("value", snapshot => {
+            if (snapshot.exists()) {
+                let data = snapshot.val();
+                Object.keys(data).forEach(key => {
+                    let teamNumber = key.replace("team", "");
+                    let display = document.getElementById(`displayTeam${teamNumber}`);
+                    if (display) {
+                        display.textContent = data[key];
+                    }
+                });
+            }
+        });
     </script>
 
     <style>
@@ -119,24 +210,6 @@
             <div class="timer" id="timer1">60</div>
             <button class="select-circle" onclick="selectTimer(1)"></button>
         </div>
-        <div class="timer-container" id="timerBox2">
-            <div class="team-name-display" id="displayTeam2" onclick="editTeamName(2)">Team 2</div>
-            <input type="text" id="team2" class="team-name-input" onblur="saveTeamName(2)">
-            <div class="timer" id="timer2">60</div>
-            <button class="select-circle" onclick="selectTimer(2)"></button>
-        </div>
-        <div class="timer-container" id="timerBox3">
-            <div class="team-name-display" id="displayTeam3" onclick="editTeamName(3)">Team 3</div>
-            <input type="text" id="team3" class="team-name-input" onblur="saveTeamName(3)">
-            <div class="timer" id="timer3">60</div>
-            <button class="select-circle" onclick="selectTimer(3)"></button>
-        </div>
-        <div class="timer-container" id="timerBox4">
-            <div class="team-name-display" id="displayTeam4" onclick="editTeamName(4)">Team 4</div>
-            <input type="text" id="team4" class="team-name-input" onblur="saveTeamName(4)">
-            <div class="timer" id="timer4">60</div>
-            <button class="select-circle" onclick="selectTimer(4)"></button>
-        </div>
     </div>
 
     <button onclick="startStopTimer()">Start/Stop</button>
@@ -148,66 +221,5 @@
     <button onclick="adjustTime(50)">+50 sec</button>
     <button onclick="adjustTime(-20)">-20 sec</button>
 
-    <script>
-        let selectedTimer = 1;
-        let timerRunning = false;
-        let interval;
-
-        function selectTimer(timerNumber) {
-            selectedTimer = timerNumber;
-            document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
-            document.querySelector(`#timerBox${timerNumber}`).classList.add("selected");
-        }
-
-        function editTeamName(teamNumber) {
-            let display = document.getElementById(`displayTeam${teamNumber}`);
-            let input = document.getElementById(`team${teamNumber}`);
-            display.style.display = "none";
-            input.style.display = "block";
-            input.value = display.textContent;
-            input.focus();
-        }
-
-        function saveTeamName(teamNumber) {
-            let display = document.getElementById(`displayTeam${teamNumber}`);
-            let input = document.getElementById(`team${teamNumber}`);
-            if (input.value.trim() !== "") {
-                display.textContent = input.value;
-                teamRef.child(teamNumber).set(input.value);
-            }
-            input.style.display = "none";
-            display.style.display = "block";
-        }
-
-        function adjustTime(amount) {
-            timerRef.child(`timer${selectedTimer}`).get().then(snapshot => {
-                let time = snapshot.exists() ? snapshot.val() : 60;
-                time += amount;
-                if (time < 0) time = 0;
-                timerRef.child(`timer${selectedTimer}`).set(time);
-            });
-        }
-
-        function startStopTimer() {
-            if (timerRunning) {
-                clearInterval(interval);
-                timerRunning = false;
-            } else {
-                timerRunning = true;
-                interval = setInterval(() => {
-                    timerRef.child(`timer${selectedTimer}`).get().then(snapshot => {
-                        let time = snapshot.exists() ? snapshot.val() : 60;
-                        if (time > 0) {
-                            time--;
-                            timerRef.child(`timer${selectedTimer}`).set(time);
-                        } else {
-                            clearInterval(interval);
-                            timerRunning = false;
-                        }
-                    });
-                }, 1000);
-            }
-        }
-    </script>
 </body>
 </html>
