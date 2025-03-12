@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wie is de slimste Kameraad</title>
 
-    <!-- ✅ Laad Firebase correct in -->
-    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <!-- ✅ Laad Firebase correct -->
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
         body {
@@ -93,7 +93,9 @@
     <button onclick="adjustTime(-20)">-20 sec</button>
 
     <script>
-        window.onload = function() {
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("Pagina geladen!");
+
             // ✅ Firebase correct initialiseren
             const firebaseConfig = {
                 databaseURL: "https://de-slimste-kameraad-timer-ppt-default-rtdb.europe-west1.firebasedatabase.app/"
@@ -106,9 +108,9 @@
 
             let intervals = {};
 
-            function selectTimer(timerNumber) {
+            window.selectTimer = function(timerNumber) {
                 selectedRef.set(timerNumber);
-            }
+            };
 
             selectedRef.on("value", snapshot => {
                 document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
@@ -117,7 +119,7 @@
                 }
             });
 
-            function adjustTime(amount) {
+            window.adjustTime = function(amount) {
                 selectedRef.get().then(snapshot => {
                     if (snapshot.exists()) {
                         let timerKey = `timer${snapshot.val()}`;
@@ -129,9 +131,9 @@
                         });
                     }
                 });
-            }
+            };
 
-            function startStopTimer() {
+            window.startStopTimer = function() {
                 selectedRef.get().then(snapshot => {
                     if (snapshot.exists()) {
                         let timerKey = `timer${snapshot.val()}`;
@@ -157,13 +159,13 @@
                         }, 1000);
                     }
                 });
-            }
+            };
 
-            function resetTimer() {
+            window.resetTimer = function() {
                 timerRef.set({
                     timer1: 60, timer2: 60, timer3: 60, timer4: 60
                 });
-            }
+            };
 
             timerRef.on("value", snapshot => {
                 if (snapshot.exists()) {
@@ -173,13 +175,7 @@
                     });
                 }
             });
-
-            // ✅ Zorg dat de functies beschikbaar blijven
-            window.selectTimer = selectTimer;
-            window.startStopTimer = startStopTimer;
-            window.adjustTime = adjustTime;
-            window.resetTimer = resetTimer;
-        };
+        });
     </script>
 </body>
 </html>
