@@ -106,7 +106,8 @@
         </div>
     </div>
 
-    <button onclick="startStopTimer()">Start/Stop</button>
+    <button onclick="startTimer()">Start</button>
+    <button onclick="stopTimer()">Stop</button>
     <button onclick="resetTimer()">Reset</button>
     <button onclick="adjustTime(10)">+10 sec</button>
     <button onclick="adjustTime(20)">+20 sec</button>
@@ -156,14 +157,12 @@
                 });
             };
 
-            window.startStopTimer = function() {
+            window.startTimer = function() {
                 selectedRef.get().then(snapshot => {
                     if (snapshot.exists()) {
                         let timerKey = `timer${snapshot.val()}`;
 
                         if (intervals[timerKey]) {
-                            clearInterval(intervals[timerKey]);
-                            intervals[timerKey] = null;
                             return;
                         }
 
@@ -179,6 +178,18 @@
                                 }
                             });
                         }, 1000);
+                    }
+                });
+            };
+
+            window.stopTimer = function() {
+                selectedRef.get().then(snapshot => {
+                    if (snapshot.exists()) {
+                        let timerKey = `timer${snapshot.val()}`;
+                        if (intervals[timerKey]) {
+                            clearInterval(intervals[timerKey]);
+                            intervals[timerKey] = null;
+                        }
                     }
                 });
             };
