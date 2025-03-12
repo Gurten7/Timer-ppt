@@ -120,13 +120,13 @@
         document.addEventListener("DOMContentLoaded", function() {
             console.log("Pagina geladen!");
 
+            // ✅ Firebase correct initialiseren
             const firebaseConfig = {
                 databaseURL: "https://de-slimste-kameraad-timer-ppt-default-rtdb.europe-west1.firebasedatabase.app/"
             };
 
             firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
-            const teamRef = database.ref('teams');
             const timerRef = database.ref('timers');
             const selectedRef = database.ref('selectedTimer');
 
@@ -143,13 +143,29 @@
                 }
             });
 
+            window.adjustTime = function(amount) {
+                selectedRef.get().then(snapshot => {
+                    if (snapshot.exists()) {
+                        let timerKey = `timer${snapshot.val()}`;
+                        timerRef.child(timerKey).get().then(timeSnap => {
+                            let time = timeSnap.exists() ? timeSnap.val() : 60;
+                            time += amount;
+                            if (time < 0) time = 0;
+                            timerRef.child(timerKey).set(time);
+                        });
+                    }
+                });
+            };
+
             window.startTimer = function() {
                 selectedRef.get().then(snapshot => {
                     if (snapshot.exists()) {
                         let timerKey = `timer${snapshot.val()}`;
+
                         if (intervals[timerKey]) {
                             return;
                         }
+
                         intervals[timerKey] = setInterval(() => {
                             timerRef.child(timerKey).get().then(timeSnap => {
                                 let time = timeSnap.exists() ? timeSnap.val() : 60;
@@ -170,8 +186,10 @@
                 selectedRef.get().then(snapshot => {
                     if (snapshot.exists()) {
                         let timerKey = `timer${snapshot.val()}`;
-                        clearInterval(intervals[timerKey]);
-                        intervals[timerKey] = null;
+                        if (intervals[timerKey]) {
+                            clearInterval(intervals[timerKey]);
+                            intervals[timerKey] = null;
+                        }
                     }
                 });
             };
@@ -182,19 +200,50 @@
                 });
             };
 
-            window.adjustTime = function(amount) {
-                selectedRef.get().then(snapshot => {
-                    if (snapshot.exists()) {
-                        let timerKey = `timer${snapshot.val()}`;
-                        timerRef.child(timerKey).get().then(timeSnap => {
-                            let time = timeSnap.exists() ? timeSnap.val() : 60;
-                            time += amount;
-                            if (time < 0) time = 0;
-                            timerRef.child(timerKey).set(time);
-                        });
-                    }
-                });
-            };
+            timerRef.on("value", snapshot => {
+                if (snapshot.exists()) {
+                    let data = snapshot.val();
+                    Object.keys(data).forEach(key => {
+                        document.getElementById(key).textContent = data[key];
+                    });
+                }
+            });
+	   
+const teamRef = database.ref('teams');
+
+window.editTeamName = function(teamNumber) {
+    let display = document.getElementById(`displayTeam${teamNumber}`);
+    let input = document.getElementById(`team${teamNumber}`);
+    display.style.display = "none";
+    input.style.display = "block";
+    input.value = display.textContent;
+    input.focus();
+};
+
+window.saveTeamName = function(teamNumber) {
+    let display = document.getElementById(`displayTeam${teamNumber}`);
+    let input = document.getElementById(`team${teamNumber}`);
+    if (input.value.trim() !== "") {
+        display.textContent = input.value;
+        teamRef.child(`team${teamNumber}`).set(input.value);  // Opslaan in Firebase
+    }
+    input.style.display = "none";
+    display.style.display = "block";
+};
+
+// ✅ Firebase luistert naar wijzigingen in teamnamen en past de UI direct aan
+teamRef.on("value", snapshot => {
+    if (snapshot.exists()) {
+        let data = snapshot.val();
+        Object.keys(data).forEach(key => {
+            let teamNumber = key.replace("team", "");
+            let display = document.getElementById(`displayTeam${teamNumber}`);
+            if (display) {
+                display.textContent = data[key];
+            }
+        });
+    }
+});
         });
     </script>
 </body>
