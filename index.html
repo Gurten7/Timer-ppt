@@ -42,21 +42,6 @@
             border: 3px solid #ff0000;
         }
 
-        .team-name-display {
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .team-name-input {
-            font-size: 18px;
-            padding: 5px;
-            width: 100%;
-            text-align: center;
-            display: none;
-        }
-
         .timer {
             font-size: 40px;
             font-weight: bold;
@@ -85,23 +70,15 @@
 
     <div class="timers">
         <div class="timer-container" id="timerBox1" onclick="selectTimer(1)">
-            <div class="team-name-display" id="displayTeam1" onclick="editTeamName(1)">Team 1</div>
-            <input type="text" id="team1" class="team-name-input" onblur="saveTeamName(1)">
             <div class="timer" id="timer1">60</div>
         </div>
         <div class="timer-container" id="timerBox2" onclick="selectTimer(2)">
-            <div class="team-name-display" id="displayTeam2" onclick="editTeamName(2)">Team 2</div>
-            <input type="text" id="team2" class="team-name-input" onblur="saveTeamName(2)">
             <div class="timer" id="timer2">60</div>
         </div>
         <div class="timer-container" id="timerBox3" onclick="selectTimer(3)">
-            <div class="team-name-display" id="displayTeam3" onclick="editTeamName(3)">Team 3</div>
-            <input type="text" id="team3" class="team-name-input" onblur="saveTeamName(3)">
             <div class="timer" id="timer3">60</div>
         </div>
         <div class="timer-container" id="timerBox4" onclick="selectTimer(4)">
-            <div class="team-name-display" id="displayTeam4" onclick="editTeamName(4)">Team 4</div>
-            <input type="text" id="team4" class="team-name-input" onblur="saveTeamName(4)">
             <div class="timer" id="timer4">60</div>
         </div>
     </div>
@@ -128,7 +105,6 @@
             const database = firebase.database();
             const timerRef = database.ref('timers');
             const selectedRef = database.ref('selectedTimer');
-            const teamRef = database.ref('teams');
 
             let intervals = {};
 
@@ -161,56 +137,41 @@
                 selectedRef.get().then(snapshot => {
                     if (snapshot.exists()) {
                         let timerKey = `timer${snapshot.val()}`;
-                        let interval = setInterval(() => {
+
+                        if (intervals[timerKey]) {
+                            clearInterval(intervals[timerKey]);
+                            intervals[timerKey] = null;
+                            return;
+                        }
+
+                        intervals[timerKey] = setInterval(() => {
                             timerRef.child(timerKey).get().then(timeSnap => {
                                 let time = timeSnap.exists() ? timeSnap.val() : 60;
                                 if (time > 0) {
                                     time--;
                                     timerRef.child(timerKey).set(time);
                                 } else {
-                                    clearInterval(interval);
+                                    clearInterval(intervals[timerKey]);
+                                    intervals[timerKey] = null;
+                                    alert(`Tijd is om voor timer ${snapshot.val()}!`);
                                 }
                             });
                         }, 1000);
-                        intervals[timerKey] = interval;
                     }
                 });
             };
 
             window.resetTimer = function() {
-                timerRef.set({ timer1: 60, timer2: 60, timer3: 60, timer4: 60 });
+                timerRef.set({
+                    timer1: 60, timer2: 60, timer3: 60, timer4: 60
+                });
             };
 
-            // ✅ Teamnamen opslaan en weergeven
-            window.editTeamName = function(teamNumber) {
-                let display = document.getElementById(`displayTeam${teamNumber}`);
-                let input = document.getElementById(`team${teamNumber}`);
-                display.style.display = "none";
-                input.style.display = "block";
-                input.value = display.textContent;
-                input.focus();
-            };
-
-            window.saveTeamName = function(teamNumber) {
-                let display = document.getElementById(`displayTeam${teamNumber}`);
-                let input = document.getElementById(`team${teamNumber}`);
-                if (input.value.trim() !== "") {
-                    display.textContent = input.value;
-                    teamRef.child(`team${teamNumber}`).set(input.value);
-                }
-                input.style.display = "none";
-                display.style.display = "block";
-            };
-
-            teamRef.on("value", snapshot => {
+            timerRef.on("value", snapshot => {
                 if (snapshot.exists()) {
                     let data = snapshot.val();
                     Object.keys(data).forEach(key => {
-                        let teamNumber = key.replace("team", "");
-                        let display = document.getElementById(`displayTeam${teamNumber}`);
-                        if (display) {
-                            display.textContent = data[key];
-                        }
+                        document.getElementById(key).textContent = data[key];
                     });
                 }
             });
