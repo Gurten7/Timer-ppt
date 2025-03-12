@@ -4,142 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wie is de slimste Kameraad</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            margin: 20px;
-        }
 
-        h1, p {
-            color: #333;
-        }
-
-        .timers {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .timer-container {
-            text-align: center;
-            background-color: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 120px;
-        }
-
-        .timer-container.selected {
-            border: 3px solid #ff0000;
-        }
-
-        .timer {
-            font-size: 40px;
-            font-weight: bold;
-            color: #ff5722;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        .team-name-display {
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .team-name-input {
-            font-size: 18px;
-            padding: 5px;
-            width: 100%;
-            text-align: center;
-            display: none;
-        }
-
-        button {
-            margin: 5px;
-            padding: 5px 10px;
-            font-size: 14px;
-            cursor: pointer;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background-color: #cc0000;
-        }
-
-        .select-circle {
-            width: 20px;
-            height: 20px;
-            background-color: #ff0000;
-            border-radius: 50%;
-            border: none;
-            display: inline-block;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .select-circle:hover {
-            background-color: #cc0000;
-        }
-    </style>
-</head>
-<body>
-    <h1>Wie is de slimste Kameraad</h1>
-    
-    <div class="timers">
-        <div class="timer-container" id="timerBox1">
-            <div class="team-name-display" id="displayTeam1" onclick="editTeamName(1)">Team 1</div>
-            <input type="text" id="team1" class="team-name-input" onblur="saveTeamName(1)">
-            <div class="timer" id="timer1" onclick="selectTimer(1)">60</div>
-            <button class="select-circle" onclick="selectTimer(1)"></button>
-        </div>
-        <div class="timer-container" id="timerBox2">
-            <div class="team-name-display" id="displayTeam2" onclick="editTeamName(2)">Team 2</div>
-            <input type="text" id="team2" class="team-name-input" onblur="saveTeamName(2)">
-            <div class="timer" id="timer2" onclick="selectTimer(2)">60</div>
-            <button class="select-circle" onclick="selectTimer(2)"></button>
-        </div>
-        <div class="timer-container" id="timerBox3">
-            <div class="team-name-display" id="displayTeam3" onclick="editTeamName(3)">Team 3</div>
-            <input type="text" id="team3" class="team-name-input" onblur="saveTeamName(3)">
-            <div class="timer" id="timer3" onclick="selectTimer(3)">60</div>
-            <button class="select-circle" onclick="selectTimer(3)"></button>
-        </div>
-        <div class="timer-container" id="timerBox4">
-            <div class="team-name-display" id="displayTeam4" onclick="editTeamName(4)">Team 4</div>
-            <input type="text" id="team4" class="team-name-input" onblur="saveTeamName(4)">
-            <div class="timer" id="timer4" onclick="selectTimer(4)">60</div>
-            <button class="select-circle" onclick="selectTimer(4)"></button>
-        </div>
-    </div>
-    
-    <button onclick="startStopTimer()">Start/Stop</button>
-    <button onclick="resetTimer()">Reset</button>
-    <button onclick="adjustTime(10)">+10 sec</button>
-    <button onclick="adjustTime(20)">+20 sec</button>
-    <button onclick="adjustTime(30)">+30 sec</button>
-    <button onclick="adjustTime(40)">+40 sec</button>
-    <button onclick="adjustTime(50)">+50 sec</button>
-    <button onclick="adjustTime(-20)">-20 sec</button>
-
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <script>
-        let selectedTimer = 1;
-        let timers = [60, 60, 60, 60];
-        let intervals = [null, null, null, null];
+        // Firebase-configuratie
+        const firebaseConfig = {
+            databaseURL: "https://de-slimste-kameraad-timer-ppt-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
 
+        // Firebase initialiseren
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const timerRef = database.ref('timers');
+        const teamRef = database.ref('teams');
+        const selectedRef = database.ref('selectedTimer');
+
+        let intervals = {};
+
+        // Timer selecteren en opslaan in Firebase
         function selectTimer(timerNumber) {
-            selectedTimer = timerNumber;
-            document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
-            document.querySelector(`#timerBox${timerNumber}`).classList.add("selected");
+            selectedRef.set(timerNumber);
         }
 
+        // Firebase luistert naar geselecteerde timer en past de UI aan
+        selectedRef.on("value", snapshot => {
+            document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
+            if (snapshot.exists()) {
+                document.querySelector(`#timerBox${snapshot.val()}`).classList.add("selected");
+            }
+        });
+
+        // Teamnaam bewerken
         function editTeamName(teamNumber) {
             let display = document.getElementById(`displayTeam${teamNumber}`);
             let input = document.getElementById(`team${teamNumber}`);
@@ -149,50 +46,186 @@
             input.focus();
         }
 
-        function saveTeamName(teamNumber) {
-            let display = document.getElementById(`displayTeam${teamNumber}`);
-            let input = document.getElementById(`team${teamNumber}`);
-            if (input.value.trim() !== "") {
-                display.textContent = input.value;
-            }
-            input.style.display = "none";
-            display.style.display = "block";
-        }
-            function adjustTime(amount) {
-            timers[selectedTimer - 1] += amount;
-            if (timers[selectedTimer - 1] < 0) timers[selectedTimer - 1] = 0;
-            document.getElementById(`timer${selectedTimer}`).textContent = timers[selectedTimer - 1];
-        }
-
-        function startStopTimer() {
-            let index = selectedTimer - 1;
-            let timerElement = document.getElementById(`timer${selectedTimer}`);
-
-            if (intervals[index]) {
-                clearInterval(intervals[index]);
-                intervals[index] = null;
-                return;
-            }
-
-            intervals[index] = setInterval(() => {
-                if (timers[index] > 0) {
-                    timers[index]--;
-                    timerElement.textContent = timers[index];
-                } else {
-                    clearInterval(intervals[index]);
-                    intervals[index] = null;
-                    alert(`Tijd is om voor ${document.getElementById(`displayTeam${selectedTimer}`).textContent}!`);
+        // Teamnaam opslaan in Firebase
+        function saveTeamName(event, teamNumber) {
+            if (event.key === "Enter" || event.type === "blur") {
+                let display = document.getElementById(`displayTeam${teamNumber}`);
+                let input = document.getElementById(`team${teamNumber}`);
+                if (input.value.trim() !== "") {
+                    display.textContent = input.value;
+                    teamRef.child(`team${teamNumber}`).set(input.value);
                 }
-            }, 1000);
+                input.style.display = "none";
+                display.style.display = "block";
+            }
         }
 
-        function resetTimer() {
-            let index = selectedTimer - 1;
-            clearInterval(intervals[index]);
-            intervals[index] = null;
-            timers[index] = 60;
-            document.getElementById(`timer${selectedTimer}`).textContent = 60;
+        // Firebase luistert naar wijzigingen in teamnamen
+        teamRef.on("value", snapshot => {
+            if (snapshot.exists()) {
+                let data = snapshot.val();
+                Object.keys(data).forEach(key => {
+                    let teamNumber = key.replace("team", "");
+                    let display = document.getElementById(`displayTeam${teamNumber}`);
+                    if (display) {
+                        display.textContent = data[key];
+                    }
+                });
+            }
+        });
+
+        // Tijd aanpassen en opslaan in Firebase
+        function adjustTime(amount) {
+            selectedRef.get().then(snapshot => {
+                if (snapshot.exists()) {
+                    let timerKey = `timer${snapshot.val()}`;
+                    timerRef.child(timerKey).get().then(timeSnap => {
+                        let time = timeSnap.exists() ? timeSnap.val() : 60;
+                        time += amount;
+                        if (time < 0) time = 0;
+                        timerRef.child(timerKey).set(time);
+                    });
+                }
+            });
         }
+
+        // Start/Stop timer met Firebase synchronisatie
+        function startStopTimer() {
+            selectedRef.get().then(snapshot => {
+                if (snapshot.exists()) {
+                    let timerKey = `timer${snapshot.val()}`;
+
+                    if (intervals[timerKey]) {
+                        clearInterval(intervals[timerKey]);
+                        intervals[timerKey] = null;
+                        return;
+                    }
+
+                    intervals[timerKey] = setInterval(() => {
+                        timerRef.child(timerKey).get().then(timeSnap => {
+                            let time = timeSnap.exists() ? timeSnap.val() : 60;
+                            if (time > 0) {
+                                time--;
+                                timerRef.child(timerKey).set(time);
+                            } else {
+                                clearInterval(intervals[timerKey]);
+                                intervals[timerKey] = null;
+                                alert(`Tijd is om voor ${document.getElementById(`displayTeam${snapshot.val()}`).textContent}!`);
+                            }
+                        });
+                    }, 1000);
+                }
+            });
+        }
+
+        // Reset alle timers in Firebase
+        function resetTimer() {
+            timerRef.set({
+                timer1: 60, timer2: 60, timer3: 60, timer4: 60
+            });
+        }
+
+        // Firebase luistert naar wijzigingen in timers en past de UI aan
+        timerRef.on("value", snapshot => {
+            if (snapshot.exists()) {
+                let data = snapshot.val();
+                Object.keys(data).forEach(key => {
+                    document.getElementById(key).textContent = data[key];
+                });
+            }
+        });
     </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 40px;
+        }
+
+        .timers {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .timer-container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            width: 160px;
+            cursor: pointer;
+        }
+
+        .timer-container.selected {
+            border: 4px solid #ff0000;
+        }
+
+        .timer {
+            font-size: 50px;
+            font-weight: bold;
+            color: #ff5722;
+            margin-top: 15px;
+        }
+
+        .team-name-display {
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .team-name-input {
+            font-size: 24px;
+            padding: 8px;
+            width: 100%;
+            text-align: center;
+            display: none;
+        }
+
+        button {
+            margin: 8px;
+            padding: 12px 18px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 8px;
+        }
+
+        button:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wie is de slimste Kameraad</h1>
+    
+    <div class="timers">
+        <div class="timer-container" id="timerBox1" onclick="selectTimer(1)">
+            <div class="team-name-display" id="displayTeam1" onclick="editTeamName(1)">Team 1</div>
+            <input type="text" id="team1" class="team-name-input" onblur="saveTeamName(event, 1)" onkeydown="saveTeamName(event, 1)">
+            <div class="timer" id="timer1">60</div>
+        </div>
+    </div>
+
+    <button onclick="startStopTimer()">Start/Stop</button>
+    <button onclick="resetTimer()">Reset</button>
+    <button onclick="adjustTime(10)">+10 sec</button>
+    <button onclick="adjustTime(20)">+20 sec</button>
+    <button onclick="adjustTime(30)">+30 sec</button>
+    <button onclick="adjustTime(40)">+40 sec</button>
+    <button onclick="adjustTime(50)">+50 sec</button>
+    <button onclick="adjustTime(-20)">-20 sec</button>
+
 </body>
 </html>
