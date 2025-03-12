@@ -247,16 +247,30 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // ✅ Controleer of de URL '?view=display' bevat en verberg de knoppen indien nodig
-    function hideControlsIfNeeded() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get("view") === "display") {
-            document.getElementById("controls").style.display = "none";
-        }
+    /// ✅ Controleer of de URL '?view=display' bevat en verberg de knoppen indien nodig
+function hideControlsIfNeeded() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("view") === "display") {
+        document.getElementById("controls").style.display = "none";
     }
+}
 
-    // ✅ Roep de functie aan zodra de pagina geladen is
-    hideControlsIfNeeded();
+// ✅ Verberg de mogelijkheid om teamnamen te bewerken in display-modus
+function hideEditOptionsIfNeeded() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("view") === "display") {
+        document.querySelectorAll(".team-name-display").forEach(el => {
+            el.onclick = null; // Verwijder klikfunctionaliteit
+        });
+        document.querySelectorAll(".team-name-input").forEach(input => {
+            input.style.display = "none"; // Verberg de invoervelden
+        });
+    }
+}
+
+// ✅ Roep de functies aan zodra de pagina geladen is
+hideControlsIfNeeded();
+hideEditOptionsIfNeeded();
 });
  
     
