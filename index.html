@@ -128,7 +128,6 @@
             const database = firebase.database();
             const timerRef = database.ref('timers');
             const selectedRef = database.ref('selectedTimer');
-            const teamRef = database.ref('teams');
 
             let intervals = {};
 
@@ -143,15 +142,31 @@
                 }
             });
 
+            window.adjustTime = function(amount) {
+                selectedRef.get().then(snapshot => {
+                    if (snapshot.exists()) {
+                        let timerKey = `timer${snapshot.val()}`;
+                        timerRef.child(timerKey).get().then(timeSnap => {
+                            let time = timeSnap.exists() ? timeSnap.val() : 60;
+                            time += amount;
+                            if (time < 0) time = 0;
+                            timerRef.child(timerKey).set(time);
+                        });
+                    }
+                });
+            };
+
             window.startStopTimer = function() {
                 selectedRef.get().then(snapshot => {
                     if (snapshot.exists()) {
                         let timerKey = `timer${snapshot.val()}`;
+
                         if (intervals[timerKey]) {
                             clearInterval(intervals[timerKey]);
                             intervals[timerKey] = null;
                             return;
                         }
+
                         intervals[timerKey] = setInterval(() => {
                             timerRef.child(timerKey).get().then(timeSnap => {
                                 let time = timeSnap.exists() ? timeSnap.val() : 60;
@@ -174,39 +189,14 @@
                 });
             };
 
-            window.adjustTime = function(amount) {
-                selectedRef.get().then(snapshot => {
-                    if (snapshot.exists()) {
-                        let timerKey = `timer${snapshot.val()}`;
-                        timerRef.child(timerKey).get().then(timeSnap => {
-                            let time = timeSnap.exists() ? timeSnap.val() : 60;
-                            time += amount;
-                            if (time < 0) time = 0;
-                            timerRef.child(timerKey).set(time);
-                        });
-                    }
-                });
-            };
-
-            window.editTeamName = function(teamNumber) {
-                let display = document.getElementById(`displayTeam${teamNumber}`);
-                let input = document.getElementById(`team${teamNumber}`);
-                display.style.display = "none";
-                input.style.display = "block";
-                input.value = display.textContent;
-                input.focus();
-            };
-
-            window.saveTeamName = function(teamNumber) {
-                let display = document.getElementById(`displayTeam${teamNumber}`);
-                let input = document.getElementById(`team${teamNumber}`);
-                if (input.value.trim() !== "") {
-                    display.textContent = input.value;
-                    teamRef.child(`team${teamNumber}`).set(input.value);
+            timerRef.on("value", snapshot => {
+                if (snapshot.exists()) {
+                    let data = snapshot.val();
+                    Object.keys(data).forEach(key => {
+                        document.getElementById(key).textContent = data[key];
+                    });
                 }
-                input.style.display = "none";
-                display.style.display = "block";
-            };
+            });
         });
     </script>
 </body>
