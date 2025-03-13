@@ -153,6 +153,19 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+function toggleTimerVisibility(timerNumber) {
+    const timerElement = document.getElementById(`timer${timerNumber}`);
+    
+    if (timerElement) {
+        if (window.getComputedStyle(timerElement).display === "none") {
+            timerElement.style.display = "block"; // Toon timer
+        } else {
+            timerElement.style.display = "none"; // Verberg timer
+        }
+    }
+}
+
+
     window.adjustTime = function(amount) {
         selectedRef.get().then(snapshot => {
             if (snapshot.exists()) {
@@ -259,7 +272,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const isDisplayMode = urlParams.get("view") === "display";
 
     if (isDisplayMode) {
-        document.getElementById("controls").style.display = "none";
+        document.getElementById("controls").style.display = "none"; // Verberg de bedieningsknoppen
+	document.getElementById("toggleTimers").style.display = "none"; // Verberg knoppen in de display-modus
+	
 
         // Maak timers en teamnamen niet klikbaar en verberg invoervelden
         for (let i = 1; i <= 4; i++) {
@@ -287,16 +302,19 @@ document.addEventListener("DOMContentLoaded", function() {
         window.selectTimer = function() {
             console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
         };
+     } else {
+        // In de normale modus, toon de knoppen voor het tonen/verbergen van timers
+        document.getElementById("toggleTimers").style.display = "block"; // Toon knoppen in normale modus
     }
 }
 
-
-
+// ✅ Roep de functie aan zodra de pagina geladen is
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("Pagina geladen!");
 
     // ✅ Roep de functie aan zodra de pagina geladen is
     hideControlsIfNeeded();
 });
- 
     
     </script>
 </body>
