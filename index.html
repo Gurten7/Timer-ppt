@@ -111,12 +111,20 @@
     <button onclick="stopTimer()">Stop</button>
     <button onclick="resetTimer()">Reset</button>
     <button onclick="adjustTime(10)">+10 sec</button>
-    <button onclick="adjustTime(15)">+15 sec</button>
     <button onclick="adjustTime(20)">+20 sec</button>
     <button onclick="adjustTime(30)">+30 sec</button>
     <button onclick="adjustTime(40)">+40 sec</button>
     <button onclick="adjustTime(50)">+50 sec</button>
     <button onclick="adjustTime(-20)">-20 sec</button>
+</div>
+
+<div id="toggleControls">
+    <h3>Schakel Timers In/Uit</h3>
+    <button onclick="toggleTimer(1)">Timer 1 Aan/Uit</button>
+    <button onclick="toggleTimer(2)">Timer 2 Aan/Uit</button>
+    <button onclick="toggleTimer(3)">Timer 3 Aan/Uit</button>
+    <button onclick="toggleTimer(4)">Timer 4 Aan/Uit</button>
+    <button onclick="resetAllTimers()">Alle Timers Reset</button>
 </div>
 
     <script>
@@ -248,31 +256,67 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    /// ✅ Controleer of de URL '?view=display' bevat en verberg de knoppen indien nodig
+    // ✅ Controleer of de URL '?view=display' bevat en verberg de knoppen indien nodig
+    function hideControlsIfNeeded() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("view") === "display") {
+            document.getElementById("controls").style.display = "none";
+        }
+    }
+
+    // ✅ Roep de functie aan zodra de pagina geladen is
+    hideControlsIfNeeded();
+});
+
+// ✅ Functie om specifieke timers in/uit te schakelen
+function toggleTimer(timerNumber) {
+    const timerBox = document.getElementById(`timerBox${timerNumber}`);
+    if (!timerBox) return;
+
+    const isVisible = timerBox.style.display !== "none";
+    timerBox.style.display = isVisible ? "none" : "block";
+
+    localStorage.setItem(`timer${timerNumber}_visible`, !isVisible);
+}
+
+// ✅ Functie om alle timers zichtbaar te maken
+function resetAllTimers() {
+    for (let i = 1; i <= 4; i++) {
+        const timerBox = document.getElementById(`timerBox${i}`);
+        if (timerBox) {
+            timerBox.style.display = "block";
+            localStorage.setItem(`timer${i}_visible`, "true");
+        }
+    }
+}
+
+// ✅ Functie om de timer-status te herstellen bij paginalading
+function restoreTimerVisibility() {
+    for (let i = 1; i <= 4; i++) {
+        const timerBox = document.getElementById(`timerBox${i}`);
+        if (timerBox) {
+            const isVisible = localStorage.getItem(`timer${i}_visible`) === "true"; // Check expliciet op "true"
+            timerBox.style.display = isVisible ? "block" : "none";
+        }
+    }
+}
+
+
+// ✅ Functie om knoppen te verbergen in ?view=display
 function hideControlsIfNeeded() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("view") === "display") {
         document.getElementById("controls").style.display = "none";
+        document.getElementById("toggleControls").style.display = "none"; // Verberg ook de timer-knoppen
     }
 }
 
-// ✅ Verberg de mogelijkheid om teamnamen te bewerken in display-modus
-function hideEditOptionsIfNeeded() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("view") === "display") {
-        document.querySelectorAll(".team-name-display").forEach(el => {
-            el.onclick = null; // Verwijder klikfunctionaliteit
-        });
-        document.querySelectorAll(".team-name-input").forEach(input => {
-            input.style.display = "none"; // Verberg de invoervelden
-        });
-    }
-}
 
 // ✅ Roep de functies aan zodra de pagina geladen is
-hideControlsIfNeeded();
-hideEditOptionsIfNeeded();
-});
+restoreTimerVisibility();
+hideControlsIfNeeded();  // Dit is de juiste functie
+
+
  
     
     </script>
