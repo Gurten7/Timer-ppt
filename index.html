@@ -117,13 +117,6 @@
     <button onclick="adjustTime(50)">+50 sec</button>
     <button onclick="adjustTime(-20)">-20 sec</button>
 </div>
-<div id="toggleTimers">
-    <h3>Toon/verberg Timers</h3>
-    <button onclick="toggleTimerVisibility(1)">Timer 1 Aan/Uit</button>
-    <button onclick="toggleTimerVisibility(2)">Timer 2 Aan/Uit</button>
-    <button onclick="toggleTimerVisibility(3)">Timer 3 Aan/Uit</button>
-    <button onclick="toggleTimerVisibility(4)">Timer 4 Aan/Uit</button>
-</div>
 
     <script>
        
@@ -255,70 +248,50 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // ✅ Controleer of de URL '?view=display' bevat en verberg de knoppen indien nodig
-// ✅ Functie om timers in/uit beeld te zetten
-window.toggleTimerVisibility = function(timerNumber) {
-    const timerBox = document.getElementById(`timerBox${timerNumber}`);
-    if (!timerBox) return;
-
-    // Haal huidige status op
-    const isCurrentlyVisible = timerBox.style.display !== "none";
-
-    // Toggle zichtbaarheid
-    timerBox.style.display = isCurrentlyVisible ? "none" : "block";
-
-    // Sla de status op in localStorage (als string "true" of "false")
-    localStorage.setItem(`timer${timerNumber}_visible`, !isCurrentlyVisible);
-};
-
-// ✅ Functie om timers correct te tonen/verbergen bij paginalading
-function restoreTimerVisibility() {
-    for (let i = 1; i <= 4; i++) {
-        const timerBox = document.getElementById(`timerBox${i}`);
-        if (timerBox) {
-            // Haal de opgeslagen status op (default = true als niet ingesteld)
-            const storedVisibility = localStorage.getItem(`timer${i}_visible`);
-            const isVisible = storedVisibility === "true"; // Vergelijk als string
-
-            timerBox.style.display = isVisible ? "block" : "none";
-        }
-    }
-}
-
-// ✅ Functie aanpassen zodat timers in ?view=display ook verborgen blijven
-function hideControlsIfNeeded() {
+   function hideControlsIfNeeded() {
     const urlParams = new URLSearchParams(window.location.search);
     const isDisplayMode = urlParams.get("view") === "display";
 
     if (isDisplayMode) {
         document.getElementById("controls").style.display = "none";
-        document.getElementById("toggleTimers").style.display = "none"; // Verberg toggle-knoppen
 
+        // Maak timers en teamnamen niet klikbaar en verberg invoervelden
         for (let i = 1; i <= 4; i++) {
             const timerBox = document.getElementById(`timerBox${i}`);
-            if (timerBox) {
-                timerBox.style.pointerEvents = "none"; // Voorkomt klikken
-                timerBox.style.cursor = "default";
+            const teamNameDisplay = document.getElementById(`displayTeam${i}`);
+            const teamNameInput = document.getElementById(`team${i}`);
 
-                // **Verberg de timer als deze was uitgeschakeld**
-                const isVisible = localStorage.getItem(`timer${i}_visible`) === "true";
-                timerBox.style.display = isVisible ? "block" : "none";
+            if (timerBox) {
+                timerBox.style.pointerEvents = "none"; // Voorkomt klikken/selecteren
+                timerBox.style.cursor = "default"; // Verandert de muisaanwijzer
+                // **Laat de rode rand van de geselecteerde timer staan**
+            }
+
+            if (teamNameDisplay) {
+                teamNameDisplay.style.pointerEvents = "none"; // Voorkomt klikken
+                teamNameDisplay.style.cursor = "default"; // Verandert de muisaanwijzer
+            }
+
+            if (teamNameInput) {
+                teamNameInput.style.display = "none"; // Verbergt inputveld
             }
         }
 
-        // Blokkeer selecteren van timers in weergavemodus
+        // Voorkom dat de geselecteerde timer wijzigt in display modus
         window.selectTimer = function() {
             console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
         };
     }
 }
 
-// ✅ Roep de functies correct aan bij paginalading
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("Pagina geladen!");
-    restoreTimerVisibility();
+
+
+
+    // ✅ Roep de functie aan zodra de pagina geladen is
     hideControlsIfNeeded();
 });
-   
+ 
+    
     </script>
 </body>
 </html>
