@@ -120,54 +120,8 @@
 
     <script>
        
-function applyDisplayMode() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isDisplayMode = urlParams.get("view") === "display";
-
-    if (isDisplayMode) {
-        console.log("Display-modus actief!");
-
-        // Verberg de knoppen onderaan
-        const controls = document.getElementById("controls");
-        if (controls) controls.style.display = "none";
-
-        // Voorkom bewerken van teamnamen en selecteren van timers
-        for (let i = 1; i <= 4; i++) {
-            const timerBox = document.getElementById(`timerBox${i}`);
-            const teamDisplay = document.getElementById(`displayTeam${i}`);
-            const teamInput = document.getElementById(`team${i}`);
-
-            if (timerBox) {
-                timerBox.style.pointerEvents = "none"; // Voorkomt klikken/selecteren
-                timerBox.style.cursor = "default"; // Verandert de muisaanwijzer
-            }
-
-            if (teamDisplay) {
-                teamDisplay.style.pointerEvents = "none"; // Voorkomt klikken
-                teamDisplay.style.cursor = "default"; // Verandert de muisaanwijzer
-            }
-
-            if (teamInput) {
-                teamInput.style.display = "none"; // Verbergt inputveld
-            }
-        }
-
-        // Voorkom dat de geselecteerde timer wijzigt in display modus
-        window.selectTimer = function() {
-            console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
-        };
-
-        // Voorkom teamnaam bewerken
-        window.editTeamName = function() {
-            console.log("Bewerken van teamnamen is uitgeschakeld in weergavemodus.");
-        };
-    }
-}
-
 document.addEventListener("DOMContentLoaded", function() {
     console.log("Pagina geladen!");
-    applyDisplayMode(); // 🚀 Activeer de display-modus als nodig
-
 
     // ✅ Firebase correct initialiseren
     const firebaseConfig = {
@@ -292,6 +246,50 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
     });
+
+    // ✅ Controleer of de URL '?view=display' bevat en verberg de knoppen indien nodig
+   function hideControlsIfNeeded() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDisplayMode = urlParams.get("view") === "display";
+
+    if (isDisplayMode) {
+        document.getElementById("controls").style.display = "none";
+
+        // Maak timers en teamnamen niet klikbaar en verberg invoervelden
+        for (let i = 1; i <= 4; i++) {
+            const timerBox = document.getElementById(`timerBox${i}`);
+            const teamNameDisplay = document.getElementById(`displayTeam${i}`);
+            const teamNameInput = document.getElementById(`team${i}`);
+
+            if (timerBox) {
+                timerBox.style.pointerEvents = "none"; // Voorkomt klikken/selecteren
+                timerBox.style.cursor = "default"; // Verandert de muisaanwijzer
+                // **Laat de rode rand van de geselecteerde timer staan**
+            }
+
+            if (teamNameDisplay) {
+                teamNameDisplay.style.pointerEvents = "none"; // Voorkomt klikken
+                teamNameDisplay.style.cursor = "default"; // Verandert de muisaanwijzer
+            }
+
+            if (teamNameInput) {
+                teamNameInput.style.display = "none"; // Verbergt inputveld
+            }
+        }
+
+        // Voorkom dat de geselecteerde timer wijzigt in display modus
+        window.selectTimer = function() {
+            console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
+        };
+    }
+}
+
+
+
+
+    // ✅ Roep de functie aan zodra de pagina geladen is
+    hideControlsIfNeeded();
+});
  
     
     </script>
