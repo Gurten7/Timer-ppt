@@ -119,36 +119,6 @@
 </div>
 
     <script>
-
-let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-let tickInterval;
-
-function playTicking() {
-    if (tickInterval) return; // Voorkomt dubbele loops
-
-    tickInterval = setInterval(() => {
-        let tick = audioContext.createOscillator();
-        let gainNode = audioContext.createGain();
-
-        tick.type = "square"; // Kort tik-geluid
-        tick.frequency.setValueAtTime(800, audioContext.currentTime); // 800 Hz
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Zacht volume
-
-        tick.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        tick.start();
-        tick.stop(audioContext.currentTime + 0.05); // Stop snel na 50ms
-    }, 1000); // Elke seconde een tik
-}
-
-function stopTicking() {
-    if (tickInterval) {
-        clearInterval(tickInterval);
-        tickInterval = null;
-    }
-}
-
        
 document.addEventListener("DOMContentLoaded", function() {
     console.log("Pagina geladen!");
@@ -191,47 +161,42 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     };
 
-   window.startTimer = function() {
-    selectedRef.get().then(snapshot => {
-        if (snapshot.exists()) {
-            let timerKey = `timer${snapshot.val()}`;
+    window.startTimer = function() {
+        selectedRef.get().then(snapshot => {
+            if (snapshot.exists()) {
+                let timerKey = `timer${snapshot.val()}`;
 
-            if (intervals[timerKey]) {
-                return;
+                if (intervals[timerKey]) {
+                    return;
+                }
+
+                intervals[timerKey] = setInterval(() => {
+                    timerRef.child(timerKey).get().then(timeSnap => {
+                        let time = timeSnap.exists() ? timeSnap.val() : 60;
+                        if (time > 0) {
+                            time--;
+                            timerRef.child(timerKey).set(time);
+                        } else {
+                            clearInterval(intervals[timerKey]);
+                            intervals[timerKey] = null;
+                        }
+                    });
+                }, 1000);
             }
-
-            playTicking(); // 🔊 Start tikkende klok
-
-            intervals[timerKey] = setInterval(() => {
-                timerRef.child(timerKey).get().then(timeSnap => {
-                    let time = timeSnap.exists() ? timeSnap.val() : 60;
-                    if (time > 0) {
-                        time--;
-                        timerRef.child(timerKey).set(time);
-                    } else {
-                        clearInterval(intervals[timerKey]);
-                        intervals[timerKey] = null;
-                        stopTicking(); // 🔇 Stop tikkende klok
-                    }
-                });
-            }, 1000);
-        }
-    });
-};
-
+        });
+    };
 
     window.stopTimer = function() {
-    selectedRef.get().then(snapshot => {
-        if (snapshot.exists()) {
-            let timerKey = `timer${snapshot.val()}`;
-            if (intervals[timerKey]) {
-                clearInterval(intervals[timerKey]);
-                intervals[timerKey] = null;
-                stopTicking(); // 🔇 Stop tikkende klok
+        selectedRef.get().then(snapshot => {
+            if (snapshot.exists()) {
+                let timerKey = `timer${snapshot.val()}`;
+                if (intervals[timerKey]) {
+                    clearInterval(intervals[timerKey]);
+                    intervals[timerKey] = null;
+                }
             }
-        }
-    });
-};
+        });
+    };
 
     window.resetTimer = function() {
         timerRef.set({
@@ -283,12 +248,44 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // ✅ Controleer of de URL '?view=display' bevat en verberg de knoppen indien nodig
-    function hideControlsIfNeeded() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get("view") === "display") {
-            document.getElementById("controls").style.display = "none";
+   function hideControlsIfNeeded() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDisplayMode = urlParams.get("view") === "display";
+
+    if (isDisplayMode) {
+        document.getElementById("controls").style.display = "none";
+
+        // Maak timers en teamnamen niet klikbaar en verberg invoervelden
+        for (let i = 1; i <= 4; i++) {
+            const timerBox = document.getElementById(`timerBox${i}`);
+            const teamNameDisplay = document.getElementById(`displayTeam${i}`);
+            const teamNameInput = document.getElementById(`team${i}`);
+
+            if (timerBox) {
+                timerBox.style.pointerEvents = "none"; // Voorkomt klikken/selecteren
+                timerBox.style.cursor = "default"; // Verandert de muisaanwijzer
+                // **Laat de rode rand van de geselecteerde timer staan**
+            }
+
+            if (teamNameDisplay) {
+                teamNameDisplay.style.pointerEvents = "none"; // Voorkomt klikken
+                teamNameDisplay.style.cursor = "default"; // Verandert de muisaanwijzer
+            }
+
+            if (teamNameInput) {
+                teamNameInput.style.display = "none"; // Verbergt inputveld
+            }
         }
+
+        // Voorkom dat de geselecteerde timer wijzigt in display modus
+        window.selectTimer = function() {
+            console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
+        };
     }
+}
+
+
+
 
     // ✅ Roep de functie aan zodra de pagina geladen is
     hideControlsIfNeeded();
