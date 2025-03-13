@@ -1,155 +1,5 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>De slimste kameraad</title>
 
-    <!-- ✅ Laad Firebase correct -->
-    <script defer src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            margin: 20px;
-        }
-
-        h1 {
-            color: #333;
-            font-size: 30px;
-        }
-
-        .timers {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .timer-container {
-            text-align: center;
-            background-color: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 140px;
-            cursor: pointer;
-        }
-
-        .timer-container.selected {
-            border: 3px solid #ff0000;
-        }
-
-        .team-name-display {
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .team-name-input {
-            font-size: 18px;
-            padding: 5px;
-            width: 100%;
-            text-align: center;
-            display: none;
-        }
-
-        .timer {
-            font-size: 40px;
-            font-weight: bold;
-            color: #ff5722;
-            margin-top: 10px;
-        }
-
-        button {
-            margin: 5px;
-            padding: 8px 15px;
-            font-size: 14px;
-            cursor: pointer;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background-color: #cc0000;
-        }
-    </style>
-</head>
-<body>
-    <h1>De slimste kameraad</h1>
-
-    <div class="timers">
-        <div class="timer-container" id="timerBox1" onclick="selectTimer(1)">
-            <div class="team-name-display" id="displayTeam1" onclick="editTeamName(1)">Team 1</div>
-            <input type="text" id="team1" class="team-name-input" onblur="saveTeamName(1)">
-            <div class="timer" id="timer1">60</div>
-        </div>
-        <div class="timer-container" id="timerBox2" onclick="selectTimer(2)">
-            <div class="team-name-display" id="displayTeam2" onclick="editTeamName(2)">Team 2</div>
-            <input type="text" id="team2" class="team-name-input" onblur="saveTeamName(2)">
-            <div class="timer" id="timer2">60</div>
-        </div>
-        <div class="timer-container" id="timerBox3" onclick="selectTimer(3)">
-            <div class="team-name-display" id="displayTeam3" onclick="editTeamName(3)">Team 3</div>
-            <input type="text" id="team3" class="team-name-input" onblur="saveTeamName(3)">
-            <div class="timer" id="timer3">60</div>
-        </div>
-        <div class="timer-container" id="timerBox4" onclick="selectTimer(4)">
-            <div class="team-name-display" id="displayTeam4" onclick="editTeamName(4)">Team 4</div>
-            <input type="text" id="team4" class="team-name-input" onblur="saveTeamName(4)">
-            <div class="timer" id="timer4">60</div>
-        </div>
-    </div>
-
-<div id="controls">
-    <button onclick="startTimer()">Start</button>
-    <button onclick="stopTimer()">Stop</button>
-    <button onclick="resetTimer()">Reset</button>
-    <button onclick="adjustTime(10)">+10 sec</button>
-    <button onclick="adjustTime(20)">+20 sec</button>
-    <button onclick="adjustTime(30)">+30 sec</button>
-    <button onclick="adjustTime(40)">+40 sec</button>
-    <button onclick="adjustTime(50)">+50 sec</button>
-    <button onclick="adjustTime(-20)">-20 sec</button>
-</div>
-
-    <script>
-       
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("Pagina geladen!");
-
-    // ✅ Firebase correct initialiseren
-    const firebaseConfig = {
-        databaseURL: "https://de-slimste-kameraad-timer-ppt-default-rtdb.europe-west1.firebasedatabase.app/"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const timerRef = database.ref('timers');
-    const selectedRef = database.ref('selectedTimer');
-    const teamRef = database.ref('teams');
-
-    let intervals = {};
-
-    window.selectTimer = function(timerNumber) {
-        selectedRef.set(timerNumber);
-    };
-
-    selectedRef.on("value", snapshot => {
-        document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
-        if (snapshot.exists()) {
-            document.querySelector(`#timerBox${snapshot.val()}`).classList.add("selected");
-        }
-    });
-
-    window.adjustTime = function(amount) {
-        selectedRef.get().then(snapshot => {
-            if (snapshot.exists()) {
+       if (snapshot.exists()) {
                 let timerKey = `timer${snapshot.val()}`;
                 timerRef.child(timerKey).get().then(timeSnap => {
                     let time = timeSnap.exists() ? timeSnap.val() : 60;
@@ -161,42 +11,47 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     };
 
-    window.startTimer = function() {
-        selectedRef.get().then(snapshot => {
-            if (snapshot.exists()) {
-                let timerKey = `timer${snapshot.val()}`;
+   window.startTimer = function() {
+    selectedRef.get().then(snapshot => {
+        if (snapshot.exists()) {
+            let timerKey = `timer${snapshot.val()}`;
 
-                if (intervals[timerKey]) {
-                    return;
-                }
-
-                intervals[timerKey] = setInterval(() => {
-                    timerRef.child(timerKey).get().then(timeSnap => {
-                        let time = timeSnap.exists() ? timeSnap.val() : 60;
-                        if (time > 0) {
-                            time--;
-                            timerRef.child(timerKey).set(time);
-                        } else {
-                            clearInterval(intervals[timerKey]);
-                            intervals[timerKey] = null;
-                        }
-                    });
-                }, 1000);
+            if (intervals[timerKey]) {
+                return;
             }
-        });
-    };
+
+            playTicking(); // 🔊 Start tikkende klok
+
+            intervals[timerKey] = setInterval(() => {
+                timerRef.child(timerKey).get().then(timeSnap => {
+                    let time = timeSnap.exists() ? timeSnap.val() : 60;
+                    if (time > 0) {
+                        time--;
+                        timerRef.child(timerKey).set(time);
+                    } else {
+                        clearInterval(intervals[timerKey]);
+                        intervals[timerKey] = null;
+                        stopTicking(); // 🔇 Stop tikkende klok
+                    }
+                });
+            }, 1000);
+        }
+    });
+};
+
 
     window.stopTimer = function() {
-        selectedRef.get().then(snapshot => {
-            if (snapshot.exists()) {
-                let timerKey = `timer${snapshot.val()}`;
-                if (intervals[timerKey]) {
-                    clearInterval(intervals[timerKey]);
-                    intervals[timerKey] = null;
-                }
+    selectedRef.get().then(snapshot => {
+        if (snapshot.exists()) {
+            let timerKey = `timer${snapshot.val()}`;
+            if (intervals[timerKey]) {
+                clearInterval(intervals[timerKey]);
+                intervals[timerKey] = null;
+                stopTicking(); // 🔇 Stop tikkende klok
             }
-        });
-    };
+        }
+    });
+};
 
     window.resetTimer = function() {
         timerRef.set({
@@ -248,44 +103,12 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // ✅ Controleer of de URL '?view=display' bevat en verberg de knoppen indien nodig
-   function hideControlsIfNeeded() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isDisplayMode = urlParams.get("view") === "display";
-
-    if (isDisplayMode) {
-        document.getElementById("controls").style.display = "none";
-
-        // Maak timers en teamnamen niet klikbaar en verberg invoervelden
-        for (let i = 1; i <= 4; i++) {
-            const timerBox = document.getElementById(`timerBox${i}`);
-            const teamNameDisplay = document.getElementById(`displayTeam${i}`);
-            const teamNameInput = document.getElementById(`team${i}`);
-
-            if (timerBox) {
-                timerBox.style.pointerEvents = "none"; // Voorkomt klikken/selecteren
-                timerBox.style.cursor = "default"; // Verandert de muisaanwijzer
-                // **Laat de rode rand van de geselecteerde timer staan**
-            }
-
-            if (teamNameDisplay) {
-                teamNameDisplay.style.pointerEvents = "none"; // Voorkomt klikken
-                teamNameDisplay.style.cursor = "default"; // Verandert de muisaanwijzer
-            }
-
-            if (teamNameInput) {
-                teamNameInput.style.display = "none"; // Verbergt inputveld
-            }
+    function hideControlsIfNeeded() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("view") === "display") {
+            document.getElementById("controls").style.display = "none";
         }
-
-        // Voorkom dat de geselecteerde timer wijzigt in display modus
-        window.selectTimer = function() {
-            console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
-        };
     }
-}
-
-
-
 
     // ✅ Roep de functie aan zodra de pagina geladen is
     hideControlsIfNeeded();
