@@ -118,15 +118,6 @@
     <button onclick="adjustTime(-20)">-20 sec</button>
 </div>
 
-<div id="toggleControls">
-    <h3>Schakel Timers In/Uit</h3>
-    <button onclick="toggleTimer(1)">Timer 1 Aan/Uit</button>
-    <button onclick="toggleTimer(2)">Timer 2 Aan/Uit</button>
-    <button onclick="toggleTimer(3)">Timer 3 Aan/Uit</button>
-    <button onclick="toggleTimer(4)">Timer 4 Aan/Uit</button>
-    <button onclick="resetAllTimers()">Alle Timers Reset</button>
-</div>
-
     <script>
        
 document.addEventListener("DOMContentLoaded", function() {
@@ -267,56 +258,6 @@ document.addEventListener("DOMContentLoaded", function() {
     // ✅ Roep de functie aan zodra de pagina geladen is
     hideControlsIfNeeded();
 });
-
-// ✅ Functie om specifieke timers in/uit te schakelen
-function toggleTimer(timerNumber) {
-    const timerBox = document.getElementById(`timerBox${timerNumber}`);
-    if (!timerBox) return;
-
-    const isVisible = timerBox.style.display !== "none";
-    timerBox.style.display = isVisible ? "none" : "block";
-
-    localStorage.setItem(`timer${timerNumber}_visible`, !isVisible);
-}
-
-// ✅ Functie om alle timers zichtbaar te maken
-function resetAllTimers() {
-    for (let i = 1; i <= 4; i++) {
-        const timerBox = document.getElementById(`timerBox${i}`);
-        if (timerBox) {
-            timerBox.style.display = "block";
-            localStorage.setItem(`timer${i}_visible`, "true");
-        }
-    }
-}
-
-// ✅ Functie om de timer-status te herstellen bij paginalading
-function restoreTimerVisibility() {
-    for (let i = 1; i <= 4; i++) {
-        const timerBox = document.getElementById(`timerBox${i}`);
-        if (timerBox) {
-            const isVisible = localStorage.getItem(`timer${i}_visible`) === "true"; // Check expliciet op "true"
-            timerBox.style.display = isVisible ? "block" : "none";
-        }
-    }
-}
-
-
-// ✅ Functie om knoppen te verbergen in ?view=display
-function hideControlsIfNeeded() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("view") === "display") {
-        document.getElementById("controls").style.display = "none";
-        document.getElementById("toggleControls").style.display = "none"; // Verberg ook de timer-knoppen
-    }
-}
-
-
-// ✅ Roep de functies aan zodra de pagina geladen is
-restoreTimerVisibility();
-hideControlsIfNeeded();  // Dit is de juiste functie
-
-
  
     
     </script>
