@@ -23,10 +23,11 @@
                         nieuwNaamDiv.id = `team-name-${index}`;
                         nieuwNaamDiv.classList.add("team-name");
                         nieuwNaamDiv.textContent = teamNamen[index];
-                        nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index));
+                        nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener opnieuw toe
                         teamNaamEl.replaceWith(nieuwNaamDiv);
                     } else {
                         teamNaamEl.textContent = teamNamen[index];
+                        teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener toe als deze nog niet bestaat
                     }
 
                     document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
@@ -87,15 +88,16 @@
                 inputVeld.value = teamNamen[index];
                 inputVeld.classList.add("team-input");
 
+                // Vervang de huidige naam door het invoerveld
+                naamLabel.replaceWith(inputVeld);
+                inputVeld.focus();
+
                 inputVeld.addEventListener("blur", () => slaNieuweTeamnaamOp(index, inputVeld.value));
                 inputVeld.addEventListener("keydown", (event) => {
                     if (event.key === "Enter") {
                         slaNieuweTeamnaamOp(index, inputVeld.value);
                     }
                 });
-
-                naamLabel.replaceWith(inputVeld);
-                inputVeld.focus();
             }
 
             function slaNieuweTeamnaamOp(index, nieuweNaam) {
