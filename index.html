@@ -87,6 +87,7 @@
                 inputVeld.value = teamNamen[index];
                 inputVeld.classList.add("team-input");
 
+                // Opslaan bij blur of Enter
                 inputVeld.addEventListener("blur", () => slaNieuweTeamnaamOp(index, inputVeld.value));
                 inputVeld.addEventListener("keydown", (event) => {
                     if (event.key === "Enter") {
@@ -95,7 +96,7 @@
                 });
 
                 naamLabel.replaceWith(inputVeld);
-                inputVeld.focus();
+                inputVeld.focus();  // Focus het invoerveld zodat je meteen kunt typen
             }
 
             function slaNieuweTeamnaamOp(index, nieuweNaam) {
@@ -270,4 +271,3 @@
     </div>
 </body>
 </html>
- 
