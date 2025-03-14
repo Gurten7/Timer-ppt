@@ -8,9 +8,6 @@
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script defer>
         document.addEventListener("DOMContentLoaded", () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const isDisplayMode = urlParams.get("view") === "display";
-
             const firebaseConfig = {
                 apiKey: "YOUR_API_KEY",
                 authDomain: "YOUR_AUTH_DOMAIN",
@@ -28,22 +25,23 @@
             
             let timers = [60, 60, 60, 60];
             let intervals = [null, null, null, null];
-            let selectedTimer = null;
+            let selectedTimer = 0; // Altijd beginnen met de eerste timer geselecteerd
             
-            function updateDisplay(index) {
-                document.getElementById(`timer${index}`).textContent = timers[index];
+            function updateDisplay() {
+                timers.forEach((time, index) => {
+                    document.getElementById(`timer${index}`).textContent = time;
+                });
             }
 
             function syncWithDatabase() {
-                const validTimers = timers.map(t => (typeof t === 'number' && !isNaN(t)) ? t : 60);
-                timersRef.set(validTimers);
+                timersRef.set(timers);
             }
 
             timersRef.on("value", (snapshot) => {
                 const data = snapshot.val();
                 if (Array.isArray(data) && data.length === 4) {
-                    timers = data.map(t => (typeof t === 'number' && !isNaN(t)) ? t : 60);
-                    timers.forEach((_, index) => updateDisplay(index));
+                    timers = data;
+                    updateDisplay();
                 }
             });
 
@@ -56,12 +54,18 @@
                 }
             });
 
+            function selectTimer(index) {
+                document.querySelectorAll(".timer").forEach(el => el.style.border = "none");
+                selectedTimer = index;
+                document.querySelector(`.timer[data-index='${index}']`).style.border = "3px solid red";
+            }
+
             window.startTimer = function() {
                 if (selectedTimer !== null && intervals[selectedTimer] === null) {
                     intervals[selectedTimer] = setInterval(() => {
                         if (timers[selectedTimer] > 0) {
                             timers[selectedTimer]--;
-                            updateDisplay(selectedTimer);
+                            updateDisplay();
                             syncWithDatabase();
                         } else {
                             stopTimer();
@@ -78,41 +82,45 @@
             }
 
             window.resetTimer = function() {
-                if (selectedTimer !== null) {
-                    stopTimer();
-                    timers[selectedTimer] = 60;
-                    updateDisplay(selectedTimer);
-                    syncWithDatabase();
-                }
+                timers = [60, 60, 60, 60];
+                intervals.forEach((interval, index) => {
+                    if (interval) {
+                        clearInterval(interval);
+                        intervals[index] = null;
+                    }
+                });
+                updateDisplay();
+                syncWithDatabase();
             }
 
             window.adjustTime = function(amount) {
                 if (selectedTimer !== null) {
                     timers[selectedTimer] = Math.max(0, timers[selectedTimer] + amount);
-                    updateDisplay(selectedTimer);
+                    updateDisplay();
                     syncWithDatabase();
                 }
             }
 
             document.querySelectorAll(".timer").forEach((timerElement, index) => {
                 timerElement.addEventListener("click", () => {
-                    document.querySelectorAll(".timer").forEach(el => el.style.border = "none");
-                    selectedTimer = index;
-                    timerElement.style.border = "3px solid red";
+                    selectTimer(index);
                 });
             });
 
             document.querySelectorAll(".team-name").forEach((input, index) => {
+                input.addEventListener("click", () => {
+                    input.removeAttribute("readonly");
+                });
+
                 input.addEventListener("blur", () => {
                     let teamNames = Array.from(document.querySelectorAll(".team-name"), el => el.value);
                     teamNamesRef.set(teamNames);
                     input.setAttribute("readonly", true);
                 });
-
-                input.addEventListener("dblclick", () => {
-                    input.removeAttribute("readonly");
-                });
             });
+
+            // Standaard de eerste timer selecteren na laden van de pagina
+            selectTimer(0);
         });
     </script>
     <style>
@@ -159,12 +167,15 @@
             background: darkred;
         }
         .team-name {
-            font-size: 1rem;
+            font-size: 1.4rem;
             font-weight: bold;
-            margin-bottom: 10px;
             text-align: center;
             border: none;
             background: transparent;
+            width: 100%;
+            cursor: text;
+            display: block;
+            margin: 0 auto;
         }
     </style>
 </head>
