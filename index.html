@@ -125,70 +125,28 @@
             text-align: center;
             background-color: #f5f5f5;
         }
-        #timer-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        .timer {
-            background: white;
-            padding: 40px;
-            border-radius: 6px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            width: 220px;
-            height: 200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .team-name {
-            font-size: 30px;
-            font-weight: bold;
-            text-align: center;
-            width: 100%;
-            border: none;
-            background: transparent;
-            outline: none;
-            margin-bottom: 10px;
-        }
-        .time {
-            font-size: 75px;
-            font-weight: bold;
-            text-align: center;
-            color: red;
-        }
-        .selected {
-            border: 10px solid red;
-        }
-        .controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
+        h1 {
+            font-size: 32px;
         }
         .row {
             display: flex;
             justify-content: center;
+            flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 10px;
+        }
+        button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>Wie is de slimste Kameraad</h1>
-    <div id="timer-container">
-        <script>
-            for (let i = 0; i < 4; i++) {
-                document.write(`
-                    <div class="timer" data-index="${i}" id="timer-container-${i}">
-                        <input type="text" class="team-name" id="teamName${i}" value="Team ${i + 1}" readonly ondblclick="this.removeAttribute('readonly'); this.style.border='1px solid black'" onblur="this.setAttribute('readonly', true); this.style.border='none'">
-                        <div class="time" id="timer${i}">60</div>
-                    </div>
-                `);
-            }
-        </script>
-    </div>
+    <h1>De slimste kameraad</h1>
     <div class="controls">
         <div class="row">
             <button onclick="startTimer()">Start</button>
