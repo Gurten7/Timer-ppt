@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>De Slimste Kameraad</title>
-    <link rel="stylesheet" href="styles.css">
-    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script defer>
         document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isDisplayMode = urlParams.get("view") === "display";
+
             const firebaseConfig = {
                 apiKey: "YOUR_API_KEY",
                 authDomain: "YOUR_AUTH_DOMAIN",
@@ -74,15 +76,19 @@
             }
 
             document.querySelectorAll(".timer").forEach((timerElement, index) => {
-                timerElement.querySelector(".start").addEventListener("click", () => startTimer(index));
-                timerElement.querySelector(".stop").addEventListener("click", () => stopTimer(index));
-                timerElement.querySelector(".reset").addEventListener("click", () => resetTimer(index));
-                
-                timerElement.querySelectorAll(".add").forEach(button => {
-                    button.addEventListener("click", () => adjustTime(index, parseInt(button.dataset.time)));
-                });
-                
-                timerElement.querySelector(".subtract").addEventListener("click", () => adjustTime(index, -20));
+                if (!isDisplayMode) {
+                    timerElement.querySelector(".start").addEventListener("click", () => startTimer(index));
+                    timerElement.querySelector(".stop").addEventListener("click", () => stopTimer(index));
+                    timerElement.querySelector(".reset").addEventListener("click", () => resetTimer(index));
+                    
+                    timerElement.querySelectorAll(".add").forEach(button => {
+                        button.addEventListener("click", () => adjustTime(index, parseInt(button.dataset.time)));
+                    });
+                    
+                    timerElement.querySelector(".subtract").addEventListener("click", () => adjustTime(index, -20));
+                } else {
+                    timerElement.querySelector(".controls").style.display = "none";
+                }
             });
         });
     </script>
@@ -138,21 +144,28 @@
 <body>
     <h1>De slimste kameraad</h1>
     <div id="timer-container">
-        <div class="timer" data-index="0">
-            <div class="team-name">Team 1</div>
-            <div class="time" id="timer0">60</div>
-            <div class="controls">
-                <button class="start">Start</button>
-                <button class="stop">Stop</button>
-                <button class="reset">Reset</button>
-                <button class="add" data-time="10">+10 sec</button>
-                <button class="add" data-time="20">+20 sec</button>
-                <button class="add" data-time="30">+30 sec</button>
-                <button class="add" data-time="40">+40 sec</button>
-                <button class="add" data-time="50">+50 sec</button>
-                <button class="subtract" data-time="10">-20 sec</button>
-            </div>
-        </div>
+        <script>
+            for (let i = 0; i < 4; i++) {
+                document.write(`
+                    <div class="timer" data-index="${i}">
+                        <div class="team-name">Team ${i + 1}</div>
+                        <div class="time" id="timer${i}">60</div>
+                        <div class="controls">
+                            <button class="start">Start</button>
+                            <button class="stop">Stop</button>
+                            <button class="reset">Reset</button>
+                            <button class="add" data-time="10">+10 sec</button>
+                            <button class="add" data-time="20">+20 sec</button>
+                            <button class="add" data-time="30">+30 sec</button>
+                            <button class="add" data-time="40">+40 sec</button>
+                            <button class="add" data-time="50">+50 sec</button>
+                            <button class="subtract" data-time="20">-20 sec</button>
+                        </div>
+                    </div>
+                `);
+            }
+        </script>
     </div>
 </body>
 </html>
+
