@@ -17,9 +17,8 @@
                     document.getElementById(`timer${index}`).textContent = tijd;
                     let teamNaamEl = document.getElementById(`team-name-${index}`);
 
-                    // Als de teamnaam een invoerveld is, vervang het met een div na bewerking
+                    // Als de teamnaam een invoerveld is, vervang het met een div na het bewerken
                     if (teamNaamEl.tagName.toLowerCase() === "input") {
-                        console.log(`Teamnaam bewerken voor index ${index}`);
                         let nieuwNaamDiv = document.createElement("div");
                         nieuwNaamDiv.id = `team-name-${index}`;
                         nieuwNaamDiv.classList.add("team-name");
@@ -82,7 +81,6 @@
             }
 
             function maakTeamnaamBewerkbaar(index) {
-                console.log(`Teamnaam bewerken voor team ${index}`);
                 let naamLabel = document.getElementById(`team-name-${index}`);
                 let inputVeld = document.createElement("input");
                 inputVeld.type = "text";
@@ -97,13 +95,11 @@
                     }
                 });
 
-                console.log(`Vervangen ${naamLabel.id} door invoerveld`);
                 naamLabel.replaceWith(inputVeld);
                 inputVeld.focus();  // Focus het invoerveld zodat je meteen kunt typen
             }
 
             function slaNieuweTeamnaamOp(index, nieuweNaam) {
-                console.log(`Nieuwe naam voor team ${index}: ${nieuweNaam}`);
                 if (nieuweNaam.trim() !== "") {
                     teamNamen[index] = nieuweNaam;
                 }
