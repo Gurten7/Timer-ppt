@@ -3,312 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>De slimste kameraad</title>
+    <title>De Slimste Kameraad</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script defer>
+        document.addEventListener("DOMContentLoaded", () => {
+            const firebaseConfig = {
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_AUTH_DOMAIN",
+                databaseURL: "https://de-slimste-kameraad-timer-ppt-default-rtdb.europe-west1.firebasedatabase.app/",
+                projectId: "YOUR_PROJECT_ID",
+                storageBucket: "YOUR_STORAGE_BUCKET",
+                messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+                appId: "YOUR_APP_ID"
+            };
 
-    <!-- ✅ Laad Firebase correct -->
-    <script defer src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+            const timersRef = database.ref("timers");
+            
+            let timers = [60, 60, 60, 60];
+            let intervals = [null, null, null, null];
+            
+            function updateDisplay(index) {
+                document.getElementById(`timer${index}`).textContent = timers[index];
+            }
 
+            function syncWithDatabase() {
+                timersRef.set(timers);
+            }
+
+            timersRef.on("value", (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    timers = data;
+                    timers.forEach((_, index) => updateDisplay(index));
+                }
+            });
+
+            function startTimer(index) {
+                if (intervals[index] !== null) return;
+                intervals[index] = setInterval(() => {
+                    if (timers[index] > 0) {
+                        timers[index]--;
+                        updateDisplay(index);
+                        syncWithDatabase();
+                    } else {
+                        stopTimer(index);
+                    }
+                }, 1000);
+            }
+
+            function stopTimer(index) {
+                clearInterval(intervals[index]);
+                intervals[index] = null;
+            }
+
+            function resetTimer(index) {
+                stopTimer(index);
+                timers[index] = 60;
+                updateDisplay(index);
+                syncWithDatabase();
+            }
+
+            function adjustTime(index, amount) {
+                timers[index] = Math.max(0, timers[index] + amount);
+                updateDisplay(index);
+                syncWithDatabase();
+            }
+
+            document.querySelectorAll(".timer").forEach((timerElement, index) => {
+                timerElement.querySelector(".start").addEventListener("click", () => startTimer(index));
+                timerElement.querySelector(".stop").addEventListener("click", () => stopTimer(index));
+                timerElement.querySelector(".reset").addEventListener("click", () => resetTimer(index));
+                
+                timerElement.querySelectorAll(".add").forEach(button => {
+                    button.addEventListener("click", () => adjustTime(index, parseInt(button.dataset.time)));
+                });
+                
+                timerElement.querySelector(".subtract").addEventListener("click", () => adjustTime(index, -20));
+            });
+        });
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
-            margin: 20px;
+            background-color: #f5f5f5;
         }
-
         h1 {
-            color: #333;
-            font-size: 30px;
+            font-size: 2rem;
+            margin-bottom: 20px;
         }
-
-        .timers {
+        #timer-container {
             display: flex;
             justify-content: center;
             gap: 20px;
         }
-
-        .timer-container {
-            text-align: center;
-            background-color: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 140px;
-            cursor: pointer;
-        }
-
-        .timer-container.selected {
-            border: 3px solid #ff0000;
-        }
-
-        .team-name-display {
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .team-name-input {
-            font-size: 18px;
-            padding: 5px;
-            width: 100%;
-            text-align: center;
-            display: none;
-        }
-
         .timer {
-            font-size: 40px;
-            font-weight: bold;
-            color: #ff5722;
-            margin-top: 10px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 150px;
+            text-align: center;
         }
-
-        button {
-            margin: 5px;
-            padding: 8px 15px;
-            font-size: 14px;
-            cursor: pointer;
-            background-color: #ff0000;
+        .team-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .time {
+            font-size: 2rem;
+            color: #ff4500;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .controls button {
+            background: red;
             color: white;
             border: none;
+            padding: 10px;
+            margin: 5px;
             border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
         }
-
-        button:hover {
-            background-color: #cc0000;
+        .controls button:hover {
+            background: darkred;
         }
     </style>
 </head>
 <body>
     <h1>De slimste kameraad</h1>
-
-    <div class="timers">
-        <div class="timer-container" id="timerBox1" onclick="selectTimer(1)">
-            <div class="team-name-display" id="displayTeam1" onclick="editTeamName(1)">Team 1</div>
-            <input type="text" id="team1" class="team-name-input" onblur="saveTeamName(1)">
-            <div class="timer" id="timer1">60</div>
-        </div>
-        <div class="timer-container" id="timerBox2" onclick="selectTimer(2)">
-            <div class="team-name-display" id="displayTeam2" onclick="editTeamName(2)">Team 2</div>
-            <input type="text" id="team2" class="team-name-input" onblur="saveTeamName(2)">
-            <div class="timer" id="timer2">60</div>
-        </div>
-        <div class="timer-container" id="timerBox3" onclick="selectTimer(3)">
-            <div class="team-name-display" id="displayTeam3" onclick="editTeamName(3)">Team 3</div>
-            <input type="text" id="team3" class="team-name-input" onblur="saveTeamName(3)">
-            <div class="timer" id="timer3">60</div>
-        </div>
-        <div class="timer-container" id="timerBox4" onclick="selectTimer(4)">
-            <div class="team-name-display" id="displayTeam4" onclick="editTeamName(4)">Team 4</div>
-            <input type="text" id="team4" class="team-name-input" onblur="saveTeamName(4)">
-            <div class="timer" id="timer4">60</div>
+    <div id="timer-container">
+        <div class="timer" data-index="0">
+            <div class="team-name">Team 1</div>
+            <div class="time" id="timer0">60</div>
+            <div class="controls">
+                <button class="start">Start</button>
+                <button class="stop">Stop</button>
+                <button class="reset">Reset</button>
+                <button class="add" data-time="10">+10 sec</button>
+                <button class="add" data-time="20">+20 sec</button>
+                <button class="add" data-time="30">+30 sec</button>
+                <button class="add" data-time="40">+40 sec</button>
+                <button class="add" data-time="50">+50 sec</button>
+                <button class="subtract" data-time="10">-20 sec</button>
+            </div>
         </div>
     </div>
-
-<div id="controls">
-    <button onclick="startTimer()">Start</button>
-    <button onclick="stopTimer()">Stop</button>
-    <button onclick="resetTimer()">Reset</button>
-    <button onclick="adjustTime(10)">+10 sec</button>
-    <button onclick="adjustTime(20)">+20 sec</button>
-    <button onclick="adjustTime(30)">+30 sec</button>
-    <button onclick="adjustTime(40)">+40 sec</button>
-    <button onclick="adjustTime(50)">+50 sec</button>
-    <button onclick="adjustTime(-20)">-20 sec</button>
-</div>
-
-    <script>
-       
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("Pagina geladen!");
-
-    // ✅ Firebase correct initialiseren
-    const firebaseConfig = {
-        databaseURL: "https://de-slimste-kameraad-timer-ppt-default-rtdb.europe-west1.firebasedatabase.app/"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const timerRef = database.ref('timers');
-    const selectedRef = database.ref('selectedTimer');
-    const teamRef = database.ref('teams');
-
-    let intervals = {};
-
-    window.selectTimer = function(timerNumber) {
-        selectedRef.set(timerNumber);
-    };
-
-    selectedRef.on("value", snapshot => {
-        document.querySelectorAll('.timer-container').forEach(el => el.classList.remove("selected"));
-        if (snapshot.exists()) {
-            document.querySelector(`#timerBox${snapshot.val()}`).classList.add("selected");
-        }
-    });
-
-    window.adjustTime = function(amount) {
-        selectedRef.get().then(snapshot => {
-            if (snapshot.exists()) {
-                let timerKey = `timer${snapshot.val()}`;
-                timerRef.child(timerKey).get().then(timeSnap => {
-                    let time = timeSnap.exists() ? timeSnap.val() : 60;
-                    time += amount;
-                    if (time < 0) time = 0;
-                    timerRef.child(timerKey).set(time);
-                });
-            }
-        });
-    };
-
-    window.startTimer = function() {
-        selectedRef.get().then(snapshot => {
-            if (snapshot.exists()) {
-                let timerKey = `timer${snapshot.val()}`;
-
-                if (intervals[timerKey]) {
-                    return;
-                }
-
-                intervals[timerKey] = setInterval(() => {
-                    timerRef.child(timerKey).get().then(timeSnap => {
-                        let time = timeSnap.exists() ? timeSnap.val() : 60;
-                        if (time > 0) {
-                            time--;
-                            timerRef.child(timerKey).set(time);
-                        } else {
-                            clearInterval(intervals[timerKey]);
-                            intervals[timerKey] = null;
-                        }
-                    });
-                }, 1000);
-            }
-        });
-    };
-
-    window.stopTimer = function() {
-        selectedRef.get().then(snapshot => {
-            if (snapshot.exists()) {
-                let timerKey = `timer${snapshot.val()}`;
-                if (intervals[timerKey]) {
-                    clearInterval(intervals[timerKey]);
-                    intervals[timerKey] = null;
-                }
-            }
-        });
-    };
-
-    window.resetTimer = function() {
-        timerRef.set({
-            timer1: 60, timer2: 60, timer3: 60, timer4: 60
-        });
-    };
-
-    timerRef.on("value", snapshot => {
-        if (snapshot.exists()) {
-            let data = snapshot.val();
-            Object.keys(data).forEach(key => {
-                document.getElementById(key).textContent = data[key];
-            });
-        }
-    });
-
-    window.editTeamName = function(teamNumber) {
-        let display = document.getElementById(`displayTeam${teamNumber}`);
-        let input = document.getElementById(`team${teamNumber}`);
-        display.style.display = "none";
-        input.style.display = "block";
-        input.value = display.textContent;
-        input.focus();
-    };
-
-    window.saveTeamName = function(teamNumber) {
-        let display = document.getElementById(`displayTeam${teamNumber}`);
-        let input = document.getElementById(`team${teamNumber}`);
-        if (input.value.trim() !== "") {
-            display.textContent = input.value;
-            teamRef.child(`team${teamNumber}`).set(input.value);  // Opslaan in Firebase
-        }
-        input.style.display = "none";
-        display.style.display = "block";
-    };
-
-    // ✅ Firebase luistert naar wijzigingen in teamnamen en past de UI direct aan
-    teamRef.on("value", snapshot => {
-        if (snapshot.exists()) {
-            let data = snapshot.val();
-            Object.keys(data).forEach(key => {
-                let teamNumber = key.replace("team", "");
-                let display = document.getElementById(`displayTeam${teamNumber}`);
-                if (display) {
-                    display.textContent = data[key];
-                }
-            });
-        }
-    });
-
-<script>
-
-    function hideControlsIfNeeded() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const isDisplayMode = urlParams.get("view") === "display";
-
-        const controls = document.getElementById("controls");
-        const setTimerDiv = document.getElementById("setTimer");
-        const timerSelect = document.getElementById("timerSelect");
-        const secondsInput = document.getElementById("secondsInput");
-        const setTimerButton = document.getElementById("setTimerButton");
-        const toggleTimerButton = document.getElementById("toggleTimerButton");
-
-        if (isDisplayMode) {
-            console.log("Display mode actief - extra knoppen verbergen...");
-
-            // 🔹 Verberg de hele sectie voor het aanpassen van timers
-            if (controls) controls.style.display = "none";
-            if (setTimerDiv) setTimerDiv.style.display = "none";
-
-            // 🔹 Verberg specifieke knoppen en invoervelden als extra maatregel
-            if (timerSelect) timerSelect.style.display = "none";
-            if (secondsInput) secondsInput.style.display = "none";
-            if (setTimerButton) setTimerButton.style.display = "none";
-            if (toggleTimerButton) toggleTimerButton.style.display = "none";
-
-            // 🔹 Maak timers en teamnamen niet klikbaar en verberg invoervelden
-            for (let i = 1; i <= 4; i++) {
-                const timerBox = document.getElementById(`timerBox${i}`);
-                const teamNameDisplay = document.getElementById(`displayTeam${i}`);
-                const teamNameInput = document.getElementById(`team${i}`);
-
-                if (timerBox) {
-                    timerBox.style.pointerEvents = "none"; 
-                    timerBox.style.cursor = "default";
-                }
-
-                if (teamNameDisplay) {
-                    teamNameDisplay.style.pointerEvents = "none"; 
-                    teamNameDisplay.style.cursor = "default";
-                }
-
-                if (teamNameInput) {
-                    teamNameInput.style.display = "none"; 
-                }
-            }
-
-            // 🔹 Voorkom dat de geselecteerde timer wijzigt in display modus
-            window.selectTimer = function() {
-                console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
-            };
-        }
-    }
-
-    // ✅ Roep de functie aan zodra de pagina geladen is
-    document.addEventListener("DOMContentLoaded", function() {
-        hideControlsIfNeeded();
-    });
-
-</script>
-
-    
-    </script>
 </body>
 </html>
