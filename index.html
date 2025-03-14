@@ -152,14 +152,14 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 100x;
+            font-size: 70px;
             font-weight: bold;
             color: red;
             background-color: white;
             border-radius: 20px;
         }
         .team-name {
-            font-size: 40px;
+            font-size: 24px;
             font-weight: bold;
             color: black;
             cursor: pointer;
@@ -178,7 +178,7 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            margin-top: 50px;
+            margin-top: 20px;
         }
         .row {
             display: flex;
@@ -190,11 +190,11 @@
             background-color: red;
             color: white;
             border: none;
-            padding: 15px 30px
-            font-size: 18px;
+            padding: 10px;
+            font-size: 14px;
             border-radius: 5px;
             width: auto; /* Laat de knoppen kleiner worden, maar passen goed in de layout */
-            max-width: 200px; /* Beperk de breedte van de knoppen */
+            max-width: 120px; /* Beperk de breedte van de knoppen */
         }
         .selected {
             border: 6px solid red;
@@ -249,6 +249,8 @@
             <button id="startBtn">Start</button>
             <button id="stopBtn">Stop</button>
             <button id="resetBtn">Reset</button>
+        </div>
+        <div class="row">
             <button class="adjust-time" data-amount="10">+10 sec</button>
             <button class="adjust-time" data-amount="20">+20 sec</button>
             <button class="adjust-time" data-amount="30">+30 sec</button>
