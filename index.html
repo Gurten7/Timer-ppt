@@ -58,6 +58,48 @@
                 });
             });
 
+            function startTimer() {
+                if (intervals[selectedTimer]) return;
+                intervals[selectedTimer] = setInterval(() => {
+                    if (timers[selectedTimer] > 0) {
+                        timers[selectedTimer]--;
+                        syncWithDatabase();
+                    }
+                }, 1000);
+            }
+
+            function stopTimer() {
+                clearInterval(intervals[selectedTimer]);
+                intervals[selectedTimer] = null;
+            }
+
+            function resetTimer() {
+                timers = [60, 60, 60, 60];
+                syncWithDatabase();
+            }
+
+            function adjustTime(amount) {
+                timers[selectedTimer] = Math.max(0, timers[selectedTimer] + amount);
+                syncWithDatabase();
+            }
+
+            function toggleTimerVisibility() {
+                visibleTimers[selectedTimer] = !visibleTimers[selectedTimer];
+                updateDisplay();
+            }
+
+            function setCustomTime() {
+                const inputSeconds = parseInt(document.getElementById("timeInput").value);
+                if (!isNaN(inputSeconds)) {
+                    timers[selectedTimer] = inputSeconds;
+                    syncWithDatabase();
+                }
+            }
+
+            document.getElementById("timerSelect").addEventListener("change", (event) => {
+                selectTimer(parseInt(event.target.value));
+            });
+
             selectTimer(0);
         });
     </script>
@@ -79,7 +121,7 @@
         .timer {
             width: 200px;
             height: 200px;
-            border: 6px solid black;
+            border: 6px solid white;
             display: flex;
             flex-direction: column;
             justify-content: center;
