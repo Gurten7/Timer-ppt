@@ -117,26 +117,6 @@
     <button onclick="adjustTime(50)">+50 sec</button>
     <button onclick="adjustTime(-20)">-20 sec</button>
 </div>
-<div id="toggleTimers" style="display: none;">
-    <button onclick="toggleTimerVisibility(1)">Toon/Verberg Timer 1</button>
-    <button onclick="toggleTimerVisibility(2)">Toon/Verberg Timer 2</button>
-    <button onclick="toggleTimerVisibility(3)">Toon/Verberg Timer 3</button>
-    <button onclick="toggleTimerVisibility(4)">Toon/Verberg Timer 4</button>
-</div>
-<div id="setTimer" style="display: none;">
-    <label for="timerSelect">Kies een timer:</label>
-    <select id="timerSelect">
-        <option value="1">Timer 1</option>
-        <option value="2">Timer 2</option>
-        <option value="3">Timer 3</option>
-        <option value="4">Timer 4</option>
-    </select>
-
-    <label for="secondsInput">Aantal seconden:</label>
-    <input type="number" id="secondsInput" placeholder="Voer seconden in" />
-
-    <button id="setTimerButton">Stel timer in</button>
-</div>
 
     <script>
        
@@ -166,19 +146,6 @@ document.addEventListener("DOMContentLoaded", function() {
             document.querySelector(`#timerBox${snapshot.val()}`).classList.add("selected");
         }
     });
-
-function toggleTimerVisibility(timerNumber) {
-    const timerElement = document.getElementById(`timer${timerNumber}`);
-    
-    if (timerElement) {
-        if (window.getComputedStyle(timerElement).display === "none") {
-            timerElement.style.display = "block"; // Toon timer
-        } else {
-            timerElement.style.display = "none"; // Verberg timer
-        }
-    }
-}
-
 
     window.adjustTime = function(amount) {
         selectedRef.get().then(snapshot => {
@@ -285,17 +252,8 @@ function toggleTimerVisibility(timerNumber) {
     const urlParams = new URLSearchParams(window.location.search);
     const isDisplayMode = urlParams.get("view") === "display";
 
-    const controls = document.getElementById("controls");
-    const toggleTimers = document.getElementById("toggleTimers");
-    const setTimerDiv = document.getElementById("setTimer");
-
     if (isDisplayMode) {
-        console.log("Display mode actief - knoppen verbergen...");
-
-        // Verberg alle extra knoppen en functies
-        if (controls) controls.style.display = "none";
-        if (toggleTimers) toggleTimers.style.display = "none";
-        if (setTimerDiv) setTimerDiv.style.display = "none";
+        document.getElementById("controls").style.display = "none";
 
         // Maak timers en teamnamen niet klikbaar en verberg invoervelden
         for (let i = 1; i <= 4; i++) {
@@ -304,41 +262,35 @@ function toggleTimerVisibility(timerNumber) {
             const teamNameInput = document.getElementById(`team${i}`);
 
             if (timerBox) {
-                timerBox.style.pointerEvents = "none";
-                timerBox.style.cursor = "default";
+                timerBox.style.pointerEvents = "none"; // Voorkomt klikken/selecteren
+                timerBox.style.cursor = "default"; // Verandert de muisaanwijzer
+                // **Laat de rode rand van de geselecteerde timer staan**
             }
 
             if (teamNameDisplay) {
-                teamNameDisplay.style.pointerEvents = "none";
-                teamNameDisplay.style.cursor = "default";
+                teamNameDisplay.style.pointerEvents = "none"; // Voorkomt klikken
+                teamNameDisplay.style.cursor = "default"; // Verandert de muisaanwijzer
             }
 
             if (teamNameInput) {
-                teamNameInput.style.display = "none";
+                teamNameInput.style.display = "none"; // Verbergt inputveld
             }
         }
 
-        // Voorkom dat timers nog geselecteerd kunnen worden
+        // Voorkom dat de geselecteerde timer wijzigt in display modus
         window.selectTimer = function() {
             console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
         };
-    } else {
-        console.log("Normale modus - extra knoppen tonen...");
-        
-        // Zorg ervoor dat beide knoppen sets zichtbaar zijn in de normale modus
-        if (toggleTimers) toggleTimers.style.display = "block";
-        if (setTimerDiv) setTimerDiv.style.display = "block";
     }
 }
 
 
-// ✅ Roep de functie aan zodra de pagina geladen is
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("Pagina geladen!");
+
 
     // ✅ Roep de functie aan zodra de pagina geladen is
     hideControlsIfNeeded();
 });
+ 
     
     </script>
 </body>
