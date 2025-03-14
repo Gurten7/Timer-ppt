@@ -11,19 +11,19 @@
             let intervals = [null, null, null, null];
             let selectedTimer = 0;
             let visibleTimers = [true, true, true, true];
-            
+
             function updateDisplay() {
                 timers.forEach((time, index) => {
-                    document.getElementById(`time${index}`).textContent = time;
+                    document.getElementById(`timer${index}`).textContent = time;
                     document.getElementById(`team-name-${index}`).textContent = teamNames[index];
-                    document.getElementById(`timer${index}`).style.display = visibleTimers[index] ? "flex" : "none";
+                    document.getElementById(`timer-container-${index}`).style.display = visibleTimers[index] ? "block" : "none";
                 });
             }
 
             function selectTimer(index) {
                 document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
                 selectedTimer = index;
-                document.getElementById(`timer${index}`).classList.add("selected");
+                document.getElementById(`timer-container-${index}`).classList.add("selected");
             }
 
             function startTimer() {
@@ -108,12 +108,6 @@
             color: red;
             background-color: white;
             border-radius: 20px;
-            cursor: pointer;
-        }
-        .team-name {
-            font-size: 60px;
-            font-weight: bold;
-            color: black;
         }
         .controls {
             display: flex;
@@ -143,21 +137,21 @@
 <body>
     <h1>De slimste kameraad</h1>
     <div class="timer-container">
-        <div class="timer" id="timer0" onclick="selectTimer(0)">
-            <div class="team-name" id="team-name-0" onclick="editTeamName(0)">Team 1</div>
-            <div class="time-display" id="time0">60</div>
+        <div class="timer" id="timer-container-0" onclick="selectTimer(0)">
+            <div id="team-name-0" onclick="editTeamName(0)">Team 1</div>
+            <div id="timer0">60</div>
         </div>
-        <div class="timer" id="timer1" onclick="selectTimer(1)">
-            <div class="team-name" id="team-name-1" onclick="editTeamName(1)">Team 2</div>
-            <div class="time-display" id="time1">60</div>
+        <div class="timer" id="timer-container-1" onclick="selectTimer(1)">
+            <div id="team-name-1" onclick="editTeamName(1)">Team 2</div>
+            <div id="timer1">60</div>
         </div>
-        <div class="timer" id="timer2" onclick="selectTimer(2)">
-            <div class="team-name" id="team-name-2" onclick="editTeamName(2)">Team 3</div>
-            <div class="time-display" id="time2">60</div>
+        <div class="timer" id="timer-container-2" onclick="selectTimer(2)">
+            <div id="team-name-2" onclick="editTeamName(2)">Team 3</div>
+            <div id="timer2">60</div>
         </div>
-        <div class="timer" id="timer3" onclick="selectTimer(3)">
-            <div class="team-name" id="team-name-3" onclick="editTeamName(3)">Team 4</div>
-            <div class="time-display" id="time3">60</div>
+        <div class="timer" id="timer-container-3" onclick="selectTimer(3)">
+            <div id="team-name-3" onclick="editTeamName(3)">Team 4</div>
+            <div id="timer3">60</div>
         </div>
     </div>
     <div class="controls">
