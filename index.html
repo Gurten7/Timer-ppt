@@ -55,12 +55,6 @@
                 document.getElementById(`timer-container-${index}`).classList.add("selected");
             }
 
-            document.querySelectorAll(".timer").forEach((timerElement, index) => {
-                timerElement.addEventListener("click", () => {
-                    selectTimer(index);
-                });
-            });
-
             function startTimer() {
                 if (intervals[selectedTimer]) return;
                 intervals[selectedTimer] = setInterval(() => {
@@ -170,13 +164,7 @@
 </head>
 <body>
     <h1>De slimste kameraad</h1>
-    <div class="timer-container">
-        <div id="timer-container-0" class="timer" onclick="editTeamName(0)"><span id="team-name-0">Team 1</span><br><span id="timer0">60</span></div>
-        <div id="timer-container-1" class="timer" onclick="editTeamName(1)"><span id="team-name-1">Team 2</span><br><span id="timer1">60</span></div>
-        <div id="timer-container-2" class="timer" onclick="editTeamName(2)"><span id="team-name-2">Team 3</span><br><span id="timer2">60</span></div>
-        <div id="timer-container-3" class="timer" onclick="editTeamName(3)"><span id="team-name-3">Team 4</span><br><span id="timer3">60</span></div>
-    </div>
-      <div class="controls">
+    <div class="controls">
         <div class="row">
             <button onclick="startTimer()">Start</button>
             <button onclick="stopTimer()">Stop</button>
@@ -199,6 +187,6 @@
             <input type="number" id="timeInput" placeholder="Voer seconden in">
             <button onclick="setCustomTime()">Doorvoeren</button>
         </div>
-    </div><
+    </div>
 </body>
 </html>
