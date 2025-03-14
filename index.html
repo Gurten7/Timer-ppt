@@ -26,10 +26,12 @@
             let timers = [60, 60, 60, 60];
             let intervals = [null, null, null, null];
             let selectedTimer = 0; // Altijd beginnen met de eerste timer geselecteerd
+            let visibleTimers = [true, true, true, true];
             
             function updateDisplay() {
                 timers.forEach((time, index) => {
                     document.getElementById(`timer${index}`).textContent = time;
+                    document.getElementById(`timer-container-${index}`).style.display = visibleTimers[index] ? "block" : "none";
                 });
             }
 
@@ -93,12 +95,19 @@
                 syncWithDatabase();
             }
 
-            window.adjustTime = function(amount) {
-                if (selectedTimer !== null) {
-                    timers[selectedTimer] = Math.max(0, timers[selectedTimer] + amount);
+            window.adjustTime = function() {
+                let newTime = parseInt(document.getElementById("timeInput").value);
+                if (!isNaN(newTime) && selectedTimer !== null) {
+                    timers[selectedTimer] = newTime;
                     updateDisplay();
                     syncWithDatabase();
                 }
+            }
+
+            window.toggleTimerVisibility = function() {
+                let selectedIndex = document.getElementById("timerSelect").value;
+                visibleTimers[selectedIndex] = !visibleTimers[selectedIndex];
+                updateDisplay();
             }
 
             document.querySelectorAll(".timer").forEach((timerElement, index) => {
@@ -129,54 +138,6 @@
             text-align: center;
             background-color: #f5f5f5;
         }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-        #timer-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        .timer {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            width: 150px;
-            text-align: center;
-            cursor: pointer;
-        }
-        .time {
-            font-size: 2rem;
-            color: #ff4500;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .controls button {
-            background: red;
-            color: white;
-            border: none;
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .controls button:hover {
-            background: darkred;
-        }
-        .team-name {
-            font-size: 1.4rem;
-            font-weight: bold;
-            text-align: center;
-            border: none;
-            background: transparent;
-            width: 100%;
-            cursor: text;
-            display: block;
-            margin: 0 auto;
-        }
     </style>
 </head>
 <body>
@@ -185,7 +146,7 @@
         <script>
             for (let i = 0; i < 4; i++) {
                 document.write(`
-                    <div class="timer" data-index="${i}">
+                    <div class="timer" data-index="${i}" id="timer-container-${i}">
                         <input type="text" id="teamName${i}" class="team-name" value="Team ${i + 1}" readonly>
                         <div class="time" id="timer${i}">60</div>
                     </div>
@@ -194,15 +155,15 @@
         </script>
     </div>
     <div class="controls">
-        <button onclick="startTimer()">Start</button>
-        <button onclick="stopTimer()">Stop</button>
-        <button onclick="resetTimer()">Reset</button>
-        <button onclick="adjustTime(10)">+10 sec</button>
-        <button onclick="adjustTime(20)">+20 sec</button>
-        <button onclick="adjustTime(30)">+30 sec</button>
-        <button onclick="adjustTime(40)">+40 sec</button>
-        <button onclick="adjustTime(50)">+50 sec</button>
-        <button onclick="adjustTime(-20)">-20 sec</button>
+        <select id="timerSelect">
+            <option value="0">Timer 1</option>
+            <option value="1">Timer 2</option>
+            <option value="2">Timer 3</option>
+            <option value="3">Timer 4</option>
+        </select>
+        <button onclick="toggleTimerVisibility()">Toon/Verberg Timer</button>
+        <input type="number" id="timeInput" placeholder="Seconden invoeren">
+        <button onclick="adjustTime()">Instellen</button>
     </div>
 </body>
 </html>
