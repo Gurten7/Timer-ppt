@@ -142,12 +142,17 @@
             align-items: center;
             margin-top: 20px;
         }
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
         .controls button, .controls select, .controls input {
             background-color: red;
             color: white;
             border: none;
             padding: 10px;
-            margin: 5px;
             cursor: pointer;
         }
     </style>
@@ -167,24 +172,28 @@
         </script>
     </div>
     <div class="controls">
-        <button onclick="startTimer()">Start</button>
-        <button onclick="stopTimer()">Stop</button>
-        <button onclick="resetTimer()">Reset</button>
-        <button onclick="adjustTime(10)">+10 sec</button>
-        <button onclick="adjustTime(20)">+20 sec</button>
-        <button onclick="adjustTime(30)">+30 sec</button>
-        <button onclick="adjustTime(40)">+40 sec</button>
-        <button onclick="adjustTime(50)">+50 sec</button>
-        <button onclick="adjustTime(-20)">-20 sec</button>
-        <select id="timerSelect">
-            <option value="0">Timer 1</option>
-            <option value="1">Timer 2</option>
-            <option value="2">Timer 3</option>
-            <option value="3">Timer 4</option>
-        </select>
-        <button onclick="toggleTimerVisibility()">Toon/Verberg Timer</button>
-        <input type="number" id="timeInput" placeholder="Seconden invoeren">
-        <button onclick="setCustomTime()">Instellen</button>
+        <div class="row">
+            <button onclick="startTimer()">Start</button>
+            <button onclick="stopTimer()">Stop</button>
+            <button onclick="resetTimer()">Reset</button>
+            <button onclick="adjustTime(10)">+10 sec</button>
+            <button onclick="adjustTime(20)">+20 sec</button>
+            <button onclick="adjustTime(30)">+30 sec</button>
+            <button onclick="adjustTime(40)">+40 sec</button>
+            <button onclick="adjustTime(50)">+50 sec</button>
+            <button onclick="adjustTime(-20)">-20 sec</button>
+        </div>
+        <div class="row">
+            <select id="timerSelect">
+                <option value="0">Timer 1</option>
+                <option value="1">Timer 2</option>
+                <option value="2">Timer 3</option>
+                <option value="3">Timer 4</option>
+            </select>
+            <button onclick="toggleTimerVisibility()">Toon/Verberg Timer</button>
+            <input type="number" id="timeInput" placeholder="Seconden invoeren">
+            <button onclick="setCustomTime()">Instellen</button>
+        </div>
     </div>
 </body>
 </html>
