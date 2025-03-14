@@ -57,9 +57,9 @@
             });
 
             function selectTimer(index) {
-                document.querySelectorAll(".timer").forEach(el => el.style.border = "none");
+                document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
                 selectedTimer = index;
-                document.querySelector(`.timer[data-index='${index}']`).style.border = "3px solid red";
+                document.getElementById(`timer-container-${index}`).classList.add("selected");
             }
 
             window.startTimer = function() {
@@ -138,6 +138,22 @@
             text-align: center;
             background-color: #f5f5f5;
         }
+        #timer-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .timer {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 150px;
+            text-align: center;
+        }
+        .selected {
+            border: 3px solid red;
+        }
     </style>
 </head>
 <body>
@@ -155,6 +171,9 @@
         </script>
     </div>
     <div class="controls">
+        <button onclick="startTimer()">Start</button>
+        <button onclick="stopTimer()">Stop</button>
+        <button onclick="resetTimer()">Reset</button>
         <select id="timerSelect">
             <option value="0">Timer 1</option>
             <option value="1">Timer 2</option>
