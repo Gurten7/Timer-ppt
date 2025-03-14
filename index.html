@@ -46,7 +46,7 @@
                 }
             });
 
-            function startTimer() {
+            window.startTimer = function() {
                 selectedTimers.forEach(index => {
                     if (intervals[index] !== null) return;
                     intervals[index] = setInterval(() => {
@@ -61,14 +61,14 @@
                 });
             }
 
-            function stopTimer() {
+            window.stopTimer = function() {
                 selectedTimers.forEach(index => {
                     clearInterval(intervals[index]);
                     intervals[index] = null;
                 });
             }
 
-            function resetTimer() {
+            window.resetTimer = function() {
                 selectedTimers.forEach(index => {
                     stopTimer(index);
                     timers[index] = 60;
@@ -77,7 +77,7 @@
                 });
             }
 
-            function adjustTime(amount) {
+            window.adjustTime = function(amount) {
                 selectedTimers.forEach(index => {
                     timers[index] = Math.max(0, timers[index] + amount);
                     updateDisplay(index);
