@@ -303,13 +303,28 @@ window.toggleSelectedTimerVisibility = function() {
 };
 
 
-    // ✅ Controleer of de URL '?view=display' bevat en verberg de knoppen indien nodig
-   function hideControlsIfNeeded() {
+    function hideControlsIfNeeded() {
     const urlParams = new URLSearchParams(window.location.search);
     const isDisplayMode = urlParams.get("view") === "display";
 
     if (isDisplayMode) {
+        console.log("Display mode actief - extra knoppen verbergen...");
+
+        // Verberg de bestaande knoppen
         document.getElementById("controls").style.display = "none";
+
+        // 🔹 Verberg de extra knoppen en invoervelden voor het instellen van timers
+        const setTimerDiv = document.getElementById("setTimer");
+        const timerSelect = document.getElementById("timerSelect");
+        const secondsInput = document.getElementById("secondsInput");
+        const setTimerButton = document.querySelector("button[onclick='setTimer()']");
+        const toggleTimerButton = document.querySelector("button[onclick='toggleSelectedTimerVisibility()']");
+
+        if (setTimerDiv) setTimerDiv.style.display = "none";
+        if (timerSelect) timerSelect.style.display = "none";
+        if (secondsInput) secondsInput.style.display = "none";
+        if (setTimerButton) setTimerButton.style.display = "none";
+        if (toggleTimerButton) toggleTimerButton.style.display = "none";
 
         // Maak timers en teamnamen niet klikbaar en verberg invoervelden
         for (let i = 1; i <= 4; i++) {
@@ -318,27 +333,27 @@ window.toggleSelectedTimerVisibility = function() {
             const teamNameInput = document.getElementById(`team${i}`);
 
             if (timerBox) {
-                timerBox.style.pointerEvents = "none"; // Voorkomt klikken/selecteren
-                timerBox.style.cursor = "default"; // Verandert de muisaanwijzer
-                // **Laat de rode rand van de geselecteerde timer staan**
+                timerBox.style.pointerEvents = "none"; 
+                timerBox.style.cursor = "default";
             }
 
             if (teamNameDisplay) {
-                teamNameDisplay.style.pointerEvents = "none"; // Voorkomt klikken
-                teamNameDisplay.style.cursor = "default"; // Verandert de muisaanwijzer
+                teamNameDisplay.style.pointerEvents = "none";
+                teamNameDisplay.style.cursor = "default";
             }
 
             if (teamNameInput) {
-                teamNameInput.style.display = "none"; // Verbergt inputveld
+                teamNameInput.style.display = "none";
             }
         }
 
-        // Voorkom dat de geselecteerde timer wijzigt in display modus
+        // Voorkom dat timers geselecteerd kunnen worden
         window.selectTimer = function() {
             console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
         };
     }
 }
+
 
 
 
