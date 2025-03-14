@@ -118,6 +118,23 @@
     <button onclick="adjustTime(-20)">-20 sec</button>
 </div>
 
+<div id="setTimer">
+    <label for="timerSelect">Kies een timer:</label>
+    <select id="timerSelect">
+        <option value="1">Timer 1</option>
+        <option value="2">Timer 2</option>
+        <option value="3">Timer 3</option>
+        <option value="4">Timer 4</option>
+    </select>
+
+    <label for="secondsInput">Aantal seconden:</label>
+    <input type="number" id="secondsInput" placeholder="Voer seconden in" min="0" />
+
+    <button onclick="setTimer()">Stel timer in</button>
+    <button onclick="toggleSelectedTimerVisibility()">Toon/Verberg Timer</button>
+</div>
+
+
     <script>
        
 document.addEventListener("DOMContentLoaded", function() {
@@ -246,6 +263,37 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
     });
+
+// ✅ Functie om de geselecteerde timer handmatig in te stellen
+window.setTimer = function() {
+    const timerNumber = document.getElementById("timerSelect").value;
+    const seconds = document.getElementById("secondsInput").value;
+
+    if (!seconds || seconds < 0) {
+        alert("Voer een geldig aantal seconden in.");
+        return;
+    }
+
+    let timerKey = `timer${timerNumber}`;
+    timerRef.child(timerKey).set(parseInt(seconds)); // Zet tijd in Firebase
+    console.log(`Timer ${timerNumber} ingesteld op ${seconds} seconden.`);
+};
+
+// ✅ Functie om de geselecteerde timer te tonen of te verbergen
+window.toggleSelectedTimerVisibility = function() {
+    const timerNumber = document.getElementById("timerSelect").value;
+    const timerElement = document.getElementById(`timer${timerNumber}`);
+
+    if (!timerElement) {
+        console.error(`Timer ${timerNumber} niet gevonden!`);
+        return;
+    }
+
+    let isHidden = window.getComputedStyle(timerElement).display === "none";
+    timerElement.style.display = isHidden ? "block" : "none"; // Toggle zichtbaar/onzichtbaar
+    console.log(`Timer ${timerNumber} ${isHidden ? "zichtbaar" : "verborgen"} gemaakt.`);
+};
+
 
     // ✅ Controleer of de URL '?view=display' bevat en verberg de knoppen indien nodig
    function hideControlsIfNeeded() {
