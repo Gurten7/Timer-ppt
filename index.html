@@ -15,7 +15,19 @@
             function updateWeergave() {
                 timers.forEach((tijd, index) => {
                     document.getElementById(`timer${index}`).textContent = tijd;
-                    document.getElementById(`team-name-${index}`).textContent = teamNamen[index];
+                    let teamNaamEl = document.getElementById(`team-name-${index}`);
+
+                    if (teamNaamEl.tagName.toLowerCase() === "input") {
+                        let nieuwNaamDiv = document.createElement("div");
+                        nieuwNaamDiv.id = `team-name-${index}`;
+                        nieuwNaamDiv.classList.add("team-name");
+                        nieuwNaamDiv.textContent = teamNamen[index];
+                        nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index));
+                        teamNaamEl.replaceWith(nieuwNaamDiv);
+                    } else {
+                        teamNaamEl.textContent = teamNamen[index];
+                    }
+
                     document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
                 });
             }
@@ -24,7 +36,7 @@
                 document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
                 geselecteerdeTimer = index;
                 document.getElementById(`timer-container-${index}`).classList.add("selected");
-                document.getElementById("timerSelect").value = index; // Synchroniseer dropdown
+                document.getElementById("timerSelect").value = index;
             }
 
             function startTimer() {
@@ -74,7 +86,6 @@
                 inputVeld.value = teamNamen[index];
                 inputVeld.classList.add("team-input");
 
-                // Event wanneer gebruiker op Enter drukt of input verliest
                 inputVeld.addEventListener("blur", () => slaNieuweTeamnaamOp(index, inputVeld.value));
                 inputVeld.addEventListener("keydown", (event) => {
                     if (event.key === "Enter") {
@@ -93,21 +104,12 @@
                 updateWeergave();
             }
 
-            // **Event Listeners Toevoegen**
-            document.getElementById("timerSelect").addEventListener("change", (event) => {
-                selecteerTimer(parseInt(event.target.value));
-            });
-
-            document.getElementById("timeInput").addEventListener("keydown", (event) => {
-                if (event.key === "Enter") stelAangepasteTijdIn();
-            });
-
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
             });
 
-            document.querySelectorAll(".team-name").forEach((el, index) => {
-                el.addEventListener("click", () => maakTeamnaamBewerkbaar(index));
+            document.getElementById("timerSelect").addEventListener("change", (event) => {
+                selecteerTimer(parseInt(event.target.value));
             });
 
             document.getElementById("startBtn").addEventListener("click", startTimer);
@@ -172,6 +174,34 @@
         <div class="timer" id="timer-container-3">
             <div id="team-name-3" class="team-name">Team 4</div>
             <div id="timer3">60</div>
+        </div>
+    </div>
+    
+    <!-- Control Buttons -->
+    <div class="controls">
+        <div class="row">
+            <button id="startBtn">Start</button>
+            <button id="stopBtn">Stop</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+        <div class="row">
+            <button class="adjust-time" data-amount="10">+10 sec</button>
+            <button class="adjust-time" data-amount="20">+20 sec</button>
+            <button class="adjust-time" data-amount="30">+30 sec</button>
+            <button class="adjust-time" data-amount="40">+40 sec</button>
+            <button class="adjust-time" data-amount="50">+50 sec</button>
+            <button class="adjust-time" data-amount="-20">-20 sec</button>
+        </div>
+        <div class="row">
+            <select id="timerSelect">
+                <option value="0">Timer 1</option>
+                <option value="1">Timer 2</option>
+                <option value="2">Timer 3</option>
+                <option value="3">Timer 4</option>
+            </select>
+            <button id="toggleBtn">Zichtbaar ja/nee</button>
+            <input type="number" id="timeInput" placeholder="Voer seconden in">
+            <button id="setTimeBtn">Doorvoeren</button>
         </div>
     </div>
 </body>
