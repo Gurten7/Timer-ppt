@@ -297,10 +297,16 @@ window.toggleSelectedTimerVisibility = function() {
         return;
     }
 
-    let isHidden = window.getComputedStyle(timerElement).display === "none";
-    timerElement.style.display = isHidden ? "block" : "none"; // Toggle zichtbaar/onzichtbaar
-    console.log(`Timer ${timerNumber} ${isHidden ? "zichtbaar" : "verborgen"} gemaakt.`);
+    let isCurrentlyHidden = window.getComputedStyle(timerElement).display === "none";
+    let newVisibility = isCurrentlyHidden ? "block" : "none";
+    timerElement.style.display = newVisibility; // Toggle zichtbaar/onzichtbaar
+
+    // ✅ Opslaan in Firebase of de timer verborgen is (true = verborgen, false = zichtbaar)
+    firebase.database().ref(`hiddenTimers/timer${timerNumber}`).set(newVisibility === "none");
+
+    console.log(`Timer ${timerNumber} ${newVisibility === "block" ? "zichtbaar" : "verborgen"} gemaakt.`);
 };
+
 
 
     function hideControlsIfNeeded() {
@@ -310,10 +316,53 @@ window.toggleSelectedTimerVisibility = function() {
     if (isDisplayMode) {
         console.log("Display mode actief - extra knoppen verbergen...");
 
-        // Verberg de bestaande knoppen
-        document.getElementById("controls").style.display = "none";
+	// ✅ Controleer verborgen timers en pas UI aan
+	firebase.database().ref("hiddenTimers").once("value", (snapshot) => {
+    	if (snapshot.exists()) {
+        let hiddenTimers = snapshot.val();
+        Object.keys(hiddenTimers).forEach(timerKey => {
+            if (hiddenTimers[timerKey]) { // Als de timer verborgen moet zijn
+                const timerElement = document.getElementById(timerKey);
+                if (timerElement) {
+                    timerElement.style.display = "none"; // Verberg de timer
+                }
+            }
+        });
+    }
+});
 
-        // 🔹 Verberg de extra knoppen en invoervelden voor het instellen van timers
+function hideControlsIfNeeded() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDisplayMode = urlParams.get("view") === "display";
+
+    if (isDisplayMode) {
+        console.log("Display mode actief - extra knoppen verbergen...");
+
+        // ✅ Controleer verborgen timers in Firebase en pas UI aan
+        firebase.database().ref("hiddenTimers").once("value", (snapshot) => {
+            if (snapshot.exists()) {
+                let hiddenTimers = snapshot.val();
+                Object.keys(hiddenTimers).forEach(timerKey => {
+                    if (hiddenTimers[timerKey]) { // Als de timer verborgen moet zijn
+                        const timerElement = document.getElementById(timerKey);
+                        if (timerElement) {
+                            timerElement.style.display = "none"; // Verberg de timer
+                        }
+                        // ✅ Verberg ook de timer-container, niet alleen de tekst
+                        const timerBox = document.getElementById(`timerBox${timerKey.replace("timer", "")}`);
+                        if (timerBox) {
+                            timerBox.style.display = "none";
+                        }
+                    }
+                });
+            }
+        });
+
+        // ✅ Verberg de bestaande knoppen
+        const controls = document.getElementById("controls");
+        if (controls) controls.style.display = "none";
+
+        // ✅ Verberg de extra knoppen en invoervelden voor het instellen van timers
         const setTimerDiv = document.getElementById("setTimer");
         const timerSelect = document.getElementById("timerSelect");
         const secondsInput = document.getElementById("secondsInput");
@@ -326,7 +375,7 @@ window.toggleSelectedTimerVisibility = function() {
         if (setTimerButton) setTimerButton.style.display = "none";
         if (toggleTimerButton) toggleTimerButton.style.display = "none";
 
-        // Maak timers en teamnamen niet klikbaar en verberg invoervelden
+        // ✅ Maak timers en teamnamen niet klikbaar en verberg invoervelden
         for (let i = 1; i <= 4; i++) {
             const timerBox = document.getElementById(`timerBox${i}`);
             const teamNameDisplay = document.getElementById(`displayTeam${i}`);
@@ -347,7 +396,7 @@ window.toggleSelectedTimerVisibility = function() {
             }
         }
 
-        // Voorkom dat timers geselecteerd kunnen worden
+        // ✅ Voorkom dat timers geselecteerd kunnen worden
         window.selectTimer = function() {
             console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
         };
@@ -358,10 +407,11 @@ window.toggleSelectedTimerVisibility = function() {
 
 
 
-    // ✅ Roep de functie aan zodra de pagina geladen is
+
+document.addEventListener("DOMContentLoaded", function() {
     hideControlsIfNeeded();
 });
- 
+
     
     </script>
 </body>
