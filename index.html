@@ -23,6 +23,7 @@
             const timersRef = database.ref("timers");
             
             let timers = [60, 60, 60, 60];
+            let teamNames = ["Team 1", "Team 2", "Team 3", "Team 4"];
             let intervals = [null, null, null, null];
             let selectedTimer = 0;
             let visibleTimers = [true, true, true, true];
@@ -30,18 +31,20 @@
             function updateDisplay() {
                 timers.forEach((time, index) => {
                     document.getElementById(`timer${index}`).textContent = time;
+                    document.getElementById(`team-name-${index}`).textContent = teamNames[index];
                     document.getElementById(`timer-container-${index}`).style.display = visibleTimers[index] ? "block" : "none";
                 });
             }
 
             function syncWithDatabase() {
-                timersRef.set(timers);
+                timersRef.set({ timers, teamNames });
             }
 
             timersRef.on("value", (snapshot) => {
                 const data = snapshot.val();
-                if (Array.isArray(data) && data.length === 4) {
-                    timers = data;
+                if (data && Array.isArray(data.timers) && data.timers.length === 4) {
+                    timers = data.timers;
+                    teamNames = data.teamNames || teamNames;
                     updateDisplay();
                 }
             });
@@ -96,6 +99,14 @@
                 }
             }
 
+            function editTeamName(index) {
+                let newName = prompt("Voer een nieuwe teamnaam in:", teamNames[index]);
+                if (newName) {
+                    teamNames[index] = newName;
+                    syncWithDatabase();
+                }
+            }
+
             document.getElementById("timerSelect").addEventListener("change", (event) => {
                 selectTimer(parseInt(event.target.value));
             });
@@ -119,8 +130,8 @@
             margin-bottom: 20px;
         }
         .timer {
-            width: 200px;
-            height: 200px;
+            width: 300px;
+            height: 300px;
             border: 6px solid white;
             display: flex;
             flex-direction: column;
@@ -130,6 +141,7 @@
             font-weight: bold;
             color: red;
             background-color: white;
+            border-radius: 20px;
         }
         .controls {
             display: flex;
@@ -159,12 +171,12 @@
 <body>
     <h1>De slimste kameraad</h1>
     <div class="timer-container">
-        <div id="timer-container-0" class="timer"><span id="timer0">60</span></div>
-        <div id="timer-container-1" class="timer"><span id="timer1">60</span></div>
-        <div id="timer-container-2" class="timer"><span id="timer2">60</span></div>
-        <div id="timer-container-3" class="timer"><span id="timer3">60</span></div>
+        <div id="timer-container-0" class="timer" onclick="editTeamName(0)"><span id="team-name-0">Team 1</span><br><span id="timer0">60</span></div>
+        <div id="timer-container-1" class="timer" onclick="editTeamName(1)"><span id="team-name-1">Team 2</span><br><span id="timer1">60</span></div>
+        <div id="timer-container-2" class="timer" onclick="editTeamName(2)"><span id="team-name-2">Team 3</span><br><span id="timer2">60</span></div>
+        <div id="timer-container-3" class="timer" onclick="editTeamName(3)"><span id="team-name-3">Team 4</span><br><span id="timer3">60</span></div>
     </div>
-    <div class="controls">
+      <div class="controls">
         <div class="row">
             <button onclick="startTimer()">Start</button>
             <button onclick="stopTimer()">Stop</button>
@@ -187,6 +199,6 @@
             <input type="number" id="timeInput" placeholder="Voer seconden in">
             <button onclick="setCustomTime()">Doorvoeren</button>
         </div>
-    </div>
+    </div><
 </body>
 </html>
