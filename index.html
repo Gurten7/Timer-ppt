@@ -133,7 +133,7 @@
         .timer {
             background: white;
             padding: 40px;
-            border-radius: 10px;
+            border-radius: 6px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             width: 220px;
             height: 200px;
@@ -173,13 +173,6 @@
             gap: 10px;
             margin-bottom: 10px;
         }
-        .controls button, .controls select, .controls input {
-            background-color: red;
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -207,6 +200,17 @@
             <button onclick="adjustTime(40)">+40 sec</button>
             <button onclick="adjustTime(50)">+50 sec</button>
             <button onclick="adjustTime(-20)">-20 sec</button>
+        </div>
+        <div class="row">
+            <select id="timerSelect">
+                <option value="0">Timer 1</option>
+                <option value="1">Timer 2</option>
+                <option value="2">Timer 3</option>
+                <option value="3">Timer 4</option>
+            </select>
+            <button onclick="toggleTimerVisibility()">Zichtbaar ja/nee</button>
+            <input type="number" id="timeInput" placeholder="Voer seconden in">
+            <button onclick="setCustomTime()">Doorvoeren</button>
         </div>
     </div>
 </body>
