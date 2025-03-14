@@ -25,7 +25,7 @@
             
             let timers = [60, 60, 60, 60];
             let intervals = [null, null, null, null];
-            let selectedTimer = 0; // Altijd beginnen met de eerste timer geselecteerd
+            let selectedTimer = 0;
             let visibleTimers = [true, true, true, true];
             
             function updateDisplay() {
@@ -47,67 +47,25 @@
                 }
             });
 
-            teamNamesRef.on("value", (snapshot) => {
-                const data = snapshot.val();
-                if (Array.isArray(data) && data.length === 4) {
-                    data.forEach((name, index) => {
-                        document.getElementById(`teamName${index}`).value = name;
-                    });
-                }
-            });
-
             function selectTimer(index) {
                 document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
                 selectedTimer = index;
                 document.getElementById(`timer-container-${index}`).classList.add("selected");
             }
 
-            window.startTimer = function() {
-                if (selectedTimer !== null && intervals[selectedTimer] === null) {
-                    intervals[selectedTimer] = setInterval(() => {
-                        if (timers[selectedTimer] > 0) {
-                            timers[selectedTimer]--;
-                            updateDisplay();
-                            syncWithDatabase();
-                        } else {
-                            stopTimer();
-                        }
-                    }, 1000);
-                }
-            }
-
-            window.stopTimer = function() {
+            window.adjustTime = function(amount) {
                 if (selectedTimer !== null) {
-                    clearInterval(intervals[selectedTimer]);
-                    intervals[selectedTimer] = null;
-                }
-            }
-
-            window.resetTimer = function() {
-                timers = [60, 60, 60, 60];
-                intervals.forEach((interval, index) => {
-                    if (interval) {
-                        clearInterval(interval);
-                        intervals[index] = null;
-                    }
-                });
-                updateDisplay();
-                syncWithDatabase();
-            }
-
-            window.adjustTime = function() {
-                let newTime = parseInt(document.getElementById("timeInput").value);
-                if (!isNaN(newTime) && selectedTimer !== null) {
-                    timers[selectedTimer] = newTime;
+                    timers[selectedTimer] += amount;
+                    if (timers[selectedTimer] < 0) timers[selectedTimer] = 0;
                     updateDisplay();
                     syncWithDatabase();
                 }
             }
 
-            window.toggleTimerVisibility = function() {
-                let selectedIndex = document.getElementById("timerSelect").value;
-                visibleTimers[selectedIndex] = !visibleTimers[selectedIndex];
+            window.resetTimer = function() {
+                timers = [60, 60, 60, 60];
                 updateDisplay();
+                syncWithDatabase();
             }
 
             document.querySelectorAll(".timer").forEach((timerElement, index) => {
@@ -116,19 +74,6 @@
                 });
             });
 
-            document.querySelectorAll(".team-name").forEach((input, index) => {
-                input.addEventListener("click", () => {
-                    input.removeAttribute("readonly");
-                });
-
-                input.addEventListener("blur", () => {
-                    let teamNames = Array.from(document.querySelectorAll(".team-name"), el => el.value);
-                    teamNamesRef.set(teamNames);
-                    input.setAttribute("readonly", true);
-                });
-            });
-
-            // Standaard de eerste timer selecteren na laden van de pagina
             selectTimer(0);
         });
     </script>
@@ -154,10 +99,18 @@
         .selected {
             border: 3px solid red;
         }
+        .controls button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h1>De slimste kameraad</h1>
+    <h1>Wie is de slimste Kameraad</h1>
     <div id="timer-container">
         <script>
             for (let i = 0; i < 4; i++) {
@@ -171,18 +124,13 @@
         </script>
     </div>
     <div class="controls">
-        <button onclick="startTimer()">Start</button>
-        <button onclick="stopTimer()">Stop</button>
+        <button onclick="adjustTime(10)">+10 sec</button>
+        <button onclick="adjustTime(20)">+20 sec</button>
+        <button onclick="adjustTime(30)">+30 sec</button>
+        <button onclick="adjustTime(40)">+40 sec</button>
+        <button onclick="adjustTime(50)">+50 sec</button>
+        <button onclick="adjustTime(-20)">-20 sec</button>
         <button onclick="resetTimer()">Reset</button>
-        <select id="timerSelect">
-            <option value="0">Timer 1</option>
-            <option value="1">Timer 2</option>
-            <option value="2">Timer 3</option>
-            <option value="3">Timer 4</option>
-        </select>
-        <button onclick="toggleTimerVisibility()">Toon/Verberg Timer</button>
-        <input type="number" id="timeInput" placeholder="Seconden invoeren">
-        <button onclick="adjustTime()">Instellen</button>
     </div>
 </body>
 </html>
