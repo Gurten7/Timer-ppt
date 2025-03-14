@@ -17,6 +17,7 @@
                     document.getElementById(`timer${index}`).textContent = tijd;
                     let teamNaamEl = document.getElementById(`team-name-${index}`);
 
+                    // Als de teamnaam een invoerveld is, vervang het met een div na het bewerken
                     if (teamNaamEl.tagName.toLowerCase() === "input") {
                         let nieuwNaamDiv = document.createElement("div");
                         nieuwNaamDiv.id = `team-name-${index}`;
@@ -104,6 +105,7 @@
                 updateWeergave();
             }
 
+            // Event listeners voor timer en knoppen
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
             });
@@ -150,7 +152,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 100px;
+            font-size: 100x;
             font-weight: bold;
             color: red;
             background-color: white;
@@ -182,17 +184,17 @@
             display: flex;
             justify-content: center;
             gap: 10px;
-            flex-wrap: wrap; /* Zorgt ervoor dat de knoppen netjes op elkaar staan */
+            flex-wrap: wrap;
         }
         button {
             background-color: red;
             color: white;
             border: none;
-            padding: 10px;
-            font-size: 14px;
+            padding: 15px 30px
+            font-size: 18px;
             border-radius: 5px;
             width: auto; /* Laat de knoppen kleiner worden, maar passen goed in de layout */
-            max-width: 120px; /* Beperk de breedte van de knoppen */
+            max-width: 200px; /* Beperk de breedte van de knoppen */
         }
         .selected {
             border: 6px solid red;
@@ -268,4 +270,3 @@
     </div>
 </body>
 </html>
-
