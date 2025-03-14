@@ -21,7 +21,6 @@
             firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
             const timersRef = database.ref("timers");
-            const teamNamesRef = database.ref("teamNames");
             
             let timers = [60, 60, 60, 60];
             let intervals = [null, null, null, null];
@@ -54,7 +53,7 @@
             }
 
             window.startTimer = function() {
-                if (selectedTimer !== null && intervals[selectedTimer] === null) {
+                if (intervals[selectedTimer] === null) {
                     intervals[selectedTimer] = setInterval(() => {
                         if (timers[selectedTimer] > 0) {
                             timers[selectedTimer]--;
@@ -68,19 +67,15 @@
             }
 
             window.stopTimer = function() {
-                if (selectedTimer !== null) {
-                    clearInterval(intervals[selectedTimer]);
-                    intervals[selectedTimer] = null;
-                }
+                clearInterval(intervals[selectedTimer]);
+                intervals[selectedTimer] = null;
             }
 
             window.adjustTime = function(amount) {
-                if (selectedTimer !== null) {
-                    timers[selectedTimer] += amount;
-                    if (timers[selectedTimer] < 0) timers[selectedTimer] = 0;
-                    updateDisplay();
-                    syncWithDatabase();
-                }
+                timers[selectedTimer] += amount;
+                if (timers[selectedTimer] < 0) timers[selectedTimer] = 0;
+                updateDisplay();
+                syncWithDatabase();
             }
 
             window.resetTimer = function() {
@@ -97,7 +92,7 @@
 
             window.setCustomTime = function() {
                 let newTime = parseInt(document.getElementById("timeInput").value);
-                if (!isNaN(newTime) && selectedTimer !== null) {
+                if (!isNaN(newTime)) {
                     timers[selectedTimer] = newTime;
                     updateDisplay();
                     syncWithDatabase();
@@ -126,16 +121,28 @@
         }
         .timer {
             background: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            width: 150px;
+            width: 180px;
             text-align: center;
+        }
+        .team-name {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
         }
         .selected {
             border: 3px solid red;
         }
-        .controls button {
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .controls button, .controls select, .controls input {
             background-color: red;
             color: white;
             border: none;
@@ -152,7 +159,7 @@
             for (let i = 0; i < 4; i++) {
                 document.write(`
                     <div class="timer" data-index="${i}" id="timer-container-${i}">
-                        <div class="team-name" id="teamName${i}">Team ${i + 1}</div>
+                        <input type="text" class="team-name" id="teamName${i}" value="Team ${i + 1}">
                         <div class="time" id="timer${i}">60</div>
                     </div>
                 `);
