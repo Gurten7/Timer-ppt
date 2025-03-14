@@ -239,16 +239,24 @@ document.addEventListener("DOMContentLoaded", function() {
         input.focus();
     };
 
-    window.saveTeamName = function(teamNumber) {
-        let display = document.getElementById(`displayTeam${teamNumber}`);
-        let input = document.getElementById(`team${teamNumber}`);
-        if (input.value.trim() !== "") {
-            display.textContent = input.value;
-            teamRef.child(`team${teamNumber}`).set(input.value);  // Opslaan in Firebase
-        }
-        input.style.display = "none";
-        display.style.display = "block";
-    };
+   window.saveTeamName = function(teamNumber) {
+    let display = document.getElementById(`displayTeam${teamNumber}`);
+    let input = document.getElementById(`team${teamNumber}`);
+
+    if (!display || !input) {
+        console.error(`Elementen voor team ${teamNumber} niet gevonden!`);
+        return;
+    }
+
+    let newName = input.value.trim(); // Haal de waarde op en verwijder spaties aan begin/einde
+
+    // Als de naam leeg is, laat dan de teamnaam leeg in Firebase en op de UI
+    display.textContent = newName === "" ? " " : newName; // Zet de tekst op een spatie zodat hij niet verdwijnt
+    teamRef.child(`team${teamNumber}`).set(newName); // Opslaan in Firebase (lege waarde toegestaan)
+
+    input.style.display = "none";
+    display.style.display = "block";
+};
 
     // ✅ Firebase luistert naar wijzigingen in teamnamen en past de UI direct aan
     teamRef.on("value", snapshot => {
