@@ -118,23 +118,6 @@
     <button onclick="adjustTime(-20)">-20 sec</button>
 </div>
 
-<div id="setTimer">
-    <label for="timerSelect">Kies een timer:</label>
-    <select id="timerSelect">
-        <option value="1">Timer 1</option>
-        <option value="2">Timer 2</option>
-        <option value="3">Timer 3</option>
-        <option value="4">Timer 4</option>
-    </select>
-
-    <label for="secondsInput">Aantal seconden:</label>
-    <input type="number" id="secondsInput" placeholder="Voer seconden in" min="0" />
-
-    <button onclick="setTimer()">Stel timer in</button>
-    <button onclick="toggleSelectedTimerVisibility()">Toon/Verberg Timer</button>
-</div>
-
-
     <script>
        
 document.addEventListener("DOMContentLoaded", function() {
@@ -239,24 +222,16 @@ document.addEventListener("DOMContentLoaded", function() {
         input.focus();
     };
 
-   window.saveTeamName = function(teamNumber) {
-    let display = document.getElementById(`displayTeam${teamNumber}`);
-    let input = document.getElementById(`team${teamNumber}`);
-
-    if (!display || !input) {
-        console.error(`Elementen voor team ${teamNumber} niet gevonden!`);
-        return;
-    }
-
-    let newName = input.value.trim(); // Haal de waarde op en verwijder spaties aan begin/einde
-
-    // Als de naam leeg is, laat dan de teamnaam leeg in Firebase en op de UI
-    display.textContent = newName === "" ? " " : newName; // Zet de tekst op een spatie zodat hij niet verdwijnt
-    teamRef.child(`team${teamNumber}`).set(newName); // Opslaan in Firebase (lege waarde toegestaan)
-
-    input.style.display = "none";
-    display.style.display = "block";
-};
+    window.saveTeamName = function(teamNumber) {
+        let display = document.getElementById(`displayTeam${teamNumber}`);
+        let input = document.getElementById(`team${teamNumber}`);
+        if (input.value.trim() !== "") {
+            display.textContent = input.value;
+            teamRef.child(`team${teamNumber}`).set(input.value);  // Opslaan in Firebase
+        }
+        input.style.display = "none";
+        display.style.display = "block";
+    };
 
     // ✅ Firebase luistert naar wijzigingen in teamnamen en past de UI direct aan
     teamRef.on("value", snapshot => {
@@ -272,145 +247,66 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-// ✅ Functie om de geselecteerde timer handmatig in te stellen
-window.setTimer = function() {
-    const timerNumber = document.getElementById("timerSelect").value;
-    const seconds = document.getElementById("secondsInput").value;
-
-    if (!seconds || seconds < 0) {
-        alert("Voer een geldig aantal seconden in.");
-        return;
-    }
-
-    let timerKey = `timer${timerNumber}`;
-    timerRef.child(timerKey).set(parseInt(seconds)); // Zet tijd in Firebase
-    console.log(`Timer ${timerNumber} ingesteld op ${seconds} seconden.`);
-};
-
-// ✅ Functie om de geselecteerde timer te tonen of te verbergen
-window.toggleSelectedTimerVisibility = function() {
-    const timerNumber = document.getElementById("timerSelect").value;
-    const timerElement = document.getElementById(`timer${timerNumber}`);
-
-    if (!timerElement) {
-        console.error(`Timer ${timerNumber} niet gevonden!`);
-        return;
-    }
-
-    let isCurrentlyHidden = window.getComputedStyle(timerElement).display === "none";
-    let newVisibility = isCurrentlyHidden ? "block" : "none";
-    timerElement.style.display = newVisibility; // Toggle zichtbaar/onzichtbaar
-
-    // ✅ Opslaan in Firebase of de timer verborgen is (true = verborgen, false = zichtbaar)
-    firebase.database().ref(`hiddenTimers/timer${timerNumber}`).set(newVisibility === "none");
-
-    console.log(`Timer ${timerNumber} ${newVisibility === "block" ? "zichtbaar" : "verborgen"} gemaakt.`);
-};
-
-
+<script>
 
     function hideControlsIfNeeded() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isDisplayMode = urlParams.get("view") === "display";
+        const urlParams = new URLSearchParams(window.location.search);
+        const isDisplayMode = urlParams.get("view") === "display";
 
-    if (isDisplayMode) {
-        console.log("Display mode actief - extra knoppen verbergen...");
-
-	// ✅ Controleer verborgen timers en pas UI aan
-	firebase.database().ref("hiddenTimers").once("value", (snapshot) => {
-    	if (snapshot.exists()) {
-        let hiddenTimers = snapshot.val();
-        Object.keys(hiddenTimers).forEach(timerKey => {
-            if (hiddenTimers[timerKey]) { // Als de timer verborgen moet zijn
-                const timerElement = document.getElementById(timerKey);
-                if (timerElement) {
-                    timerElement.style.display = "none"; // Verberg de timer
-                }
-            }
-        });
-    }
-});
-
-function hideControlsIfNeeded() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isDisplayMode = urlParams.get("view") === "display";
-
-    if (isDisplayMode) {
-        console.log("Display mode actief - extra knoppen verbergen...");
-
-        // ✅ Controleer verborgen timers in Firebase en pas UI aan
-        firebase.database().ref("hiddenTimers").once("value", (snapshot) => {
-            if (snapshot.exists()) {
-                let hiddenTimers = snapshot.val();
-                Object.keys(hiddenTimers).forEach(timerKey => {
-                    if (hiddenTimers[timerKey]) { // Als de timer verborgen moet zijn
-                        const timerElement = document.getElementById(timerKey);
-                        if (timerElement) {
-                            timerElement.style.display = "none"; // Verberg de timer
-                        }
-                        // ✅ Verberg ook de timer-container, niet alleen de tekst
-                        const timerBox = document.getElementById(`timerBox${timerKey.replace("timer", "")}`);
-                        if (timerBox) {
-                            timerBox.style.display = "none";
-                        }
-                    }
-                });
-            }
-        });
-
-        // ✅ Verberg de bestaande knoppen
         const controls = document.getElementById("controls");
-        if (controls) controls.style.display = "none";
-
-        // ✅ Verberg de extra knoppen en invoervelden voor het instellen van timers
         const setTimerDiv = document.getElementById("setTimer");
         const timerSelect = document.getElementById("timerSelect");
         const secondsInput = document.getElementById("secondsInput");
-        const setTimerButton = document.querySelector("button[onclick='setTimer()']");
-        const toggleTimerButton = document.querySelector("button[onclick='toggleSelectedTimerVisibility()']");
+        const setTimerButton = document.getElementById("setTimerButton");
+        const toggleTimerButton = document.getElementById("toggleTimerButton");
 
-        if (setTimerDiv) setTimerDiv.style.display = "none";
-        if (timerSelect) timerSelect.style.display = "none";
-        if (secondsInput) secondsInput.style.display = "none";
-        if (setTimerButton) setTimerButton.style.display = "none";
-        if (toggleTimerButton) toggleTimerButton.style.display = "none";
+        if (isDisplayMode) {
+            console.log("Display mode actief - extra knoppen verbergen...");
 
-        // ✅ Maak timers en teamnamen niet klikbaar en verberg invoervelden
-        for (let i = 1; i <= 4; i++) {
-            const timerBox = document.getElementById(`timerBox${i}`);
-            const teamNameDisplay = document.getElementById(`displayTeam${i}`);
-            const teamNameInput = document.getElementById(`team${i}`);
+            // 🔹 Verberg de hele sectie voor het aanpassen van timers
+            if (controls) controls.style.display = "none";
+            if (setTimerDiv) setTimerDiv.style.display = "none";
 
-            if (timerBox) {
-                timerBox.style.pointerEvents = "none"; 
-                timerBox.style.cursor = "default";
+            // 🔹 Verberg specifieke knoppen en invoervelden als extra maatregel
+            if (timerSelect) timerSelect.style.display = "none";
+            if (secondsInput) secondsInput.style.display = "none";
+            if (setTimerButton) setTimerButton.style.display = "none";
+            if (toggleTimerButton) toggleTimerButton.style.display = "none";
+
+            // 🔹 Maak timers en teamnamen niet klikbaar en verberg invoervelden
+            for (let i = 1; i <= 4; i++) {
+                const timerBox = document.getElementById(`timerBox${i}`);
+                const teamNameDisplay = document.getElementById(`displayTeam${i}`);
+                const teamNameInput = document.getElementById(`team${i}`);
+
+                if (timerBox) {
+                    timerBox.style.pointerEvents = "none"; 
+                    timerBox.style.cursor = "default";
+                }
+
+                if (teamNameDisplay) {
+                    teamNameDisplay.style.pointerEvents = "none"; 
+                    teamNameDisplay.style.cursor = "default";
+                }
+
+                if (teamNameInput) {
+                    teamNameInput.style.display = "none"; 
+                }
             }
 
-            if (teamNameDisplay) {
-                teamNameDisplay.style.pointerEvents = "none";
-                teamNameDisplay.style.cursor = "default";
-            }
-
-            if (teamNameInput) {
-                teamNameInput.style.display = "none";
-            }
+            // 🔹 Voorkom dat de geselecteerde timer wijzigt in display modus
+            window.selectTimer = function() {
+                console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
+            };
         }
-
-        // ✅ Voorkom dat timers geselecteerd kunnen worden
-        window.selectTimer = function() {
-            console.log("Selecteren van timers is uitgeschakeld in weergavemodus.");
-        };
     }
-}
 
+    // ✅ Roep de functie aan zodra de pagina geladen is
+    document.addEventListener("DOMContentLoaded", function() {
+        hideControlsIfNeeded();
+    });
 
-
-
-
-
-document.addEventListener("DOMContentLoaded", function() {
-    hideControlsIfNeeded();
-});
+</script>
 
     
     </script>
