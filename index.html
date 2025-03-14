@@ -67,12 +67,30 @@
                 }
             }
 
-            function wijzigTeamNaam(index) {
-                let nieuweNaam = prompt("Voer een nieuwe teamnaam in:", teamNamen[index]);
-                if (nieuweNaam) {
+            function maakTeamnaamBewerkbaar(index) {
+                let naamLabel = document.getElementById(`team-name-${index}`);
+                let inputVeld = document.createElement("input");
+                inputVeld.type = "text";
+                inputVeld.value = teamNamen[index];
+                inputVeld.classList.add("team-input");
+
+                // Event wanneer gebruiker op Enter drukt of input verliest
+                inputVeld.addEventListener("blur", () => slaNieuweTeamnaamOp(index, inputVeld.value));
+                inputVeld.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter") {
+                        slaNieuweTeamnaamOp(index, inputVeld.value);
+                    }
+                });
+
+                naamLabel.replaceWith(inputVeld);
+                inputVeld.focus();
+            }
+
+            function slaNieuweTeamnaamOp(index, nieuweNaam) {
+                if (nieuweNaam.trim() !== "") {
                     teamNamen[index] = nieuweNaam;
-                    updateWeergave();
                 }
+                updateWeergave();
             }
 
             // **Event Listeners Toevoegen**
@@ -86,10 +104,10 @@
 
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
-                el.querySelector("div:first-child").addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    wijzigTeamNaam(index);
-                });
+            });
+
+            document.querySelectorAll(".team-name").forEach((el, index) => {
+                el.addEventListener("click", () => maakTeamnaamBewerkbaar(index));
             });
 
             document.getElementById("startBtn").addEventListener("click", startTimer);
@@ -115,6 +133,21 @@
             flex-direction: column; justify-content: center; align-items: center;
             font-size: 80px; font-weight: bold; color: red; background-color: white; border-radius: 20px;
         }
+        .team-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: black;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .team-input {
+            font-size: 24px;
+            font-weight: bold;
+            width: 80%;
+            text-align: center;
+            border: none;
+            outline: none;
+        }
         .controls { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 20px; }
         .row { display: flex; justify-content: center; gap: 10px; }
         button { background-color: red; color: white; border: none; padding: 10px; font-size: 16px; border-radius: 5px; }
@@ -125,44 +158,20 @@
     <h1>De Slimste Kameraad</h1>
     <div class="timer-container">
         <div class="timer" id="timer-container-0">
-            <div id="team-name-0">Team 1</div>
+            <div id="team-name-0" class="team-name">Team 1</div>
             <div id="timer0">60</div>
         </div>
         <div class="timer" id="timer-container-1">
-            <div id="team-name-1">Team 2</div>
+            <div id="team-name-1" class="team-name">Team 2</div>
             <div id="timer1">60</div>
         </div>
         <div class="timer" id="timer-container-2">
-            <div id="team-name-2">Team 3</div>
+            <div id="team-name-2" class="team-name">Team 3</div>
             <div id="timer2">60</div>
         </div>
         <div class="timer" id="timer-container-3">
-            <div id="team-name-3">Team 4</div>
+            <div id="team-name-3" class="team-name">Team 4</div>
             <div id="timer3">60</div>
-        </div>
-    </div>
-    <div class="controls">
-        <div class="row">
-            <button id="startBtn">Start</button>
-            <button id="stopBtn">Stop</button>
-            <button id="resetBtn">Reset</button>
-            <button class="adjust-time" data-amount="10">+10 sec</button>
-            <button class="adjust-time" data-amount="20">+20 sec</button>
-            <button class="adjust-time" data-amount="30">+30 sec</button>
-            <button class="adjust-time" data-amount="40">+40 sec</button>
-            <button class="adjust-time" data-amount="50">+50 sec</button>
-            <button class="adjust-time" data-amount="-20">-20 sec</button>
-        </div>
-        <div class="row">
-            <select id="timerSelect">
-                <option value="0">Timer 1</option>
-                <option value="1">Timer 2</option>
-                <option value="2">Timer 3</option>
-                <option value="3">Timer 4</option>
-            </select>
-            <button id="toggleBtn">Zichtbaar ja/nee</button>
-            <input type="number" id="timeInput" placeholder="Voer seconden in">
-            <button id="setTimeBtn">Doorvoeren</button>
         </div>
     </div>
 </body>
