@@ -24,10 +24,11 @@
             firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
             const timersRef = database.ref("timers");
+            const teamNamesRef = database.ref("teamNames");
             
             let timers = [60, 60, 60, 60];
             let intervals = [null, null, null, null];
-            let selectedTimers = new Set();
+            let selectedTimer = null;
             
             function updateDisplay(index) {
                 document.getElementById(`timer${index}`).textContent = timers[index];
@@ -46,54 +47,70 @@
                 }
             });
 
+            teamNamesRef.on("value", (snapshot) => {
+                const data = snapshot.val();
+                if (Array.isArray(data) && data.length === 4) {
+                    data.forEach((name, index) => {
+                        document.getElementById(`teamName${index}`).value = name;
+                    });
+                }
+            });
+
             window.startTimer = function() {
-                selectedTimers.forEach(index => {
-                    if (intervals[index] !== null) return;
-                    intervals[index] = setInterval(() => {
-                        if (timers[index] > 0) {
-                            timers[index]--;
-                            updateDisplay(index);
+                if (selectedTimer !== null && intervals[selectedTimer] === null) {
+                    intervals[selectedTimer] = setInterval(() => {
+                        if (timers[selectedTimer] > 0) {
+                            timers[selectedTimer]--;
+                            updateDisplay(selectedTimer);
                             syncWithDatabase();
                         } else {
-                            stopTimer(index);
+                            stopTimer();
                         }
                     }, 1000);
-                });
+                }
             }
 
             window.stopTimer = function() {
-                selectedTimers.forEach(index => {
-                    clearInterval(intervals[index]);
-                    intervals[index] = null;
-                });
+                if (selectedTimer !== null) {
+                    clearInterval(intervals[selectedTimer]);
+                    intervals[selectedTimer] = null;
+                }
             }
 
             window.resetTimer = function() {
-                selectedTimers.forEach(index => {
-                    stopTimer(index);
-                    timers[index] = 60;
-                    updateDisplay(index);
+                if (selectedTimer !== null) {
+                    stopTimer();
+                    timers[selectedTimer] = 60;
+                    updateDisplay(selectedTimer);
                     syncWithDatabase();
-                });
+                }
             }
 
             window.adjustTime = function(amount) {
-                selectedTimers.forEach(index => {
-                    timers[index] = Math.max(0, timers[index] + amount);
-                    updateDisplay(index);
+                if (selectedTimer !== null) {
+                    timers[selectedTimer] = Math.max(0, timers[selectedTimer] + amount);
+                    updateDisplay(selectedTimer);
                     syncWithDatabase();
-                });
+                }
             }
 
             document.querySelectorAll(".timer").forEach((timerElement, index) => {
                 timerElement.addEventListener("click", () => {
-                    if (selectedTimers.has(index)) {
-                        selectedTimers.delete(index);
-                        timerElement.style.border = "none";
-                    } else {
-                        selectedTimers.add(index);
-                        timerElement.style.border = "3px solid blue";
-                    }
+                    document.querySelectorAll(".timer").forEach(el => el.style.border = "none");
+                    selectedTimer = index;
+                    timerElement.style.border = "3px solid red";
+                });
+            });
+
+            document.querySelectorAll(".team-name").forEach((input, index) => {
+                input.addEventListener("blur", () => {
+                    let teamNames = Array.from(document.querySelectorAll(".team-name"), el => el.value);
+                    teamNamesRef.set(teamNames);
+                    input.setAttribute("readonly", true);
+                });
+
+                input.addEventListener("dblclick", () => {
+                    input.removeAttribute("readonly");
                 });
             });
         });
@@ -122,11 +139,6 @@
             text-align: center;
             cursor: pointer;
         }
-        .team-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
         .time {
             font-size: 2rem;
             color: #ff4500;
@@ -146,6 +158,14 @@
         .controls button:hover {
             background: darkred;
         }
+        .team-name {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            border: none;
+            background: transparent;
+        }
     </style>
 </head>
 <body>
@@ -155,7 +175,7 @@
             for (let i = 0; i < 4; i++) {
                 document.write(`
                     <div class="timer" data-index="${i}">
-                        <div class="team-name">Team ${i + 1}</div>
+                        <input type="text" id="teamName${i}" class="team-name" value="Team ${i + 1}" readonly>
                         <div class="time" id="timer${i}">60</div>
                     </div>
                 `);
