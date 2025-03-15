@@ -190,6 +190,13 @@
             syncTeamNames(); // Synchroniseer de teamnamen
         }
 
+        // De zichtbaarheid van de timer omschakelen
+        function toggleTimerZichtbaarheid() {
+            zichtbareTimers[geselecteerdeTimer] = !zichtbareTimers[geselecteerdeTimer];
+            updateWeergave(); // Werk de weergave bij zodat de timer zichtbaar of onzichtbaar wordt
+            set(timersRef, timers); // Synchroniseer de wijziging met Firebase
+        }
+
         // Initialisatie
         document.addEventListener("DOMContentLoaded", () => {
             syncWithFirebase(); // Start de synchronisatie bij het laden van de pagina
@@ -359,4 +366,3 @@
     </div>
 </body>
 </html>
-
