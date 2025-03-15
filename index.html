@@ -60,6 +60,8 @@
                         teamNaamEl.textContent = teamNamen[index];
                         teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener toe als deze nog niet bestaat
                     }
+                } else {
+                    console.warn(`Element met id "team-name-${index}" is al vervangen, geen actie nodig.`);
                 }
 
                 document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
@@ -174,6 +176,9 @@
                         slaNieuweTeamnaamOp(index, inputVeld.value);
                     }
                 });
+            } else {
+                // Geen actie nodig als het element al vervangen is
+                console.warn(`Element met id "team-name-${index}" is al vervangen, geen actie nodig.`);
             }
         }
 
@@ -208,13 +213,13 @@
             document.getElementById("stopBtn").addEventListener("click", stopTimer);
             document.getElementById("resetBtn").addEventListener("click", resetTimer);
             document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
-            document.getElementById("setTimeBtn").addEventListener("click", stelAangepasteTijdIn);
+            document.getElementById("setTimeBtn").addEventListener("click", stelAangepasteTijdIn); // Koppeling met de knop
 
             document.querySelectorAll(".adjust-time").forEach(button => {
                 button.addEventListener("click", () => pasTijdAan(parseInt(button.dataset.amount)));
             });
 
-            selecteerTimer(0);
+            selecteerTimer(0); // Standaard de eerste timer selecteren
             updateWeergave();
         });
     </script>
