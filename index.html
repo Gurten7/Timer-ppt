@@ -211,8 +211,7 @@
             justify-content: center;
             gap: 20px;
             margin-bottom: 20px;
-            flex-wrap: nowrap; 
-            overflow-x: auto;
+            flex-wrap: wrap;  /* Zorg ervoor dat de timers netjes schalen op verschillende schermgroottes */
         }
         .timer {
             width: 230px;
@@ -333,10 +332,4 @@
                 <option value="2">Timer 3</option>
                 <option value="3">Timer 4</option>
             </select>
-            <button id="toggleBtn">Zichtbaar ja/nee</button>
-            <input type="number" id="timeInput" placeholder="Voer seconden in">
-            <button id="setTimeBtn">Doorvoeren</button>
-        </div>
-    </div>
-</body>
-</html>
+            <button id="
