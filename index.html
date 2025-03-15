@@ -22,11 +22,11 @@
             firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
             const timersRef = database.ref("timers");
-            const timerStatusRef = database.ref("timerStatus");
+            const teamNamesRef = database.ref("teamNames");
 
-            let timers = [60, 60, 60, 60];
-            let teamNamen = ["Team 1", "Team 2", "Team 3", "Team 4"];
-            let intervals = [null, null, null, null];
+            let timers = [60, 60, 60, 60];  // Tijd voor elke timer
+            let teamNamen = ["Team 1", "Team 2", "Team 3", "Team 4"];  // Standaard teamnamen
+            let intervals = [null, null, null, null];  // Array voor timers
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
@@ -35,15 +35,20 @@
                 timers.forEach((tijd, index) => {
                     document.getElementById(`timer${index}`).textContent = tijd;
                     let teamNaamEl = document.getElementById(`team-name-${index}`);
-                    teamNaamEl.textContent = teamNamen[index];
+                    teamNaamEl.textContent = teamNamen[index];  // Gebruik de gedefinieerde teamnaam
 
                     document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
                 });
             }
 
-            // Synchroniseer de timer met Firebase
+            // Synchroniseer timer naar Firebase
             function syncTimer() {
-                timersRef.set(timers);
+                timersRef.set(timers); // Zet de timerstatus in Firebase
+            }
+
+            // Synchroniseer teamnamen naar Firebase
+            function syncTeamNames() {
+                teamNamesRef.set(teamNamen);  // Zet de teamnamen in Firebase
             }
 
             // Start de timer en synchroniseer met Firebase
@@ -61,8 +66,7 @@
 
                 timerStatusRef.set({
                     running: true,
-                    selectedTimer: geselecteerdeTimer,
-                    action: 'start'
+                    selectedTimer: geselecteerdeTimer
                 });
             }
 
@@ -72,8 +76,7 @@
                 intervals[geselecteerdeTimer] = null;
                 timerStatusRef.set({
                     running: false,
-                    selectedTimer: geselecteerdeTimer,
-                    action: 'stop'
+                    selectedTimer: geselecteerdeTimer
                 });
             }
 
@@ -91,6 +94,35 @@
                 syncTimer();
             }
 
+            // Maak teamnaam bewerkbaar
+            function maakTeamnaamBewerkbaar(index) {
+                let teamNaamEl = document.getElementById(`team-name-${index}`);
+                let inputVeld = document.createElement("input");
+                inputVeld.type = "text";
+                inputVeld.value = teamNamen[index];
+                inputVeld.classList.add("team-input");
+
+                // Vervang de huidige naam door het invoerveld
+                teamNaamEl.replaceWith(inputVeld);
+                inputVeld.focus();
+
+                inputVeld.addEventListener("blur", () => slaNieuweTeamnaamOp(index, inputVeld.value));
+                inputVeld.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter") {
+                        slaNieuweTeamnaamOp(index, inputVeld.value);
+                    }
+                });
+            }
+
+            // Sla de nieuwe teamnaam op in Firebase
+            function slaNieuweTeamnaamOp(index, nieuweNaam) {
+                if (nieuweNaam.trim() !== "") {
+                    teamNamen[index] = nieuweNaam;
+                }
+                updateWeergave();
+                syncTeamNames();
+            }
+
             // Synchroniseer met Firebase en luister naar status updates
             function syncWithFirebase() {
                 timersRef.on("value", (snapshot) => {
@@ -101,14 +133,11 @@
                     }
                 });
 
-                timerStatusRef.on("value", (snapshot) => {
+                teamNamesRef.on("value", (snapshot) => {
                     const data = snapshot.val();
-                    if (data && data.running !== undefined) {
-                        if (data.running && !intervals[data.selectedTimer]) {
-                            startTimer();
-                        } else if (!data.running && intervals[data.selectedTimer]) {
-                            stopTimer();
-                        }
+                    if (data) {
+                        teamNamen = data;
+                        updateWeergave();
                     }
                 });
             }
@@ -129,7 +158,7 @@
 
             syncWithFirebase(); // Start de synchronisatie
 
-            // Andere timergerelateerde functies
+            // Selecteer een timer
             function selecteerTimer(index) {
                 document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
                 geselecteerdeTimer = index;
@@ -153,6 +182,7 @@
                 }
             }
 
+            // Initialiseer de eerste timer
             selecteerTimer(0);
             updateWeergave();
         });
@@ -256,19 +286,19 @@
     <h1>De Slimste Kameraad</h1>
     <div class="timer-container">
         <div class="timer" id="timer-container-0">
-            <div id="team-name-0" class="team-name">Team 1</div>
+            <div id="team-name-0" class="team-name" onclick="maakTeamnaamBewerkbaar(0)">Team 1</div>
             <div id="timer0">60</div>
         </div>
         <div class="timer" id="timer-container-1">
-            <div id="team-name-1" class="team-name">Team 2</div>
+            <div id="team-name-1" class="team-name" onclick="maakTeamnaamBewerkbaar(1)">Team 2</div>
             <div id="timer1">60</div>
         </div>
         <div class="timer" id="timer-container-2">
-            <div id="team-name-2" class="team-name">Team 3</div>
+            <div id="team-name-2" class="team-name" onclick="maakTeamnaamBewerkbaar(2)">Team 3</div>
             <div id="timer2">60</div>
         </div>
         <div class="timer" id="timer-container-3">
-            <div id="team-name-3" class="team-name">Team 4</div>
+            <div id="team-name-3" class="team-name" onclick="maakTeamnaamBewerkbaar(3)">Team 4</div>
             <div id="timer3">60</div>
         </div>
     </div>
