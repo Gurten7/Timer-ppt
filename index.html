@@ -36,7 +36,7 @@
                             teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener toe als deze nog niet bestaat
                         }
                     } else {
-                        console.error(`Element met id "team-name-${index}" niet gevonden`);
+                        console.warn(`Element met id "team-name-${index}" is al vervangen, geen actie nodig.`);
                     }
 
                     document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
@@ -114,7 +114,8 @@
                         }
                     });
                 } else {
-                    console.error(`Element met id "team-name-${index}" is niet gevonden`);
+                    // Waarschuwing in plaats van foutmelding wanneer het element al vervangen is
+                    console.warn(`Element met id "team-name-${index}" is al vervangen, geen actie nodig.`);
                 }
             }
 
