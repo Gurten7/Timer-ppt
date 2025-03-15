@@ -113,11 +113,6 @@
                             slaNieuweTeamnaamOp(index, inputVeld.value);
                         }
                     });
-                } else {
-                    // Geen actie nodig als het element al vervangen is
-                    console.warn(`Element met id "team-name-${index}" is al vervangen, geen actie nodig.`);
-                }
-            }
 
             function slaNieuweTeamnaamOp(index, nieuweNaam) {
                 if (nieuweNaam.trim() !== "") {
@@ -181,7 +176,7 @@
             border-radius: 20px;
         }
         .team-name {
-            font-size: 40px;
+            font-size: 30px;
             font-weight: bold;
             color: black;
             cursor: pointer;
