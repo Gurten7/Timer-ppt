@@ -42,6 +42,15 @@
 
                     document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
                 });
+
+                // Zet de rand van de geselecteerde timer
+                document.querySelectorAll(".timer").forEach((el, index) => {
+                    if (index === geselecteerdeTimer) {
+                        el.classList.add("selected");
+                    } else {
+                        el.classList.remove("selected");
+                    }
+                });
             }
 
             function syncWithFirebase() {
@@ -147,7 +156,7 @@
                 updateWeergave();
             }
 
-            // Event listeners
+            // Event listeners voor het selecteren van de timer
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
             });
