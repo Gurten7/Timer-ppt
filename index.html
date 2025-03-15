@@ -25,39 +25,28 @@
             const timerStatusRef = database.ref("timerStatus");
 
             let timers = [60, 60, 60, 60];
+            let teamNamen = ["Team 1", "Team 2", "Team 3", "Team 4"];
             let intervals = [null, null, null, null];
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Update de timerweergave
+            // Timerweergave updaten
             function updateWeergave() {
                 timers.forEach((tijd, index) => {
                     document.getElementById(`timer${index}`).textContent = tijd;
                     let teamNaamEl = document.getElementById(`team-name-${index}`);
-
-                    // Controleer of de teamnaam een invoerveld is en vervang het met een div na bewerking
-                    if (teamNaamEl.tagName.toLowerCase() === "input") {
-                        let nieuwNaamDiv = document.createElement("div");
-                        nieuwNaamDiv.id = `team-name-${index}`;
-                        nieuwNaamDiv.classList.add("team-name");
-                        nieuwNaamDiv.textContent = teamNamen[index];
-                        nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener opnieuw toe
-                        teamNaamEl.replaceWith(nieuwNaamDiv);
-                    } else {
-                        teamNaamEl.textContent = teamNamen[index];
-                        teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener toe als deze nog niet bestaat
-                    }
+                    teamNaamEl.textContent = teamNamen[index]; // Gebruik de teamnaam uit de array
 
                     document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
                 });
             }
 
-            // Synchroniseer de timer met Firebase
+            // Synchroniseer timerstatus naar Firebase
             function syncTimer() {
                 timersRef.set(timers);
             }
 
-            // Start de timer en synchroniseer
+            // Start de timer en synchroniseer met Firebase
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
                 intervals[geselecteerdeTimer] = setInterval(() => {
@@ -65,40 +54,44 @@
                         timers[geselecteerdeTimer]--;
                         updateWeergave();
                         syncTimer(); // Synchroniseer elke seconde
+                    } else {
+                        stopTimer(); // Stop de timer als deze op 0 komt
                     }
                 }, 1000);
 
                 timerStatusRef.set({
                     running: true,
-                    selectedTimer: geselecteerdeTimer
+                    selectedTimer: geselecteerdeTimer,
+                    action: 'start'
                 });
             }
 
-            // Stop de timer en synchroniseer
+            // Stop de timer en synchroniseer met Firebase
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
                 timerStatusRef.set({
                     running: false,
-                    selectedTimer: geselecteerdeTimer
+                    selectedTimer: geselecteerdeTimer,
+                    action: 'stop'
                 });
             }
 
-            // Reset de timer en synchroniseer
+            // Reset de timer en synchroniseer met Firebase
             function resetTimer() {
                 timers = [60, 60, 60, 60];
                 updateWeergave();
                 syncTimer();
             }
 
-            // Pas de tijd aan en synchroniseer
+            // Pas de tijd aan en synchroniseer met Firebase
             function pasTijdAan(aantal) {
                 timers[geselecteerdeTimer] = Math.max(0, timers[geselecteerdeTimer] + aantal);
                 updateWeergave();
                 syncTimer();
             }
 
-            // Synchroniseer met de status van de timer via Firebase
+            // Synchroniseer timerstatus van Firebase naar de browser
             function syncWithFirebase() {
                 timersRef.on("value", (snapshot) => {
                     const data = snapshot.val();
@@ -120,7 +113,7 @@
                 });
             }
 
-            // Timerknoppen en event listeners
+            // Event listeners voor de knoppen
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
             });
@@ -136,7 +129,7 @@
 
             syncWithFirebase(); // Start de synchronisatie
 
-            // Andere timer gerelateerde functies
+            // Andere timergerelateerde functies
             function selecteerTimer(index) {
                 document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
                 geselecteerdeTimer = index;
