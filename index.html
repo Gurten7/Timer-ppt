@@ -52,13 +52,12 @@
                 });
             }
 
-            function selecteerTimer(index) {
-                document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
-                geselecteerdeTimer = index;
-                document.getElementById(`timer-container-${index}`).classList.add("selected");
-                document.getElementById("timerSelect").value = index;
+            // Synchroniseer de timer met Firebase
+            function syncTimer() {
+                timersRef.set(timers);
             }
 
+            // Start de timer en synchroniseer
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
                 intervals[geselecteerdeTimer] = setInterval(() => {
@@ -75,6 +74,7 @@
                 });
             }
 
+            // Stop de timer en synchroniseer
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
@@ -84,38 +84,21 @@
                 });
             }
 
+            // Reset de timer en synchroniseer
             function resetTimer() {
                 timers = [60, 60, 60, 60];
                 updateWeergave();
                 syncTimer();
             }
 
+            // Pas de tijd aan en synchroniseer
             function pasTijdAan(aantal) {
                 timers[geselecteerdeTimer] = Math.max(0, timers[geselecteerdeTimer] + aantal);
                 updateWeergave();
                 syncTimer();
             }
 
-            function toggleTimerZichtbaarheid() {
-                zichtbareTimers[geselecteerdeTimer] = !zichtbareTimers[geselecteerdeTimer];
-                updateWeergave();
-            }
-
-            function stelAangepasteTijdIn() {
-                const invoerSeconden = parseInt(document.getElementById("timeInput").value);
-                if (!isNaN(invoerSeconden) && invoerSeconden >= 0) {
-                    timers[geselecteerdeTimer] = invoerSeconden;
-                    updateWeergave();
-                    syncTimer();
-                } else {
-                    alert("Voer een geldig aantal seconden in (minimaal 0)");
-                }
-            }
-
-            function syncTimer() {
-                timersRef.set(timers);
-            }
-
+            // Synchroniseer met de status van de timer via Firebase
             function syncWithFirebase() {
                 timersRef.on("value", (snapshot) => {
                     const data = snapshot.val();
@@ -325,4 +308,3 @@
     </div>
 </body>
 </html>
-
