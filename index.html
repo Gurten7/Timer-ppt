@@ -35,8 +35,6 @@
                             teamNaamEl.textContent = teamNamen[index];
                             teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener toe als deze nog niet bestaat
                         }
-                    } else {
-                        console.warn(`Element met id "team-name-${index}" is al vervangen, geen actie nodig.`);
                     }
 
                     document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
