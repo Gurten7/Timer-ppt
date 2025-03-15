@@ -30,18 +30,18 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Timerweergave updaten
+            // Update de timerweergave
             function updateWeergave() {
                 timers.forEach((tijd, index) => {
                     document.getElementById(`timer${index}`).textContent = tijd;
                     let teamNaamEl = document.getElementById(`team-name-${index}`);
-                    teamNaamEl.textContent = teamNamen[index]; // Gebruik de teamnaam uit de array
+                    teamNaamEl.textContent = teamNamen[index];
 
                     document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
                 });
             }
 
-            // Synchroniseer timerstatus naar Firebase
+            // Synchroniseer de timer met Firebase
             function syncTimer() {
                 timersRef.set(timers);
             }
@@ -91,7 +91,7 @@
                 syncTimer();
             }
 
-            // Synchroniseer timerstatus van Firebase naar de browser
+            // Synchroniseer met Firebase en luister naar status updates
             function syncWithFirebase() {
                 timersRef.on("value", (snapshot) => {
                     const data = snapshot.val();
