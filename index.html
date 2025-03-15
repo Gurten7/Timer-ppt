@@ -43,6 +43,15 @@
 
                 document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
             });
+
+            // Zet de rand van de geselecteerde timer
+            document.querySelectorAll(".timer").forEach((el, index) => {
+                if (index === geselecteerdeTimer) {
+                    el.classList.add("selected");
+                } else {
+                    el.classList.remove("selected");
+                }
+            });
         }
 
         // Synchroniseer de timer naar Firebase
@@ -73,7 +82,7 @@
                 }
             }, 1000);
 
-            set(selectedTimerRef, geselecteerdeTimer);
+            syncSelectedTimer(); // Synchroniseer de geselecteerde timer
         }
 
         // Stop de timer en synchroniseer met Firebase
@@ -197,6 +206,7 @@
         selecteerTimer(0);
         updateWeergave();
     </script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -289,6 +299,14 @@
                 font-size: 12px; /* Kleinere tekst voor knoppen op mobiel */
             }
         }
+
+        /* Zorg ervoor dat de timers naast elkaar staan op grotere schermen */
+        @media (min-width: 769px) {
+            .timer-container {
+                flex-direction: row; /* Zorg ervoor dat timers naast elkaar staan */
+                justify-content: space-between;
+            }
+        }
     </style>
 </head>
 <body>
@@ -317,8 +335,6 @@
             <button id="startBtn">Start</button>
             <button id="stopBtn">Stop</button>
             <button id="resetBtn">Reset</button>
-        </div>
-        <div class="row">
             <button class="adjust-time" data-amount="10">+10 sec</button>
             <button class="adjust-time" data-amount="20">+20 sec</button>
             <button class="adjust-time" data-amount="30">+30 sec</button>
