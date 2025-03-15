@@ -93,8 +93,8 @@
             function maakTeamnaamBewerkbaar(index) {
                 let naamLabel = document.getElementById(`team-name-${index}`);
                 
-                // Controleer of het teamnaam element bestaat
-                if (naamLabel) {
+                // Alleen doorgaan als het element nog niet vervangen is
+                if (naamLabel && naamLabel.tagName.toLowerCase() !== "input") {
                     let inputVeld = document.createElement("input");
                     inputVeld.type = "text";
                     inputVeld.value = teamNamen[index];
@@ -114,7 +114,7 @@
                         }
                     });
                 } else {
-                    // Waarschuwing in plaats van foutmelding wanneer het element al vervangen is
+                    // Geen actie nodig als het element al vervangen is
                     console.warn(`Element met id "team-name-${index}" is al vervangen, geen actie nodig.`);
                 }
             }
