@@ -98,6 +98,10 @@
                     inputVeld.value = teamNamen[index];
                     inputVeld.classList.add("team-input");
 
+                    // Zorg ervoor dat de input hetzelfde blijft qua layout
+                    inputVeld.style.fontSize = "30px"; // Wijzig de font size naar 30px
+                    inputVeld.style.width = "80%"; // Zorg ervoor dat het niet te breed is
+
                     // Vervang de huidige naam door het invoerveld
                     naamLabel.replaceWith(inputVeld);
                     inputVeld.focus();
@@ -111,9 +115,6 @@
                             slaNieuweTeamnaamOp(index, inputVeld.value);
                         }
                     });
-                } else {
-                    // Geen actie nodig als het element al vervangen is
-                    console.warn(`Element met id "team-name-${index}" is al vervangen, geen actie nodig.`);
                 }
             }
 
@@ -179,14 +180,14 @@
             border-radius: 20px;
         }
         .team-name {
-            font-size: 40px;
+            font-size: 30px;  /* Verander de font size van de teamnaam naar 30px */
             font-weight: bold;
             color: black;
             cursor: pointer;
             margin-bottom: 20px;
         }
         .team-input {
-            font-size: 40px;  /* Teamnaam blijft op dezelfde grootte */
+            font-size: 30px;  /* Teamnaam blijft op dezelfde grootte van 30px */
             font-weight: bold;
             width: 80%;
             text-align: center;
