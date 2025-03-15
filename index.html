@@ -4,26 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>De Slimste Kameraad</title>
+    
+    <!-- Firebase SDK's -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+
     <script defer>
-        // Firebase-configuratie
-        const firebaseConfig = {
-            apiKey: "AIzaSyD6uImMSAWrXWedzXIiOPmgQaCykM0WWOo",
-            authDomain: "timer-voor-powerpoint.firebaseapp.com",
-            databaseURL: "https://timer-voor-powerpoint-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "timer-voor-powerpoint",
-            storageBucket: "timer-voor-powerpoint.firebasestorage.app",
-            messagingSenderId: "478610962081",
-            appId: "1:478610962081:web:f5849499db39724c6aa2e0",
-            measurementId: "G-G734Q3W18F"
-        };
-
-        // Initialiseer Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
         document.addEventListener("DOMContentLoaded", () => {
+            // Firebase-configuratie
+            const firebaseConfig = {
+                apiKey: "YOUR_API_KEY",  // Vervang met je eigen API key
+                authDomain: "slimste-kameraad-timer.firebaseapp.com",  // Vervang met je project ID
+                databaseURL: "https://slimste-kameraad-timer-default-rtdb.europe-west1.firebasedatabase.app",  // Dit is je database URL
+                projectId: "slimste-kameraad-timer",  // Je Project ID
+                storageBucket: "slimste-kameraad-timer.appspot.com",  // Je opslag
+                messagingSenderId: "37865286019",  // Je messaging ID
+                appId: "YOUR_APP_ID"  // Vervang dit met je app ID
+            };
+
+            // Initialiseer Firebase
+            const app = firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+
             let timers = [60, 60, 60, 60];
             let teamNamen = ["Team 1", "Team 2", "Team 3", "Team 4"];
             let intervals = [null, null, null, null];
@@ -45,7 +47,7 @@
                             nieuwNaamDiv.id = `team-name-${index}`;
                             nieuwNaamDiv.classList.add("team-name");
                             nieuwNaamDiv.textContent = teamNamen[index];
-                            nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index));
+                            nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); 
                             teamNaamEl.replaceWith(nieuwNaamDiv);
                         } else {
                             teamNaamEl.textContent = teamNamen[index];
@@ -70,7 +72,7 @@
                     if (timers[geselecteerdeTimer] > 0) {
                         timers[geselecteerdeTimer]--;
                         updateWeergave();
-                        updateDatabase(); // Stuur elke wijziging naar Firebase
+                        updateDatabase(); // Stuur de wijziging naar Firebase
                     }
                 }, 1000);
             }
@@ -138,6 +140,7 @@
                 updateDatabase(); // Stuur de nieuwe teamnaam naar Firebase
             }
 
+            // Firebase - Update de Realtime Database met de huidige timerinstellingen
             function updateDatabase() {
                 const timersRef = firebase.database().ref('timers');
                 timersRef.set({
@@ -148,6 +151,7 @@
                 });
             }
 
+            // Firebase - Synchroniseer de timers met de Realtime Database
             function syncTimers() {
                 const timersRef = firebase.database().ref('timers');
                 timersRef.on('value', (snapshot) => {
@@ -181,6 +185,7 @@
             syncTimers(); // Start het synchroniseren van de timers
         });
     </script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -296,6 +301,7 @@
         </div>
     </div>
 
+    <!-- Control Buttons -->
     <div class="controls">
         <div class="row">
             <button id="startBtn">Start</button>
@@ -320,8 +326,5 @@
             <button id="setTimeBtn">Doorvoeren</button>
         </div>
     </div>
-</body>
-</html>
-
 </body>
 </html>
