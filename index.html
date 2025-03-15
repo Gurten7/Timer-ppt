@@ -16,18 +16,20 @@
                 timers.forEach((tijd, index) => {
                     document.getElementById(`timer${index}`).textContent = tijd;
                     let teamNaamEl = document.getElementById(`team-name-${index}`);
-
-                    // Controleer of de teamnaam een invoerveld is en vervang het met een div na bewerking
-                    if (teamNaamEl.tagName.toLowerCase() === "input") {
-                        let nieuwNaamDiv = document.createElement("div");
-                        nieuwNaamDiv.id = `team-name-${index}`;
-                        nieuwNaamDiv.classList.add("team-name");
-                        nieuwNaamDiv.textContent = teamNamen[index];
-                        nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener opnieuw toe
-                        teamNaamEl.replaceWith(nieuwNaamDiv);
-                    } else {
-                        teamNaamEl.textContent = teamNamen[index];
-                        teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener toe als deze nog niet bestaat
+                    
+                    if (teamNaamEl) { // Controleer of teamNaamEl bestaat
+                        // Controleer of de teamnaam een invoerveld is en vervang het met een div na bewerking
+                        if (teamNaamEl.tagName.toLowerCase() === "input") {
+                            let nieuwNaamDiv = document.createElement("div");
+                            nieuwNaamDiv.id = `team-name-${index}`;
+                            nieuwNaamDiv.classList.add("team-name");
+                            nieuwNaamDiv.textContent = teamNamen[index];
+                            nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener opnieuw toe
+                            teamNaamEl.replaceWith(nieuwNaamDiv);
+                        } else {
+                            teamNaamEl.textContent = teamNamen[index];
+                            teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener toe als deze nog niet bestaat
+                        }
                     }
 
                     document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
