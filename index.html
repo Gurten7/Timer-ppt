@@ -4,12 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>De Slimste Kameraad</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js" type="module"></script>
+
     <script defer>
         document.addEventListener("DOMContentLoaded", () => {
+            // Firebase-configuratie
+            const firebaseConfig = {
+                apiKey: "AIzaSyDZT3EHgtrDfDxevE4xy2a-xIS3X7Cegho",
+                authDomain: "de-slimste-kameraad-timer-ppt.firebaseapp.com",
+                databaseURL: "https://de-slimste-kameraad-timer-ppt-default-rtdb.europe-west1.firebasedatabase.app",
+                projectId: "de-slimste-kameraad-timer-ppt",
+                storageBucket: "de-slimste-kameraad-timer-ppt.firebasestorage.app",
+                messagingSenderId: "63484640762",
+                appId: "1:63484640762:web:6541546d615df83c5b7843"
+            };
+            
+            // Firebase initialisatie
+            const app = firebase.initializeApp(firebaseConfig);
+            const db = firebase.database(app);
+            const timersRef = db.ref("timers");
+            const teamNamesRef = db.ref("teamNames");
+            const selectedTimerRef = db.ref("selectedTimer");
+
             let timers = [60, 60, 60, 60];
             let teamNamen = ["Team 1", "Team 2", "Team 3", "Team 4"];
             let intervals = [null, null, null, null];
-            let geselecteerdeTimer = 0; // Zorg ervoor dat timer 1 altijd standaard geselecteerd is
+            let geselecteerdeTimer = 0; 
             let zichtbareTimers = [true, true, true, true];
 
             // Functie voor het bijwerken van de weergave van de timers en teamnamen
@@ -44,6 +65,7 @@
                     if (timers[geselecteerdeTimer] > 0) {
                         timers[geselecteerdeTimer]--;
                         updateWeergave();
+                        syncTimers(); // Synchroniseer elke seconde met Firebase
                     } else {
                         stopTimer(); // Stop de timer als deze op 0 komt
                     }
@@ -54,18 +76,21 @@
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
+                syncTimers(); // Synchroniseer de stopstatus met Firebase
             }
 
             // Reset de timers naar de originele waarde
             function resetTimer() {
                 timers = [60, 60, 60, 60];
                 updateWeergave();
+                syncTimers(); // Synchroniseer de resetstatus met Firebase
             }
 
             // Pas de tijd aan door een bepaald aantal seconden op te tellen of af te trekken
             function pasTijdAan(aantal) {
                 timers[geselecteerdeTimer] = Math.max(0, timers[geselecteerdeTimer] + aantal);
                 updateWeergave();
+                syncTimers(); // Synchroniseer de aangepaste tijd met Firebase
             }
 
             // Functie om handmatig de tijd in te stellen
@@ -74,13 +99,53 @@
                 if (!isNaN(invoerSeconden) && invoerSeconden >= 0) {
                     timers[geselecteerdeTimer] = invoerSeconden;
                     updateWeergave();
+                    syncTimers(); // Synchroniseer de handmatige invoer met Firebase
                 } else {
                     alert("Voer een geldig aantal seconden in (minimaal 0)");
                 }
             }
 
-            // Zorg ervoor dat je altijd 1 timer hebt geselecteerd bij het laden van de pagina
-            selecteerTimer(0);
+            // Synchroniseer de timers met Firebase
+            function syncTimers() {
+                timersRef.set(timers);
+            }
+
+            // Synchroniseer teamnamen naar Firebase
+            function syncTeamNames() {
+                teamNamesRef.set(teamNamen); 
+            }
+
+            // Synchroniseer de geselecteerde timer naar Firebase
+            function syncSelectedTimer() {
+                selectedTimerRef.set(geselecteerdeTimer); 
+            }
+
+            // Synchroniseren van veranderingen uit Firebase
+            function syncWithFirebase() {
+                timersRef.on("value", (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        timers = data;
+                        updateWeergave();
+                    }
+                });
+
+                teamNamesRef.on("value", (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        teamNamen = data;
+                        updateWeergave();
+                    }
+                });
+
+                selectedTimerRef.on("value", (snapshot) => {
+                    const data = snapshot.val();
+                    if (data !== undefined) {
+                        geselecteerdeTimer = data;
+                        updateWeergave();
+                    }
+                });
+            }
 
             // Event listeners voor de knoppen
             document.querySelectorAll(".timer").forEach((el, index) => {
@@ -100,6 +165,9 @@
             document.querySelectorAll(".adjust-time").forEach(button => {
                 button.addEventListener("click", () => pasTijdAan(parseInt(button.dataset.amount)));
             });
+
+            // Synchronisatie starten
+            syncWithFirebase(); 
 
             // Update de weergave bij het laden van de pagina
             updateWeergave();
