@@ -4,128 +4,196 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>De Slimste Kameraad</title>
-    <script defer>
-        document.addEventListener("DOMContentLoaded", () => {
-            let timers = [60, 60, 60, 60];
-            let teamNamen = ["Team 1", "Team 2", "Team 3", "Team 4"];
-            let intervals = [null, null, null, null];
-            let geselecteerdeTimer = 0;
-            let zichtbareTimers = [true, true, true, true];
+    <script type="module">
+        // Firebase configuratie
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "de-slimste-kameraad-timer-ppt.firebaseapp.com",
+            databaseURL: "https://de-slimste-kameraad-timer-ppt-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "de-slimste-kameraad-timer-ppt",
+            storageBucket: "de-slimste-kameraad-timer-ppt.firebasestorage.app",
+            messagingSenderId: "63484640762",
+            appId: "1:63484640762:web:6541546d615df83c5b7843"
+        };
 
-            function updateWeergave() {
-                timers.forEach((tijd, index) => {
-                    const timerElement = document.getElementById(`timer${index}`);
-                    if (timerElement) {
-                        timerElement.textContent = tijd;
+        // Firebase importeren
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        
+        // Initialiseer Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Firebase referenties
+        const timersRef = ref(db, 'timers');
+        const teamNamesRef = ref(db, 'teamNames');
+        const selectedTimerRef = ref(db, 'selectedTimer');
+
+        // Variabelen voor timers en teamnamen
+        let timers = [60, 60, 60, 60];
+        let teamNamen = ["Team 1", "Team 2", "Team 3", "Team 4"];
+        let intervals = [null, null, null, null];
+        let geselecteerdeTimer = 0;
+        let zichtbareTimers = [true, true, true, true];
+
+        // Functie om de weergave van de timers bij te werken
+        function updateWeergave() {
+            timers.forEach((tijd, index) => {
+                const timerElement = document.getElementById(`timer${index}`);
+                if (timerElement) {
+                    timerElement.textContent = tijd;
+                }
+
+                const teamNaamEl = document.getElementById(`team-name-${index}`);
+
+                // Controleer of het teamnaam element bestaat voordat je verder gaat
+                if (teamNaamEl) {
+                    // Als de teamnaam een input veld is, vervang het met een div
+                    if (teamNaamEl.tagName.toLowerCase() === "input") {
+                        let nieuwNaamDiv = document.createElement("div");
+                        nieuwNaamDiv.id = `team-name-${index}`;
+                        nieuwNaamDiv.classList.add("team-name");
+                        nieuwNaamDiv.textContent = teamNamen[index];
+                        nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener opnieuw toe
+                        teamNaamEl.replaceWith(nieuwNaamDiv);
+                    } else {
+                        teamNaamEl.textContent = teamNamen[index];
+                        teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener toe als deze nog niet bestaat
                     }
-
-                    const teamNaamEl = document.getElementById(`team-name-${index}`);
-
-                    // Controleer of het teamnaam element bestaat voordat je verder gaat
-                    if (teamNaamEl) {
-                        // Als de teamnaam een input veld is, vervang het met een div
-                        if (teamNaamEl.tagName.toLowerCase() === "input") {
-                            let nieuwNaamDiv = document.createElement("div");
-                            nieuwNaamDiv.id = `team-name-${index}`;
-                            nieuwNaamDiv.classList.add("team-name");
-                            nieuwNaamDiv.textContent = teamNamen[index];
-                            nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener opnieuw toe
-                            teamNaamEl.replaceWith(nieuwNaamDiv);
-                        } else {
-                            teamNaamEl.textContent = teamNamen[index];
-                            teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener toe als deze nog niet bestaat
-                        }
-                    }
-
-                    document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
-                });
-            }
-
-            function selecteerTimer(index) {
-                document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
-                geselecteerdeTimer = index;
-                document.getElementById(`timer-container-${index}`).classList.add("selected");
-                document.getElementById("timerSelect").value = index;
-            }
-
-            function startTimer() {
-                if (intervals[geselecteerdeTimer]) return;
-                intervals[geselecteerdeTimer] = setInterval(() => {
-                    if (timers[geselecteerdeTimer] > 0) {
-                        timers[geselecteerdeTimer]--;
-                        updateWeergave();
-                    }
-                }, 1000);
-            }
-
-            function stopTimer() {
-                clearInterval(intervals[geselecteerdeTimer]);
-                intervals[geselecteerdeTimer] = null;
-            }
-
-            function resetTimer() {
-                timers = [60, 60, 60, 60];
-                updateWeergave();
-            }
-
-            function pasTijdAan(aantal) {
-                timers[geselecteerdeTimer] = Math.max(0, timers[geselecteerdeTimer] + aantal);
-                updateWeergave();
-            }
-
-            function toggleTimerZichtbaarheid() {
-                zichtbareTimers[geselecteerdeTimer] = !zichtbareTimers[geselecteerdeTimer];
-                updateWeergave();
-            }
-
-            function stelAangepasteTijdIn() {
-                const invoerSeconden = parseInt(document.getElementById("timeInput").value);
-                if (!isNaN(invoerSeconden) && invoerSeconden >= 0) {
-                    timers[geselecteerdeTimer] = invoerSeconden;
-                    updateWeergave();
                 } else {
-                    alert("Voer een geldig aantal seconden in (minimaal 0)");
+                    console.warn(`Element met id "team-name-${index}" is al vervangen, geen actie nodig.`);
                 }
-            }
 
-            function maakTeamnaamBewerkbaar(index) {
-                let naamLabel = document.getElementById(`team-name-${index}`);
-                
-                // Alleen doorgaan als het element nog niet vervangen is
-                if (naamLabel && naamLabel.tagName.toLowerCase() !== "input") {
-                    let inputVeld = document.createElement("input");
-                    inputVeld.type = "text";
-                    inputVeld.value = teamNamen[index];
-                    inputVeld.classList.add("team-input");
+                document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
+            });
+        }
 
-                    // Zorg ervoor dat de input hetzelfde blijft qua layout
-                    inputVeld.style.fontSize = "30px"; // Wijzig de font size naar 30px
-                    inputVeld.style.width = "80%"; // Zorg ervoor dat het niet te breed is
+        // Synchroniseer timers met Firebase
+        function syncTimers() {
+            set(timersRef, timers);  // Zet de timerstatus in Firebase
+        }
 
-                    // Vervang de huidige naam door het invoerveld
-                    naamLabel.replaceWith(inputVeld);
-                    inputVeld.focus();
+        // Synchroniseer teamnamen met Firebase
+        function syncTeamNames() {
+            set(teamNamesRef, teamNamen);  // Zet de teamnamen in Firebase
+        }
 
-                    // Wanneer het invoerveld verliest focus, sla de nieuwe naam op
-                    inputVeld.addEventListener("blur", () => slaNieuweTeamnaamOp(index, inputVeld.value));
-                    
-                    // Wanneer je op enter drukt, sla de nieuwe naam op
-                    inputVeld.addEventListener("keydown", (event) => {
-                        if (event.key === "Enter") {
-                            slaNieuweTeamnaamOp(index, inputVeld.value);
-                        }
-                    });
+        // Synchroniseer de geselecteerde timer met Firebase
+        function syncSelectedTimer() {
+            set(selectedTimerRef, geselecteerdeTimer);  // Zet de geselecteerde timer in Firebase
+        }
+
+        // Synchroniseren van wijzigingen van Firebase naar de browser
+        function syncWithFirebase() {
+            onValue(timersRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    timers = data;
+                    updateWeergave();
                 }
-            }
+            });
 
-            function slaNieuweTeamnaamOp(index, nieuweNaam) {
-                if (nieuweNaam.trim() !== "") {
-                    teamNamen[index] = nieuweNaam;
+            onValue(teamNamesRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    teamNamen = data;
+                    updateWeergave();
                 }
-                updateWeergave();
-            }
+            });
 
-            // Event listeners voor timer en knoppen
+            onValue(selectedTimerRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data !== undefined) {
+                    geselecteerdeTimer = data;
+                    updateWeergave();
+                }
+            });
+        }
+
+        // Timer functies
+        function startTimer() {
+            if (intervals[geselecteerdeTimer]) return;
+            intervals[geselecteerdeTimer] = setInterval(() => {
+                if (timers[geselecteerdeTimer] > 0) {
+                    timers[geselecteerdeTimer]--;
+                    updateWeergave();
+                    syncTimers(); // Synchroniseer elke seconde
+                } else {
+                    stopTimer(); // Stop de timer als deze op 0 komt
+                }
+            }, 1000);
+            syncSelectedTimer(); // Synchroniseer geselecteerde timer
+        }
+
+        function stopTimer() {
+            clearInterval(intervals[geselecteerdeTimer]);
+            intervals[geselecteerdeTimer] = null;
+            syncTimers(); // Synchroniseer de gestopte timer
+        }
+
+        function resetTimer() {
+            timers = [60, 60, 60, 60];
+            updateWeergave();
+            syncTimers(); // Synchroniseer reset
+        }
+
+        function pasTijdAan(aantal) {
+            timers[geselecteerdeTimer] = Math.max(0, timers[geselecteerdeTimer] + aantal);
+            updateWeergave();
+            syncTimers(); // Synchroniseer aangepaste tijd
+        }
+
+        // Timer selectie
+        function selecteerTimer(index) {
+            document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
+            geselecteerdeTimer = index;
+            document.getElementById(`timer-container-${index}`).classList.add("selected");
+            document.getElementById("timerSelect").value = index;
+            syncSelectedTimer(); // Synchroniseer geselecteerde timer
+        }
+
+        // Teamnaam bewerkbaar maken
+        function maakTeamnaamBewerkbaar(index) {
+            let naamLabel = document.getElementById(`team-name-${index}`);
+
+            // Alleen doorgaan als het element nog niet vervangen is
+            if (naamLabel && naamLabel.tagName.toLowerCase() !== "input") {
+                let inputVeld = document.createElement("input");
+                inputVeld.type = "text";
+                inputVeld.value = teamNamen[index];
+                inputVeld.classList.add("team-input");
+
+                // Vervang de huidige naam door het invoerveld
+                naamLabel.replaceWith(inputVeld);
+                inputVeld.focus();
+
+                // Wanneer het invoerveld verliest focus, sla de nieuwe naam op
+                inputVeld.addEventListener("blur", () => slaNieuweTeamnaamOp(index, inputVeld.value));
+
+                // Wanneer je op enter drukt, sla de nieuwe naam op
+                inputVeld.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter") {
+                        slaNieuweTeamnaamOp(index, inputVeld.value);
+                    }
+                });
+            } else {
+                // Geen actie nodig als het element al vervangen is
+                console.warn(`Element met id "team-name-${index}" is al vervangen, geen actie nodig.`);
+            }
+        }
+
+        function slaNieuweTeamnaamOp(index, nieuweNaam) {
+            if (nieuweNaam.trim() !== "") {
+                teamNamen[index] = nieuweNaam;
+            }
+            updateWeergave();
+            syncTeamNames(); // Synchroniseer de teamnamen
+        }
+
+        // Initialisatie
+        document.addEventListener("DOMContentLoaded", () => {
+            syncWithFirebase(); // Start de synchronisatie bij het laden van de pagina
+
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
             });
@@ -166,28 +234,28 @@
             overflow-x: auto; /* Zorg ervoor dat je kunt scrollen als er niet genoeg ruimte is */
         }
         .timer {
-            width: 300px;  /* Vergrote breedte voor timers */
-            height: 300px;  /* Vergrote hoogte voor timers */
+            width: 230px;  /* Kleinere breedte voor mobiele weergave */
+            height: 230px;  /* Kleinere hoogte voor mobiele weergave */
             border: 6px solid white;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 70px; /* Vergrote tekstgrootte voor timers */
+            font-size: 70px; /* Kleinere tekstgrootte voor mobiele weergave */
             font-weight: bold;
             color: red;
             background-color: white;
             border-radius: 20px;
         }
         .team-name {
-            font-size: 30px;  /* Verander de font size van de teamnaam naar 30px */
+            font-size: 30px;  /* Aangepaste font size voor teamnamen */
             font-weight: bold;
             color: black;
             cursor: pointer;
             margin-bottom: 20px;
         }
         .team-input {
-            font-size: 30px;  /* Teamnaam blijft op dezelfde grootte van 30px */
+            font-size: 30px;  /* Teamnaam blijft op dezelfde grootte */
             font-weight: bold;
             width: 80%;
             text-align: center;
@@ -291,3 +359,4 @@
     </div>
 </body>
 </html>
+
