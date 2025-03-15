@@ -14,12 +14,16 @@
 
             function updateWeergave() {
                 timers.forEach((tijd, index) => {
-                    document.getElementById(`timer${index}`).textContent = tijd;
-                    let teamNaamEl = document.getElementById(`team-name-${index}`);
+                    const timerElement = document.getElementById(`timer${index}`);
+                    if (timerElement) {
+                        timerElement.textContent = tijd;
+                    }
+                    
+                    const teamNaamEl = document.getElementById(`team-name-${index}`);
                     
                     // Controleer of het teamnaam element bestaat
                     if (teamNaamEl) {
-                        // Controleer of de teamnaam een invoerveld is en vervang het met een div na bewerking
+                        // Als de teamnaam een input veld is, vervang het met een div
                         if (teamNaamEl.tagName.toLowerCase() === "input") {
                             let nieuwNaamDiv = document.createElement("div");
                             nieuwNaamDiv.id = `team-name-${index}`;
