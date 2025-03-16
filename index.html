@@ -28,9 +28,6 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Audio element voor timer geluid
-            const timerSound = document.getElementById("timerSound");
-
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
@@ -131,10 +128,10 @@
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
                 if (view === 'display') {
-                    // Wacht totdat de startknop wordt ingedrukt (gebruikersactie)
-                    timerSound.play().catch((error) => {
-                        console.log("Audio kon niet worden afgespeeld:", error);
-                    });
+                    // De SoundCloud audio moet hier starten via de embed-code
+                    const iframe = document.getElementById('soundcloud-iframe');
+                    const soundcloudPlayer = SC.Widget(iframe);
+                    soundcloudPlayer.play();
                 }
             }
 
@@ -151,8 +148,9 @@
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
                 if (view === 'display') {
-                    timerSound.pause();  // Stop het geluid
-                    timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
+                    const iframe = document.getElementById('soundcloud-iframe');
+                    const soundcloudPlayer = SC.Widget(iframe);
+                    soundcloudPlayer.pause();
                 }
             }
 
@@ -469,11 +467,8 @@
         </div>
     </div>
 
-    <!-- Voeg het audio element toe -->
-    <audio id="timerSound" preload="auto">
-        <source src="https://www.dropbox.com/scl/fi/ipjplb80lc2748nz5zyjo/timer-2.mp3?rlkey=7r1p39o60jbytbm3oz7jhpex5&st=ic447kh9&raw=1" type="audio/mp3">
-        Je browser ondersteunt het afspelen van audio niet.
-    </audio>
+    <!-- SoundCloud Embed Code -->
+    <iframe id="soundcloud-iframe" width="100%" height="166" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/942781366&color=%238F2A2A&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
 
     <div class="controls">
         <div class="row">
