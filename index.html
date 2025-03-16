@@ -83,6 +83,24 @@
             // Roep de hideIfNeeded functie aan bij het laden van de pagina
             hideIfNeeded();
 
+            // Functie om de teamnaam als input te tonen bij het laden van de pagina
+            function toonTeamnaamAlsInput() {
+                teamNamen.forEach((teamNaam, index) => {
+                    let teamNaamElement = document.getElementById(`team-name-${index}`);
+                    if (teamNaamElement && teamNaamElement.tagName.toLowerCase() !== 'input') {
+                        // Maak een input veld voor de teamnaam
+                        let inputVeld = document.createElement("input");
+                        inputVeld.type = "text";
+                        inputVeld.value = teamNaam;
+                        inputVeld.classList.add("team-input");
+                        teamNaamElement.replaceWith(inputVeld);
+                    }
+                });
+            }
+
+            // Roep de toonTeamnaamAlsInput functie aan bij het laden van de pagina
+            toonTeamnaamAlsInput();
+
             function updateWeergave() {
                 timers.forEach((tijd, index) => {
                     const timerElement = document.getElementById(`timer${index}`);
