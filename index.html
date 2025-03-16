@@ -30,6 +30,30 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
+            // Functie om te verbergen als nodig
+            function hideIfNeeded() {
+                const params = new URLSearchParams(window.location.search);
+                const view = params.get('view');
+
+                // Check of de view parameter 'display' is
+                if (view === 'display') {
+                    // Verberg knoppen voor de "display" pagina
+                    const elementsToHide = document.querySelectorAll('.hide-if-needed');
+                    elementsToHide.forEach(el => {
+                        el.style.display = 'none';
+                    });
+                } else {
+                    // Als de 'view' parameter niet 'display' is, laat de elementen zien
+                    const elementsToShow = document.querySelectorAll('.hide-if-needed');
+                    elementsToShow.forEach(el => {
+                        el.style.display = 'block';
+                    });
+                }
+            }
+
+            // Roep de hideIfNeeded functie aan bij het laden van de pagina
+            hideIfNeeded();
+
             function updateWeergave() {
                 timers.forEach((tijd, index) => {
                     const timerElement = document.getElementById(`timer${index}`);
@@ -283,18 +307,18 @@
                 flex-direction: row; /* Zorg ervoor dat de timers naast elkaar blijven op kleinere schermen */
             }
             .timer {
-                width: 230px;  /* Kleinere breedte voor mobiele weergave */
-                height: 230px;  /* Kleinere hoogte voor mobiele weergave */
-                font-size: 50px; /* Kleinere tekstgrootte voor mobiele weergave */
+                width: 230px;
+                height: 230px;
+                font-size: 50px;
             }
             .team-name {
-                font-size: 18px; /* Kleinere teamnaam voor mobiele weergave */
+                font-size: 18px;
             }
             .controls {
-                width: 90%;  /* Maak de knoppen smaller voor mobiele weergave */
+                width: 90%;
             }
             button {
-                font-size: 12px; /* Kleinere tekst voor knoppen op mobiel */
+                font-size: 12px;
             }
         }
     </style>
@@ -323,26 +347,26 @@
     <!-- Control Buttons -->
     <div class="controls">
         <div class="row">
-            <button id="startBtn">Start</button>
-            <button id="stopBtn">Stop</button>
-            <button id="resetBtn">Reset</button>
-            <button class="adjust-time" data-amount="10">+10 sec</button>
-            <button class="adjust-time" data-amount="20">+20 sec</button>
-            <button class="adjust-time" data-amount="30">+30 sec</button>
-            <button class="adjust-time" data-amount="40">+40 sec</button>
-            <button class="adjust-time" data-amount="50">+50 sec</button>
-            <button class="adjust-time" data-amount="-20">-20 sec</button>
+            <button id="startBtn" class="hide-if-needed">Start</button>
+            <button id="stopBtn" class="hide-if-needed">Stop</button>
+            <button id="resetBtn" class="hide-if-needed">Reset</button>
+            <button class="adjust-time hide-if-needed" data-amount="10">+10 sec</button>
+            <button class="adjust-time hide-if-needed" data-amount="20">+20 sec</button>
+            <button class="adjust-time hide-if-needed" data-amount="30">+30 sec</button>
+            <button class="adjust-time hide-if-needed" data-amount="40">+40 sec</button>
+            <button class="adjust-time hide-if-needed" data-amount="50">+50 sec</button>
+            <button class="adjust-time hide-if-needed" data-amount="-20">-20 sec</button>
         </div>
         <div class="row">
-            <select id="timerSelect">
+            <select id="timerSelect" class="hide-if-needed">
                 <option value="0">Timer 1</option>
                 <option value="1">Timer 2</option>
                 <option value="2">Timer 3</option>
                 <option value="3">Timer 4</option>
             </select>
-            <button id="toggleBtn">Zichtbaar ja/nee</button>
-            <input type="number" id="timeInput" placeholder="Voer seconden in">
-            <button id="setTimeBtn">Doorvoeren</button>
+            <button id="toggleBtn" class="hide-if-needed">Zichtbaar ja/nee</button>
+            <input type="number" id="timeInput" placeholder="Voer seconden in" class="hide-if-needed">
+            <button id="setTimeBtn" class="hide-if-needed">Doorvoeren</button>
         </div>
     </div>
 </body>
