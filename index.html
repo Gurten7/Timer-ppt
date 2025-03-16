@@ -42,13 +42,11 @@
                     elementsToHide.forEach(el => {
                         el.style.display = 'none';
                     });
-
-                    // Haal de timer selectie op uit de lokale opslag
                     const storedTimer = localStorage.getItem('selectedTimer');
                     if (storedTimer !== null) {
-                        selecteerTimer(parseInt(storedTimer));  // Zet de timer op de opgeslagen waarde
+                        selecteerTimer(parseInt(storedTimer));
                     } else {
-                        selecteerTimer(0);  // Zet timer 1 als standaard
+                        selecteerTimer(0);
                     }
                 } else {
                     // Als de 'view' parameter niet 'display' is, laat de elementen zien
@@ -97,6 +95,10 @@
 
                 // Bewaar de geselecteerde timer in localStorage voor gebruik bij view=display
                 localStorage.setItem('selectedTimer', index);
+
+                // Update Firebase met de nieuwe geselecteerde timer
+                const selectedTimerRef = firebase.database().ref('selectedTimer');
+                selectedTimerRef.set(index);
             }
 
             function startTimer() {
@@ -187,18 +189,13 @@
                 const timersRef = firebase.database().ref('timers');
                 timersRef.on('value', (snapshot) => {
                     const data = snapshot.val();
-
-                    // Checken of data beschikbaar is
-                    if (data && data.team1 !== undefined && data.team2 !== undefined && data.team3 !== undefined && data.team4 !== undefined) {
+                    if (data) {
                         timers = [data.team1, data.team2, data.team3, data.team4];
                         updateWeergave();
-                    } else {
-                        console.warn('Geen geldige data beschikbaar in Firebase');
                     }
                 });
             }
 
-            // Functie om de database te initialiseren met standaardwaarden als deze leeg is
             function checkAndInitializeDatabase() {
                 const timersRef = firebase.database().ref('timers');
                 timersRef.once('value', (snapshot) => {
@@ -213,7 +210,8 @@
                 });
             }
 
-            checkAndInitializeDatabase(); // Zorg ervoor dat de database wordt geïnitialiseerd als deze leeg is
+            checkAndInitializeDatabase();
+            syncTimers();
 
             // Event listeners voor timer en knoppen
             document.querySelectorAll(".timer").forEach((el, index) => {
@@ -236,7 +234,6 @@
 
             selecteerTimer(0);
             updateWeergave();
-            syncTimers(); // Start het synchroniseren van de timers
         });
     </script>
     <style>
