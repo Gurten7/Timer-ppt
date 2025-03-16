@@ -325,12 +325,21 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 70px;
+            font-size: 70px; /* Standaard grootte voor mobiele schermen */
             font-weight: bold;
             color: red;
             background-color: white;
             border-radius: 20px;
         }
+
+        /* Media query voor desktop: vergroot de timertekst */
+        @media (min-width: 769px) {
+            .timer {
+                font-size: 90px; /* Grotere fontgrootte voor schermen groter dan 769px */
+            }
+        }
+
+        /* Teamnaam en input styling */
         .team-name {
             font-size: 30px;
             font-weight: bold;
@@ -338,6 +347,7 @@
             cursor: pointer;
             margin-bottom: 20px;
         }
+
         .team-input {
             font-size: 30px;
             font-weight: bold;
@@ -346,6 +356,7 @@
             border: none;
             outline: none;
         }
+
         .controls {
             display: flex;
             flex-direction: column;
@@ -353,12 +364,14 @@
             gap: 10px;
             margin-top: 60px;
         }
+
         .row {
             display: flex;
             justify-content: center;
             gap: 10px;
             flex-wrap: wrap;
         }
+
         button {
             background-color: red;
             color: white;
@@ -369,6 +382,7 @@
             width: auto;
             max-width: 120px;
         }
+
         .selected {
             border: 6px solid red;
         }
@@ -380,7 +394,7 @@
             .timer {
                 width: 230px;
                 height: 230px;
-                font-size: 50px;
+                font-size: 50px; /* Mobiele versie font-grootte */
             }
             .team-name {
                 font-size: 18px;
