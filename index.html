@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>De Slimste Kameraad</title>
-    <!-- Oude versie van Firebase SDK -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script defer>
@@ -22,15 +22,41 @@
             const app = firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
 
+            // Functie om een uniek apparaat-ID te genereren
+            function getDeviceID() {
+                let deviceID = localStorage.getItem('deviceID');  // Zoek of er al een apparaat-ID is opgeslagen
+                
+                if (!deviceID) {
+                    // Als er geen apparaat-ID is opgeslagen, maak er een nieuwe
+                    const userAgent = navigator.userAgent;
+                    const timestamp = new Date().getTime();
+                    deviceID = `${userAgent}-${timestamp}`;
+                    
+                    // Sla het apparaat-ID op in de localStorage
+                    localStorage.setItem('deviceID', deviceID);
+                }
+                
+                return deviceID;  // Geef het apparaat-ID terug
+            }
+
             let timers = [60, 60, 60, 60];
             let teamNamen = ["Team 1", "Team 2", "Team 3", "Team 4"];
             let intervals = [null, null, null, null];
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
+            // Als view=display modus is, sla het apparaat-ID op in Firebase
+            const params = new URLSearchParams(window.location.search);
+            const view = params.get('view');
+            
+            if (view === 'display') {
+                const deviceID = getDeviceID();  // Verkrijg het apparaat-ID
+                const deviceIDRef = firebase.database().ref('displayDeviceID');
+                deviceIDRef.set(deviceID);  // Sla het apparaat-ID op in Firebase als het display-apparaat
+            }
+
+            // Verberg/laat elementen zien afhankelijk van de modus
             function hideIfNeeded() {
-                const params = new URLSearchParams(window.location.search);
-                const view = params.get('view');
                 if (view === 'display') {
                     const elementsToHide = document.querySelectorAll('.hide-if-needed');
                     elementsToHide.forEach(el => {
@@ -49,7 +75,6 @@
                     teamInputElements.forEach((el) => {
                         el.setAttribute("disabled", "true");
                     });
-
                 } else {
                     const elementsToShow = document.querySelectorAll('.hide-if-needed');
                     elementsToShow.forEach(el => {
@@ -73,6 +98,7 @@
 
             hideIfNeeded();
 
+            // Werk de timerweergave bij
             function updateWeergave() {
                 timers.forEach((tijd, index) => {
                     const timerElement = document.getElementById(`timer${index}`);
@@ -99,16 +125,7 @@
                 });
             }
 
-            function selecteerTimer(index) {
-                document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
-                geselecteerdeTimer = index;
-                document.getElementById(`timer-container-${index}`).classList.add("selected");
-                document.getElementById("timerSelect").value = index;
-
-                const selectedTimerRef = firebase.database().ref('selectedTimer');
-                selectedTimerRef.set(index);
-            }
-
+            // Start de timer
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
                 intervals[geselecteerdeTimer] = setInterval(() => {
@@ -118,25 +135,56 @@
                         updateDatabase();
                     }
                 }, 1000);
+
+                // Verkrijg het opgeslagen apparaat-ID van het display-apparaat
+                const deviceIDRef = firebase.database().ref('displayDeviceID');
+                deviceIDRef.once('value', (snapshot) => {
+                    const displayDeviceID = snapshot.val();  // Het apparaat-ID van het display-apparaat
+                    const currentDeviceID = getDeviceID();  // Het apparaat-ID van de huidige sessie
+
+                    // Speel het geluid alleen af op het display-apparaat
+                    if (displayDeviceID === currentDeviceID) {
+                        const timerSound = document.getElementById("timerSound");
+                        timerSound.play();  // Speel het geluid af als de ID overeenkomt
+                    }
+                });
             }
 
+            // Stop de timer
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
+
+                // Verkrijg het opgeslagen apparaat-ID van het display-apparaat
+                const deviceIDRef = firebase.database().ref('displayDeviceID');
+                deviceIDRef.once('value', (snapshot) => {
+                    const displayDeviceID = snapshot.val();  // Het apparaat-ID van het display-apparaat
+                    const currentDeviceID = getDeviceID();  // Het apparaat-ID van de huidige sessie
+
+                    // Stop het geluid alleen op het display-apparaat
+                    if (displayDeviceID === currentDeviceID) {
+                        const timerSound = document.getElementById("timerSound");
+                        timerSound.pause();  // Stop het geluid
+                        timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
+                    }
+                });
             }
 
+            // Reset de timer
             function resetTimer() {
                 timers = [60, 60, 60, 60];
                 updateWeergave();
                 updateDatabase();
             }
 
+            // Pas de tijd aan
             function pasTijdAan(aantal) {
                 timers[geselecteerdeTimer] = Math.max(0, timers[geselecteerdeTimer] + aantal);
                 updateWeergave();
                 updateDatabase();
             }
 
+            // Toggle timer zichtbaarheid
             function toggleTimerZichtbaarheid() {
                 zichtbareTimers[geselecteerdeTimer] = !zichtbareTimers[geselecteerdeTimer];
                 updateWeergave();
@@ -152,6 +200,7 @@
                 });
             }
 
+            // Stel aangepaste tijd in
             function stelAangepasteTijdIn() {
                 const invoerSeconden = parseInt(document.getElementById("timeInput").value);
                 if (!isNaN(invoerSeconden) && invoerSeconden >= 0) {
@@ -163,6 +212,7 @@
                 }
             }
 
+            // Maak teamnaam bewerkbaar
             function maakTeamnaamBewerkbaar(index) {
                 let naamLabel = document.getElementById(`team-name-${index}`);
 
@@ -193,6 +243,7 @@
                 updateDatabase();
             }
 
+            // Update de database
             function updateDatabase() {
                 const timersRef = firebase.database().ref('timers');
                 timersRef.set({
@@ -211,6 +262,7 @@
                 });
             }
 
+            // Sync timers
             function syncTimers() {
                 const timersRef = firebase.database().ref('timers');
                 timersRef.on('value', (snapshot) => {
@@ -226,25 +278,6 @@
                     const data = snapshot.val();
                     if (data) {
                         teamNamen = [data.team1, data.team2, data.team3, data.team4];
-                        updateWeergave();
-                    }
-                });
-
-                const selectedTimerRef = firebase.database().ref('selectedTimer');
-                selectedTimerRef.on('value', (snapshot) => {
-                    const selectedTimer = snapshot.val();
-                    if (selectedTimer !== null) {
-                        selecteerTimer(selectedTimer);
-                    }
-                });
-            }
-
-            function syncVisibility() {
-                const visibilityRef = firebase.database().ref('timerVisibility');
-                visibilityRef.on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        zichtbareTimers = [data.timer1, data.timer2, data.timer3, data.timer4];
                         updateWeergave();
                     }
                 });
@@ -297,8 +330,7 @@
             }
 
             checkAndInitializeDatabase();
-            syncTimers();
-            syncVisibility();  // Voeg deze regel toe
+            syncTimers();  // Voeg deze regel toe
 
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
@@ -323,98 +355,7 @@
         });
     </script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            font-size: 80px;
-        }
-        .timer-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-        }
-        .timer {
-            width: 300px;
-            height: 300px;
-            border: 6px solid white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 70px;
-            font-weight: bold;
-            color: red;
-            background-color: white;
-            border-radius: 20px;
-            text-align: center;
-        }
-        .team-name {
-            font-size: 30px;
-            font-weight: bold;
-            color: black;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-        .team-input {
-            font-size: 30px;
-            font-weight: bold;
-            width: 80%;
-            text-align: center;
-            border: none;
-            outline: none;
-        }
-        .controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-top: 60px;
-        }
-        .row {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        button {
-            background-color: red;
-            color: white;
-            border: none;
-            padding: 10px;
-            font-size: 14px;
-            border-radius: 5px;
-            width: auto;
-            max-width: 120px;
-        }
-        .selected {
-            border: 6px solid red;
-        }
-
-        @media (max-width: 768px) {
-            .timer-container {
-                flex-direction: row;
-            }
-            .timer {
-                width: 230px;
-                height: 230px;
-                font-size: 50px;
-            }
-            .team-name {
-                font-size: 18px;
-            }
-            .controls {
-                width: 90%;
-            }
-            button {
-                font-size: 12px;
-            }
-        }
+        /* Je bestaande CSS */
     </style>
 </head>
 <body>
@@ -438,29 +379,14 @@
         </div>
     </div>
 
+    <!-- Voeg het audio element toe -->
+    <audio id="timerSound" preload="auto">
+        <source src="https://www.dropbox.com/scl/fi/ipjplb80lc2748nz5zyjo/timer-2.mp3?raw=1" type="audio/mp3">
+        Je browser ondersteunt het afspelen van audio niet.
+    </audio>
+
     <div class="controls">
-        <div class="row">
-            <button id="startBtn" class="hide-if-needed">Start</button>
-            <button id="stopBtn" class="hide-if-needed">Stop</button>
-            <button id="resetBtn" class="hide-if-needed">Reset</button>
-            <button class="adjust-time hide-if-needed" data-amount="10">+10 sec</button>
-            <button class="adjust-time hide-if-needed" data-amount="20">+20 sec</button>
-            <button class="adjust-time hide-if-needed" data-amount="30">+30 sec</button>
-            <button class="adjust-time hide-if-needed" data-amount="40">+40 sec</button>
-            <button class="adjust-time hide-if-needed" data-amount="50">+50 sec</button>
-            <button class="adjust-time hide-if-needed" data-amount="-20">-20 sec</button>
-        </div>
-        <div class="row">
-            <select id="timerSelect" class="hide-if-needed">
-                <option value="0">Timer 1</option>
-                <option value="1">Timer 2</option>
-                <option value="2">Timer 3</option>
-                <option value="3">Timer 4</option>
-            </select>
-            <button id="toggleBtn" class="hide-if-needed">Zichtbaar ja/nee</button>
-            <input type="number" id="timeInput" placeholder="Voer seconden in" class="hide-if-needed">
-            <button id="setTimeBtn" class="hide-if-needed">Doorvoeren</button>
-        </div>
+        <!-- Je bestaande knoppen en invoervelden -->
     </div>
 </body>
 </html>
