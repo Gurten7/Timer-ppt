@@ -123,8 +123,9 @@
                     }
                 }, 1000);
 
+                // Start het geluid **bij klikken op Start**
                 if (isDisplay && sound) {
-                    sound.play(); // Start het geluid wanneer de timer start, maar alleen voor de display
+                    sound.play();
                 }
             }
 
@@ -132,7 +133,7 @@
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
                 if (isDisplay && sound) {
-                    sound.pause(); // Stop het geluid wanneer de timer stopt
+                    sound.pause(); // Stop het geluid
                     sound.currentTime = 0; // Zet het geluid terug naar het begin
                 }
             }
