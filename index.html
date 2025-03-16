@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
@@ -109,7 +109,6 @@
                 selectedTimerRef.set(index);
             }
 
-            // Start de timer en speel het geluid af
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
                 intervals[geselecteerdeTimer] = setInterval(() => {
@@ -119,39 +118,11 @@
                         updateDatabase();
                     }
                 }, 1000);
-
-                // Synchroniseer naar Firebase om start in de 'display' modus te activeren
-                const startTimerRef = firebase.database().ref('startTimer');
-                startTimerRef.set(true);
-
-                // Speel het geluid af op het apparaat in de 'view=display' modus
-                const params = new URLSearchParams(window.location.search);
-                const view = params.get('view');
-                if (view === 'display') {
-                    // De SoundCloud audio moet hier starten via de embed-code
-                    const iframe = document.getElementById('soundcloud-iframe');
-                    const soundcloudPlayer = SC.Widget(iframe);
-                    soundcloudPlayer.play();
-                }
             }
 
-            // Stop de timer en stop het geluid
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
-
-                // Synchroniseer naar Firebase om stop in de 'display' modus te activeren
-                const startTimerRef = firebase.database().ref('startTimer');
-                startTimerRef.set(false);
-
-                // Stop het geluid op het apparaat in de 'view=display' modus
-                const params = new URLSearchParams(window.location.search);
-                const view = params.get('view');
-                if (view === 'display') {
-                    const iframe = document.getElementById('soundcloud-iframe');
-                    const soundcloudPlayer = SC.Widget(iframe);
-                    soundcloudPlayer.pause();
-                }
             }
 
             function resetTimer() {
@@ -466,9 +437,6 @@
             <div id="timer3">60</div>
         </div>
     </div>
-
-    <!-- SoundCloud Embed Code -->
-    <iframe id="soundcloud-iframe" width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/2055917508&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
 
     <div class="controls">
         <div class="row">
