@@ -126,7 +126,12 @@
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
                 if (view === 'display') {
-                    timerSound.play(); // Speel het geluid af
+                    // Pas de audio afspelen aan, afhankelijk van interactie
+                    const timerSound = document.getElementById("timerSound");
+                    // Wacht eerst tot de startknop wordt ingedrukt (interactie)
+                    timerSound.play().catch((error) => {
+                        console.log("Audio kon niet worden afgespeeld:", error);
+                    });
                 }
             }
 
@@ -138,6 +143,7 @@
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
                 if (view === 'display') {
+                    const timerSound = document.getElementById("timerSound");
                     timerSound.pause();  // Stop het geluid
                     timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
                 }
