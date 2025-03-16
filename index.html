@@ -8,19 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script defer>
-        // Fullscreen functie
-        function openFullscreen() {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
-            } else if (document.documentElement.mozRequestFullScreen) { // Firefox
-                document.documentElement.mozRequestFullScreen();
-            } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
-                document.documentElement.webkitRequestFullscreen();
-            } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
-                document.documentElement.msRequestFullscreen();
-            }
-        }
-
         document.addEventListener("DOMContentLoaded", () => {
             const firebaseConfig = {
                 apiKey: "", // Geen API Key nodig zonder Web App
@@ -40,9 +27,6 @@
             let intervals = [null, null, null, null];
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
-
-            // Audio element voor het geluid
-            const sound = document.getElementById('timer-sound'); // Haal het audiobestand op uit de HTML
 
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
@@ -134,18 +118,11 @@
                         updateDatabase();
                     }
                 }, 1000);
-
-                // Start het geluid wanneer de timer begint
-                sound.play();
             }
 
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
-
-                // Stop het geluid wanneer de timer stopt
-                sound.pause();
-                sound.currentTime = 0;  // Zet het geluid terug naar het begin
             }
 
             function resetTimer() {
@@ -485,14 +462,5 @@
             <button id="setTimeBtn" class="hide-if-needed">Doorvoeren</button>
         </div>
     </div>
-
-    <!-- Voeg hier de audio toe -->
-    <audio id="timer-sound" preload="auto">
-        <source src="https://www.dropbox.com/scl/fi/ipjplb80lc2748nz5zyjo/timer-2.mp3?rlkey=7r1p39o60jbytbm3oz7jhpex5&st=fgyutdzf&raw=1" type="audio/mp3">
-        Je browser ondersteunt deze audio niet.
-    </audio>
-
-    <!-- Voeg een extra knop toe voor fullscreen -->
-    <button id="fullscreenBtn">Volledig Scherm</button>
 </body>
 </html>
