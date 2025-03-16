@@ -112,6 +112,7 @@
                 selectedTimerRef.set(index);
             }
 
+            // Start de timer en speel het geluid af
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
                 intervals[geselecteerdeTimer] = setInterval(() => {
@@ -126,16 +127,18 @@
                 const startTimerRef = firebase.database().ref('startTimer');
                 startTimerRef.set(true);
 
-                // Speel geluid af op het apparaat in de 'view=display' modus
+                // Speel het geluid af op het apparaat in de 'view=display' modus
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
                 if (view === 'display') {
+                    // Wacht tot de startknop is ingedrukt (gebruikersactie)
                     timerSound.play().catch((error) => {
                         console.log("Audio kon niet worden afgespeeld:", error);
                     });
                 }
             }
 
+            // Stop de timer en stop het geluid
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
