@@ -346,7 +346,9 @@
             font-weight: bold;
             color: black;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: 10px; /* Verminder de marge om het meer in het midden te krijgen */
+            width: 100%;
+            text-align: center; /* Zorg ervoor dat de naam in het midden komt te staan */
         }
 
         .team-input {
@@ -356,13 +358,22 @@
             text-align: center;
             border: none;
             outline: none;
-            box-sizing: border-box; /* Zorgt ervoor dat de padding niet de breedte vergroot */
+            box-sizing: border-box;
         }
 
         /* Media query voor mobiele schermen */
         @media (max-width: 768px) {
+            .timer {
+                width: 230px;
+                height: 230px;
+                font-size: 50px; /* Mobiele versie font-grootte */
+            }
+            .team-name {
+                font-size: 24px;  /* Zorg ervoor dat de teamnaam goed leesbaar is op mobiel */
+                margin-bottom: 10px; /* Pas de marge aan voor mobiele weergave */
+            }
             .team-input {
-                font-size: 30px;  /* Zorgt ervoor dat de naam groot genoeg is voor mobiel */
+                font-size: 24px;  /* Zorgt ervoor dat de naam groot genoeg is voor mobiel */
                 width: 90%;  /* Zorg ervoor dat het invoerveld kleiner is dan de timerbox */
             }
         }
@@ -401,13 +412,8 @@
             .timer-container {
                 flex-direction: row;
             }
-            .timer {
-                width: 230px;
-                height: 230px;
-                font-size: 50px; /* Mobiele versie font-grootte */
-            }
             .team-name {
-                font-size: 18px;
+                font-size: 18px;  /* Pas de teamnaam op mobiel aan */
             }
             .controls {
                 width: 90%;
