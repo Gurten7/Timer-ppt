@@ -11,15 +11,15 @@
 
     <script defer>
         document.addEventListener("DOMContentLoaded", () => {
-            // Firebase-configuratie
+            // Firebase-configuratie (zonder App ID)
             const firebaseConfig = {
-                apiKey: "YOUR_API_KEY",  // Vervang met je eigen API key
+                apiKey: "YOUR_API_KEY",  // Vervang met je eigen API Key
                 authDomain: "slimste-kameraad-timer.firebaseapp.com",  // Vervang met je project ID
-                databaseURL: "https://slimste-kameraad-timer-default-rtdb.europe-west1.firebasedatabase.app",  // Dit is je database URL
-                projectId: "slimste-kameraad-timer",  // Je Project ID
-                storageBucket: "slimste-kameraad-timer.appspot.com",  // Je opslag
-                messagingSenderId: "37865286019",  // Je messaging ID
-                appId: "YOUR_APP_ID"  // Vervang dit met je app ID
+                databaseURL: "https://slimste-kameraad-timer-default-rtdb.europe-west1.firebasedatabase.app",  // Firebase database URL
+                projectId: "slimste-kameraad-timer",  // Je project ID
+                storageBucket: "slimste-kameraad-timer.appspot.com",  // Firebase Storage
+                messagingSenderId: "37865286019",  // Messaging Sender ID
+                appId: ""  // Laat leeg, aangezien we geen Web App gebruiken
             };
 
             // Initialiseer Firebase
