@@ -352,10 +352,19 @@
         .team-input {
             font-size: 30px;
             font-weight: bold;
-            width: 80%;
+            width: 100%; /* Volledige breedte */
             text-align: center;
             border: none;
             outline: none;
+            box-sizing: border-box; /* Zorgt ervoor dat de padding niet de breedte vergroot */
+        }
+
+        /* Media query voor mobiele schermen */
+        @media (max-width: 768px) {
+            .team-input {
+                font-size: 30px;  /* Zorgt ervoor dat de naam groot genoeg is voor mobiel */
+                width: 90%;  /* Zorg ervoor dat het invoerveld kleiner is dan de timerbox */
+            }
         }
 
         .controls {
