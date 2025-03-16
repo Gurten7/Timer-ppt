@@ -140,6 +140,16 @@
             function toggleTimerZichtbaarheid() {
                 zichtbareTimers[geselecteerdeTimer] = !zichtbareTimers[geselecteerdeTimer];
                 updateWeergave();
+                updateDatabase();
+                
+                // Update de zichtbaarheid in Firebase
+                const visibilityRef = firebase.database().ref('timerVisibility');
+                visibilityRef.set({
+                    timer1: zichtbareTimers[0],
+                    timer2: zichtbareTimers[1],
+                    timer3: zichtbareTimers[2],
+                    timer4: zichtbareTimers[3]
+                });
             }
 
             function stelAangepasteTijdIn() {
@@ -229,6 +239,17 @@
                 });
             }
 
+            function syncVisibility() {
+                const visibilityRef = firebase.database().ref('timerVisibility');
+                visibilityRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        zichtbareTimers = [data.timer1, data.timer2, data.timer3, data.timer4];
+                        updateWeergave();
+                    }
+                });
+            }
+
             function checkAndInitializeDatabase() {
                 const timersRef = firebase.database().ref('timers');
                 timersRef.once('value', (snapshot) => {
@@ -260,10 +281,24 @@
                         selectedTimerRef.set(0);  
                     }
                 });
+
+                // Voeg de timerVisibility toe in Firebase
+                const visibilityRef = firebase.database().ref('timerVisibility');
+                visibilityRef.once('value', (snapshot) => {
+                    if (!snapshot.exists()) {
+                        visibilityRef.set({
+                            timer1: true,
+                            timer2: true,
+                            timer3: true,
+                            timer4: true
+                        });
+                    }
+                });
             }
 
             checkAndInitializeDatabase();
             syncTimers();
+            syncVisibility();  // Voeg deze regel toe
 
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
