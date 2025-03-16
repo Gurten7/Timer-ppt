@@ -4,28 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>De Slimste Kameraad</title>
-    
-    <!-- Firebase SDK's -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
-
     <script defer>
+        // Firebase-configuratie
+        const firebaseConfig = {
+            apiKey: "",  // Geen API Key, omdat deze niet noodzakelijk is voor de Realtime Database
+            authDomain: "slimste-kameraad-timer.firebaseapp.com",  // Vervang met je project ID
+            databaseURL: "https://slimste-kameraad-timer-default-rtdb.europe-west1.firebasedatabase.app",  // Firebase database URL
+            projectId: "slimste-kameraad-timer",  // Je project ID
+            storageBucket: "slimste-kameraad-timer.appspot.com",  // Firebase Storage
+            messagingSenderId: "37865286019",  // Messaging Sender ID
+            appId: ""  // Laat leeg, aangezien we geen Web App gebruiken
+        };
+
+        // Initialiseer Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         document.addEventListener("DOMContentLoaded", () => {
-            // Firebase-configuratie (zonder App ID)
-            const firebaseConfig = {
-                apiKey: "YOUR_API_KEY",  // Vervang met je eigen API Key
-                authDomain: "slimste-kameraad-timer.firebaseapp.com",  // Vervang met je project ID
-                databaseURL: "https://slimste-kameraad-timer-default-rtdb.europe-west1.firebasedatabase.app",  // Firebase database URL
-                projectId: "slimste-kameraad-timer",  // Je project ID
-                storageBucket: "slimste-kameraad-timer.appspot.com",  // Firebase Storage
-                messagingSenderId: "37865286019",  // Messaging Sender ID
-                appId: ""  // Laat leeg, aangezien we geen Web App gebruiken
-            };
-
-            // Initialiseer Firebase
-            const app = firebase.initializeApp(firebaseConfig);
-            const database = firebase.database();
-
             let timers = [60, 60, 60, 60];
             let teamNamen = ["Team 1", "Team 2", "Team 3", "Team 4"];
             let intervals = [null, null, null, null];
@@ -40,18 +37,17 @@
                     }
 
                     const teamNaamEl = document.getElementById(`team-name-${index}`);
-
                     if (teamNaamEl) {
                         if (teamNaamEl.tagName.toLowerCase() === "input") {
                             let nieuwNaamDiv = document.createElement("div");
                             nieuwNaamDiv.id = `team-name-${index}`;
                             nieuwNaamDiv.classList.add("team-name");
                             nieuwNaamDiv.textContent = teamNamen[index];
-                            nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); 
+                            nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener opnieuw toe
                             teamNaamEl.replaceWith(nieuwNaamDiv);
                         } else {
                             teamNaamEl.textContent = teamNamen[index];
-                            teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index));
+                            teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener toe als deze nog niet bestaat
                         }
                     }
 
@@ -72,7 +68,7 @@
                     if (timers[geselecteerdeTimer] > 0) {
                         timers[geselecteerdeTimer]--;
                         updateWeergave();
-                        updateDatabase(); // Stuur de wijziging naar Firebase
+                        updateDatabase(); // Stuur elke wijziging naar Firebase
                     }
                 }, 1000);
             }
@@ -112,18 +108,24 @@
 
             function maakTeamnaamBewerkbaar(index) {
                 let naamLabel = document.getElementById(`team-name-${index}`);
-                
                 if (naamLabel && naamLabel.tagName.toLowerCase() !== "input") {
                     let inputVeld = document.createElement("input");
                     inputVeld.type = "text";
                     inputVeld.value = teamNamen[index];
                     inputVeld.classList.add("team-input");
-                    inputVeld.style.fontSize = "30px";
-                    inputVeld.style.width = "80%";
+
+                    // Zorg ervoor dat de input hetzelfde blijft qua layout
+                    inputVeld.style.fontSize = "30px"; // Wijzig de font size naar 30px
+                    inputVeld.style.width = "80%"; // Zorg ervoor dat het niet te breed is
+
+                    // Vervang de huidige naam door het invoerveld
                     naamLabel.replaceWith(inputVeld);
                     inputVeld.focus();
 
+                    // Wanneer het invoerveld verliest focus, sla de nieuwe naam op
                     inputVeld.addEventListener("blur", () => slaNieuweTeamnaamOp(index, inputVeld.value));
+                    
+                    // Wanneer je op enter drukt, sla de nieuwe naam op
                     inputVeld.addEventListener("keydown", (event) => {
                         if (event.key === "Enter") {
                             slaNieuweTeamnaamOp(index, inputVeld.value);
@@ -137,10 +139,8 @@
                     teamNamen[index] = nieuweNaam;
                 }
                 updateWeergave();
-                updateDatabase(); // Stuur de nieuwe teamnaam naar Firebase
             }
 
-            // Firebase - Update de Realtime Database met de huidige timerinstellingen
             function updateDatabase() {
                 const timersRef = firebase.database().ref('timers');
                 timersRef.set({
@@ -151,7 +151,6 @@
                 });
             }
 
-            // Firebase - Synchroniseer de timers met de Realtime Database
             function syncTimers() {
                 const timersRef = firebase.database().ref('timers');
                 timersRef.on('value', (snapshot) => {
@@ -185,7 +184,6 @@
             syncTimers(); // Start het synchroniseren van de timers
         });
     </script>
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -301,7 +299,6 @@
         </div>
     </div>
 
-    <!-- Control Buttons -->
     <div class="controls">
         <div class="row">
             <button id="startBtn">Start</button>
