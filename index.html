@@ -42,6 +42,14 @@
                     elementsToHide.forEach(el => {
                         el.style.display = 'none';
                     });
+
+                    // Haal de timer selectie op uit de lokale opslag
+                    const storedTimer = localStorage.getItem('selectedTimer');
+                    if (storedTimer !== null) {
+                        selecteerTimer(parseInt(storedTimer));  // Zet de timer op de opgeslagen waarde
+                    } else {
+                        selecteerTimer(0);  // Zet timer 1 als standaard
+                    }
                 } else {
                     // Als de 'view' parameter niet 'display' is, laat de elementen zien
                     const elementsToShow = document.querySelectorAll('.hide-if-needed');
@@ -86,6 +94,9 @@
                 geselecteerdeTimer = index;
                 document.getElementById(`timer-container-${index}`).classList.add("selected");
                 document.getElementById("timerSelect").value = index;
+
+                // Bewaar de geselecteerde timer in localStorage voor gebruik bij view=display
+                localStorage.setItem('selectedTimer', index);
             }
 
             function startTimer() {
