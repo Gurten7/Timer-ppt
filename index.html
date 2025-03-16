@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>De Slimste Kameraad</title>
-    <!-- Firebase SDK -->
+    <!-- Oude versie van Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script defer>
@@ -131,7 +131,7 @@
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
                 if (view === 'display') {
-                    // Controleer en speel het geluid af als de startknop is ingedrukt
+                    // Wacht totdat de startknop wordt ingedrukt (gebruikersactie)
                     timerSound.play().catch((error) => {
                         console.log("Audio kon niet worden afgespeeld:", error);
                     });
@@ -476,8 +476,28 @@
     </audio>
 
     <div class="controls">
-        <button id="startBtn">Start</button>
-        <button id="stopBtn">Stop</button>
+        <div class="row">
+            <button id="startBtn" class="hide-if-needed">Start</button>
+            <button id="stopBtn" class="hide-if-needed">Stop</button>
+            <button id="resetBtn" class="hide-if-needed">Reset</button>
+            <button class="adjust-time hide-if-needed" data-amount="10">+10 sec</button>
+            <button class="adjust-time hide-if-needed" data-amount="20">+20 sec</button>
+            <button class="adjust-time hide-if-needed" data-amount="30">+30 sec</button>
+            <button class="adjust-time hide-if-needed" data-amount="40">+40 sec</button>
+            <button class="adjust-time hide-if-needed" data-amount="50">+50 sec</button>
+            <button class="adjust-time hide-if-needed" data-amount="-20">-20 sec</button>
+        </div>
+        <div class="row">
+            <select id="timerSelect" class="hide-if-needed">
+                <option value="0">Timer 1</option>
+                <option value="1">Timer 2</option>
+                <option value="2">Timer 3</option>
+                <option value="3">Timer 4</option>
+            </select>
+            <button id="toggleBtn" class="hide-if-needed">Zichtbaar ja/nee</button>
+            <input type="number" id="timeInput" placeholder="Voer seconden in" class="hide-if-needed">
+            <button id="setTimeBtn" class="hide-if-needed">Doorvoeren</button>
+        </div>
     </div>
 </body>
 </html>
