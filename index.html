@@ -122,13 +122,14 @@
                     }
                 }, 1000);
 
-                // Speel het geluid af als de juiste 'view=display' modus actief is
+                // Synchroniseer naar Firebase om start in de 'display' modus te activeren
+                const startTimerRef = firebase.database().ref('startTimer');
+                startTimerRef.set(true);
+
+                // Speel geluid af op het apparaat in de 'view=display' modus
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
                 if (view === 'display') {
-                    // Pas de audio afspelen aan, afhankelijk van interactie
-                    const timerSound = document.getElementById("timerSound");
-                    // Wacht eerst tot de startknop wordt ingedrukt (interactie)
                     timerSound.play().catch((error) => {
                         console.log("Audio kon niet worden afgespeeld:", error);
                     });
@@ -139,11 +140,14 @@
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
-                // Stop het geluid
+                // Synchroniseer naar Firebase om stop in de 'display' modus te activeren
+                const startTimerRef = firebase.database().ref('startTimer');
+                startTimerRef.set(false);
+
+                // Stop het geluid op het apparaat in de 'view=display' modus
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
                 if (view === 'display') {
-                    const timerSound = document.getElementById("timerSound");
                     timerSound.pause();  // Stop het geluid
                     timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
                 }
