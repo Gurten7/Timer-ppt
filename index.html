@@ -152,10 +152,33 @@
                 const timersRef = firebase.database().ref('timers');
                 timersRef.on('value', (snapshot) => {
                     const data = snapshot.val();
-                    timers = [data.team1, data.team2, data.team3, data.team4];
-                    updateWeergave();
+
+                    // Checken of data beschikbaar is
+                    if (data && data.team1 !== undefined && data.team2 !== undefined && data.team3 !== undefined && data.team4 !== undefined) {
+                        timers = [data.team1, data.team2, data.team3, data.team4];
+                        updateWeergave();
+                    } else {
+                        console.warn('Geen geldige data beschikbaar in Firebase');
+                    }
                 });
             }
+
+            // Functie om de database te initialiseren met standaardwaarden als deze leeg is
+            function checkAndInitializeDatabase() {
+                const timersRef = firebase.database().ref('timers');
+                timersRef.once('value', (snapshot) => {
+                    if (!snapshot.exists()) {
+                        timersRef.set({
+                            team1: 60,
+                            team2: 60,
+                            team3: 60,
+                            team4: 60
+                        });
+                    }
+                });
+            }
+
+            checkAndInitializeDatabase(); // Zorg ervoor dat de database wordt geïnitialiseerd als deze leeg is
 
             // Event listeners voor timer en knoppen
             document.querySelectorAll(".timer").forEach((el, index) => {
