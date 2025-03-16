@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script defer>
         document.addEventListener("DOMContentLoaded", () => {
-            // Firebase-configuratie
             const firebaseConfig = {
                 apiKey: "", // Geen API Key nodig zonder Web App
                 authDomain: "slimste-kameraad-timer.firebaseapp.com",
@@ -20,7 +19,6 @@
                 appId: "" // Geen Web App ID nodig
             };
 
-            // Firebase initialisatie
             const app = firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
 
@@ -30,41 +28,34 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Functie om te verbergen als nodig
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
-
-                // Check of de view parameter 'display' is
                 if (view === 'display') {
-                    // Verberg knoppen voor de "display" pagina
                     const elementsToHide = document.querySelectorAll('.hide-if-needed');
                     elementsToHide.forEach(el => {
                         el.style.display = 'none';
                     });
 
-                    // Zet de knoppen en teamnamen op 'disabled' zodat ze niet interactief zijn
                     document.querySelectorAll(".timer").forEach((el) => {
-                        el.style.pointerEvents = "none"; // Timers niet selecteerbaar
+                        el.style.pointerEvents = "none";
                     });
 
                     document.querySelectorAll(".team-name").forEach((el) => {
-                        el.style.pointerEvents = "none"; // Teamnamen niet wijzigbaar
+                        el.style.pointerEvents = "none";
                     });
 
                     const teamInputElements = document.querySelectorAll(".team-input");
                     teamInputElements.forEach((el) => {
-                        el.setAttribute("disabled", "true"); // Zet inputvelden voor teamnamen uit
+                        el.setAttribute("disabled", "true");
                     });
 
                 } else {
-                    // Als de 'view' parameter niet 'display' is, laat de elementen zien
                     const elementsToShow = document.querySelectorAll('.hide-if-needed');
                     elementsToShow.forEach(el => {
                         el.style.display = 'block';
                     });
 
-                    // Zet alles weer actief in de andere modus
                     document.querySelectorAll(".timer").forEach((el) => {
                         el.style.pointerEvents = "auto";
                     });
@@ -75,48 +66,45 @@
 
                     const teamInputElements = document.querySelectorAll(".team-input");
                     teamInputElements.forEach((el) => {
-                        el.removeAttribute("disabled"); // Zet de teamnaam inputvelden weer aan
+                        el.removeAttribute("disabled");
                     });
                 }
             }
 
-            // Roep de hideIfNeeded functie aan bij het laden van de pagina
             hideIfNeeded();
 
             function updateWeergave() {
                 timers.forEach((tijd, index) => {
-                    const timerElement = document.getElementById(timer${index});
+                    const timerElement = document.getElementById(`timer${index}`);
                     if (timerElement) {
                         timerElement.textContent = tijd;
                     }
 
-                    const teamNaamEl = document.getElementById(team-name-${index});
-
+                    const teamNaamEl = document.getElementById(`team-name-${index}`);
                     if (teamNaamEl) {
                         if (teamNaamEl.tagName.toLowerCase() === "input") {
                             let nieuwNaamDiv = document.createElement("div");
-                            nieuwNaamDiv.id = team-name-${index};
+                            nieuwNaamDiv.id = `team-name-${index}`;
                             nieuwNaamDiv.classList.add("team-name");
                             nieuwNaamDiv.textContent = teamNamen[index];
-                            nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener opnieuw toe
+                            nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index));
                             teamNaamEl.replaceWith(nieuwNaamDiv);
                         } else {
                             teamNaamEl.textContent = teamNamen[index];
-                            teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index)); // Voeg de event listener toe als deze nog niet bestaat
+                            teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index));
                         }
                     }
 
-                    document.getElementById(timer-container-${index}).style.display = zichtbareTimers[index] ? "block" : "none";
+                    document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
                 });
             }
 
             function selecteerTimer(index) {
                 document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
                 geselecteerdeTimer = index;
-                document.getElementById(timer-container-${index}).classList.add("selected");
+                document.getElementById(`timer-container-${index}`).classList.add("selected");
                 document.getElementById("timerSelect").value = index;
 
-                // Bewaar de geselecteerde timer in Firebase voor synchronisatie
                 const selectedTimerRef = firebase.database().ref('selectedTimer');
                 selectedTimerRef.set(index);
             }
@@ -127,7 +115,7 @@
                     if (timers[geselecteerdeTimer] > 0) {
                         timers[geselecteerdeTimer]--;
                         updateWeergave();
-                        updateDatabase(); // Stuur elke wijziging naar Firebase
+                        updateDatabase();
                     }
                 }, 1000);
             }
@@ -140,13 +128,13 @@
             function resetTimer() {
                 timers = [60, 60, 60, 60];
                 updateWeergave();
-                updateDatabase(); // Zet de timers weer op 60 in Firebase
+                updateDatabase();
             }
 
             function pasTijdAan(aantal) {
                 timers[geselecteerdeTimer] = Math.max(0, timers[geselecteerdeTimer] + aantal);
                 updateWeergave();
-                updateDatabase(); // Stuur de wijziging naar Firebase
+                updateDatabase();
             }
 
             function toggleTimerZichtbaarheid() {
@@ -159,15 +147,15 @@
                 if (!isNaN(invoerSeconden) && invoerSeconden >= 0) {
                     timers[geselecteerdeTimer] = invoerSeconden;
                     updateWeergave();
-                    updateDatabase(); // Stuur de nieuwe timerwaarde naar Firebase
+                    updateDatabase();
                 } else {
                     alert("Voer een geldig aantal seconden in (minimaal 0)");
                 }
             }
 
             function maakTeamnaamBewerkbaar(index) {
-                let naamLabel = document.getElementById(team-name-${index});
-                
+                let naamLabel = document.getElementById(`team-name-${index}`);
+
                 if (naamLabel && naamLabel.tagName.toLowerCase() !== "input") {
                     let inputVeld = document.createElement("input");
                     inputVeld.type = "text";
@@ -192,7 +180,7 @@
                     teamNamen[index] = nieuweNaam;
                 }
                 updateWeergave();
-                updateDatabase(); // Stuur de nieuwe teamnaam naar Firebase
+                updateDatabase();
             }
 
             function updateDatabase() {
@@ -269,7 +257,7 @@
                 const selectedTimerRef = firebase.database().ref('selectedTimer');
                 selectedTimerRef.once('value', (snapshot) => {
                     if (!snapshot.exists()) {
-                        selectedTimerRef.set(0);  // Start met timer 0 geselecteerd
+                        selectedTimerRef.set(0);  
                     }
                 });
             }
@@ -277,7 +265,6 @@
             checkAndInitializeDatabase();
             syncTimers();
 
-            // Event listeners voor timer en knoppen
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
             });
@@ -330,6 +317,7 @@
             color: red;
             background-color: white;
             border-radius: 20px;
+            text-align: center;
         }
         .team-name {
             font-size: 30px;
@@ -441,4 +429,3 @@
     </div>
 </body>
 </html>
-
