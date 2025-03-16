@@ -131,7 +131,7 @@
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
                 if (view === 'display') {
-                    // Wacht tot de startknop is ingedrukt (gebruikersactie)
+                    // Wacht totdat de startknop wordt ingedrukt (gebruikersactie)
                     timerSound.play().catch((error) => {
                         console.log("Audio kon niet worden afgespeeld:", error);
                     });
