@@ -28,6 +28,9 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
+            // Audio element voor timer geluid
+            const timerSound = document.getElementById("timerSound");
+
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
@@ -109,6 +112,7 @@
                 selectedTimerRef.set(index);
             }
 
+            // Start de timer en speel het geluid af
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
                 intervals[geselecteerdeTimer] = setInterval(() => {
@@ -118,11 +122,21 @@
                         updateDatabase();
                     }
                 }, 1000);
+
+                // Speel het geluid af wanneer de timer start
+                timerSound.play().catch((error) => {
+                    console.log("Audio kon niet worden afgespeeld:", error);
+                });
             }
 
+            // Stop de timer en stop het geluid
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
+
+                // Stop het geluid op het apparaat in de 'view=display' modus
+                timerSound.pause();  // Stop het geluid
+                timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
             }
 
             function resetTimer() {
@@ -437,6 +451,12 @@
             <div id="timer3">60</div>
         </div>
     </div>
+
+    <!-- Voeg het audio element toe -->
+    <audio id="timerSound" preload="auto">
+        <source src="https://raw.githubusercontent.com/Gurten7/Timer-ppt/main/timer-sound.mp3" type="audio/mp3">
+        Je browser ondersteunt het afspelen van audio niet.
+    </audio>
 
     <div class="controls">
         <div class="row">
