@@ -127,11 +127,6 @@
                 // Speel het geluid af op de tweede pagina via Firebase
                 const playSoundRef = firebase.database().ref('playSound');
                 playSoundRef.set(true);  // Zet de waarde op true om geluid af te spelen
-
-                // Speel het geluid af in de huidige browser
-                timerSound.play().catch((error) => {
-                    console.log("Audio kon niet worden afgespeeld:", error);
-                });
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
