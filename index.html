@@ -124,9 +124,9 @@
                     }
                 }, 1000);
 
-                // Zet de waarde voor 'playSound' in Firebase naar true om geluid af te spelen op de displaypagina
+                // Zet 'playSound' in Firebase naar true om geluid af te spelen op de displaypagina
                 const playSoundRef = firebase.database().ref('playSound');
-                playSoundRef.set(true);  // Activeer het geluid
+                playSoundRef.set(true);  // Activeer geluid op de displaypagina
             }
 
             // Stop de timer en speel het stopgeluid af via Firebase
@@ -134,9 +134,9 @@
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
-                // Zet de waarde voor 'playStopSound' in Firebase naar true om stopgeluid af te spelen op de displaypagina
+                // Zet 'playStopSound' in Firebase naar true om stopgeluid af te spelen op de displaypagina
                 const playStopSoundRef = firebase.database().ref('playStopSound');
-                playStopSoundRef.set(true);  // Activeer het stopgeluid
+                playStopSoundRef.set(true);  // Activeer stopgeluid op de displaypagina
             }
 
             function resetTimer() {
