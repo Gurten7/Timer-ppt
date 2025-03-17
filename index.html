@@ -136,9 +136,6 @@
                 timerSound.play().catch((error) => {
                     console.log("Audio kon niet worden afgespeeld:", error);
                 });
-
-                // Stuur de actie naar Firebase
-                firebase.database().ref('action').set('start');
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
@@ -154,18 +151,12 @@
                 timerEndSound.play().catch((error) => {
                     console.log("Stopgeluid kon niet worden afgespeeld:", error);
                 });
-
-                // Stuur de actie naar Firebase
-                firebase.database().ref('action').set('stop');
             }
 
             function resetTimer() {
                 timers = [60, 60, 60, 60];
                 updateWeergave();
                 updateDatabase();
-
-                // Stuur de reset actie naar Firebase
-                firebase.database().ref('action').set('reset');
             }
 
             function pasTijdAan(aantal) {
