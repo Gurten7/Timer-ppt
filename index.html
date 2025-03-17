@@ -28,11 +28,6 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Audio element voor timer geluid
-            const timerSound = document.getElementById("timerSound");
-            // Audio element voor stop geluid
-            const stopSound = document.getElementById("stopSound");
-
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
@@ -125,25 +120,30 @@
                     }
                 }, 1000);
 
-                // Speel het timer geluid af wanneer de timer start, alleen als het geluid nog niet wordt afgespeeld
-                if (timerSound.paused) {
+                // Speel het timer geluid af
+                const timerSound = document.getElementById("timerSound");
+                if (timerSound && timerSound.paused) {
                     timerSound.play().catch((error) => {
                         console.log("Audio kon niet worden afgespeeld:", error);
                     });
                 }
             }
 
-            // Stop de timer en stop het geluid + speel stop geluid
+            // Stop de timer en speel het stop geluid af
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
                 // Stop het timer geluid en reset het
-                timerSound.pause();
-                timerSound.currentTime = 0;
+                const timerSound = document.getElementById("timerSound");
+                if (timerSound) {
+                    timerSound.pause();
+                    timerSound.currentTime = 0;
+                }
 
-                // Speel het stop geluid af, alleen als het stop geluid nog niet wordt afgespeeld
-                if (stopSound.paused) {
+                // Speel het stop geluid af
+                const stopSound = document.getElementById("stopSound");
+                if (stopSound && stopSound.paused) {
                     stopSound.play().catch((error) => {
                         console.log("Stop geluid kon niet worden afgespeeld:", error);
                     });
