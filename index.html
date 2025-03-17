@@ -37,8 +37,8 @@
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
                 if (view === 'display') {
-                    // Geluiden afspelen in de display modus
-                    document.querySelectorAll('.hide-if-needed').forEach(el => {
+                    const elementsToHide = document.querySelectorAll('.hide-if-needed');
+                    elementsToHide.forEach(el => {
                         el.style.display = 'none';
                     });
 
@@ -56,8 +56,8 @@
                     });
 
                 } else {
-                    // Geluid afspelen niet in controller modus
-                    document.querySelectorAll('.hide-if-needed').forEach(el => {
+                    const elementsToShow = document.querySelectorAll('.hide-if-needed');
+                    elementsToShow.forEach(el => {
                         el.style.display = 'block';
                     });
 
@@ -114,49 +114,29 @@
                 selectedTimerRef.set(index);
             }
 
-            // Start de timer en speel het geluid af
+            // Start de timer en speel het geluid af via Firebase
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
+
                 intervals[geselecteerdeTimer] = setInterval(() => {
                     if (timers[geselecteerdeTimer] > 0) {
                         timers[geselecteerdeTimer]--;
                         updateWeergave();
                         updateDatabase();
                     } else if (timers[geselecteerdeTimer] === 0) {
-                        // Timer is op 0, stop het timer-geluid en speel het finale geluid af
-                        timerSound.pause();  // Stop het timer-geluid
-                        timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
-                        if (window.location.search.includes('view=display')) {
-                            finaleSound.play().catch((error) => {
-                                console.log("Finale geluid kon niet worden afgespeeld:", error);
-                            });
-                        }
+                        firebase.database().ref('timerState').set('ended'); // Finale geluid triggeren
                     }
                 }, 1000);
 
-                // Speel het geluid af wanneer de timer start
-                if (window.location.search.includes('view=display')) {
-                    timerSound.play().catch((error) => {
-                        console.log("Audio kon niet worden afgespeeld:", error);
-                    });
-                }
+                firebase.database().ref('timerState').set('running'); // Zet status op 'running'
             }
 
-            // Stop de timer en stop het geluid, speel het stop geluid af
+            // Stop de timer en stop het geluid, speel het stopgeluid af via Firebase
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
-
-                // Stop het timer-geluid
-                timerSound.pause();  // Stop het timer-geluid
-                timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
                 
-                // Speel het stop geluid af
-                if (window.location.search.includes('view=display')) {
-                    timerEndSound.play().catch((error) => {
-                        console.log("Stopgeluid kon niet worden afgespeeld:", error);
-                    });
-                }
+                firebase.database().ref('timerState').set('stopped'); // Zet status op 'stopped'
             }
 
             function resetTimer() {
@@ -300,7 +280,6 @@
                 const teamNamesRef = firebase.database().ref('teamNames');
                 teamNamesRef.once('value', (snapshot) => {
                     if (!snapshot.exists()) {
-                        teamNames
                         teamNamesRef.set({
                             team1: "Team 1",
                             team2: "Team 2",
@@ -513,3 +492,4 @@
     </div>
 </body>
 </html>
+
