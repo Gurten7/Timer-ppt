@@ -328,6 +328,27 @@
             syncTimers();
             syncVisibility();  // Voeg deze regel toe
 
+            // Toevoegen van actie-synchronisatie
+            firebase.database().ref('action').on('value', (snapshot) => {
+                const action = snapshot.val();
+                
+                if (action === 'start') {
+                    timerSound.play().catch((error) => {
+                        console.log("Audio kon niet worden afgespeeld:", error);
+                    });
+                } else if (action === 'stop') {
+                    timerSound.pause();
+                    timerSound.currentTime = 0;
+                    timerEndSound.play().catch((error) => {
+                        console.log("Stopgeluid kon niet worden afgespeeld:", error);
+                    });
+                } else if (action === 'reset') {
+                    finaleSound.play().catch((error) => {
+                        console.log("Finale geluid kon niet worden afgespeeld:", error);
+                    });
+                }
+            });
+
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
             });
@@ -336,9 +357,16 @@
                 selecteerTimer(parseInt(event.target.value));
             });
 
-            document.getElementById("startBtn").addEventListener("click", startTimer);
-            document.getElementById("stopBtn").addEventListener("click", stopTimer);
-            document.getElementById("resetBtn").addEventListener("click", resetTimer);
+            document.getElementById("startBtn").addEventListener("click", () => {
+                firebase.database().ref('action').set('start');
+            });
+            document.getElementById("stopBtn").addEventListener("click", () => {
+                firebase.database().ref('action').set('stop');
+            });
+            document.getElementById("resetBtn").addEventListener("click", () => {
+                firebase.database().ref('action').set('reset');
+            });
+
             document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
             document.getElementById("setTimeBtn").addEventListener("click", stelAangepasteTijdIn);
 
