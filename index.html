@@ -55,25 +55,6 @@
                         el.setAttribute("disabled", "true");
                     });
 
-                    // Start afspelen van geluiden als de pagina in displaymodus is
-                    firebase.database().ref('action').on('value', (snapshot) => {
-                        const action = snapshot.val();
-                        if (action === 'start') {
-                            timerSound.play().catch((error) => {
-                                console.log("Audio kon niet worden afgespeeld:", error);
-                            });
-                        } else if (action === 'stop') {
-                            timerSound.pause();
-                            timerSound.currentTime = 0;
-                            timerEndSound.play().catch((error) => {
-                                console.log("Stopgeluid kon niet worden afgespeeld:", error);
-                            });
-                        } else if (action === 'reset') {
-                            finaleSound.play().catch((error) => {
-                                console.log("Finale geluid kon niet worden afgespeeld:", error);
-                            });
-                        }
-                    });
                 } else {
                     const elementsToShow = document.querySelectorAll('.hide-if-needed');
                     elementsToShow.forEach(el => {
@@ -155,6 +136,9 @@
                 timerSound.play().catch((error) => {
                     console.log("Audio kon niet worden afgespeeld:", error);
                 });
+
+                // Stuur de actie naar Firebase
+                firebase.database().ref('action').set('start');
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
@@ -170,12 +154,18 @@
                 timerEndSound.play().catch((error) => {
                     console.log("Stopgeluid kon niet worden afgespeeld:", error);
                 });
+
+                // Stuur de actie naar Firebase
+                firebase.database().ref('action').set('stop');
             }
 
             function resetTimer() {
                 timers = [60, 60, 60, 60];
                 updateWeergave();
                 updateDatabase();
+
+                // Stuur de reset actie naar Firebase
+                firebase.database().ref('action').set('reset');
             }
 
             function pasTijdAan(aantal) {
@@ -355,34 +345,9 @@
                 selecteerTimer(parseInt(event.target.value));
             });
 
-            // Event listeners voor knoppen
-            document.getElementById("startBtn").addEventListener("click", () => {
-                console.log("Start knop ingedrukt");
-                firebase.database().ref('action').set('start').then(() => {
-                    console.log("Start actie succesvol naar Firebase gestuurd");
-                }).catch((error) => {
-                    console.error("Fout bij het verzenden van start actie naar Firebase:", error);
-                });
-            });
-
-            document.getElementById("stopBtn").addEventListener("click", () => {
-                console.log("Stop knop ingedrukt");
-                firebase.database().ref('action').set('stop').then(() => {
-                    console.log("Stop actie succesvol naar Firebase gestuurd");
-                }).catch((error) => {
-                    console.error("Fout bij het verzenden van stop actie naar Firebase:", error);
-                });
-            });
-
-            document.getElementById("resetBtn").addEventListener("click", () => {
-                console.log("Reset knop ingedrukt");
-                firebase.database().ref('action').set('reset').then(() => {
-                    console.log("Reset actie succesvol naar Firebase gestuurd");
-                }).catch((error) => {
-                    console.error("Fout bij het verzenden van reset actie naar Firebase:", error);
-                });
-            });
-
+            document.getElementById("startBtn").addEventListener("click", startTimer);
+            document.getElementById("stopBtn").addEventListener("click", stopTimer);
+            document.getElementById("resetBtn").addEventListener("click", resetTimer);
             document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
             document.getElementById("setTimeBtn").addEventListener("click", stelAangepasteTijdIn);
 
