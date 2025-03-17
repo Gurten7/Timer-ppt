@@ -28,7 +28,7 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Audio element voor timer geluid
+            // Audio elementen voor timer geluiden
             const timerSound = document.getElementById("timerSound");
             const stopSound = document.getElementById("stopSound");
 
@@ -124,25 +124,27 @@
                     }
                 }, 1000);
 
-                // Speel het geluid af wanneer de timer start
+                // Speel het timer geluid af wanneer de timer start
                 timerSound.play().catch((error) => {
                     console.log("Audio kon niet worden afgespeeld:", error);
                 });
             }
 
-            // Stop de timer en stop het geluid
+            // Stop de timer en speel het stop geluid af zonder het timer geluid te stoppen
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
-
-                // Stop het geluid op het apparaat in de 'view=display' modus
-                timerSound.pause();  // Stop het geluid
-                timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
 
                 // Speel het stop geluid af
                 stopSound.play().catch((error) => {
                     console.log("Stop geluid kon niet worden afgespeeld:", error);
                 });
+
+                // Zorg ervoor dat het stop geluid en het timer geluid tegelijk kunnen spelen
+                if (!timerSound.paused) {
+                    timerSound.pause();  // Stop het timer geluid, maar laat het stoppen zonder opnieuw af te spelen
+                    timerSound.currentTime = 0; // Zet het timer geluid terug naar het begin
+                }
             }
 
             function resetTimer() {
