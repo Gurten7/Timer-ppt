@@ -355,16 +355,32 @@
                 selecteerTimer(parseInt(event.target.value));
             });
 
+            // Event listeners voor knoppen
             document.getElementById("startBtn").addEventListener("click", () => {
-                firebase.database().ref('action').set('start');
+                console.log("Start knop ingedrukt");
+                firebase.database().ref('action').set('start').then(() => {
+                    console.log("Start actie succesvol naar Firebase gestuurd");
+                }).catch((error) => {
+                    console.error("Fout bij het verzenden van start actie naar Firebase:", error);
+                });
             });
 
             document.getElementById("stopBtn").addEventListener("click", () => {
-                firebase.database().ref('action').set('stop');
+                console.log("Stop knop ingedrukt");
+                firebase.database().ref('action').set('stop').then(() => {
+                    console.log("Stop actie succesvol naar Firebase gestuurd");
+                }).catch((error) => {
+                    console.error("Fout bij het verzenden van stop actie naar Firebase:", error);
+                });
             });
 
             document.getElementById("resetBtn").addEventListener("click", () => {
-                firebase.database().ref('action').set('reset');
+                console.log("Reset knop ingedrukt");
+                firebase.database().ref('action').set('reset').then(() => {
+                    console.log("Reset actie succesvol naar Firebase gestuurd");
+                }).catch((error) => {
+                    console.error("Fout bij het verzenden van reset actie naar Firebase:", error);
+                });
             });
 
             document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
@@ -534,4 +550,3 @@
     </div>
 </body>
 </html>
-
