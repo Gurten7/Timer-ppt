@@ -32,6 +32,12 @@
             const timerSound = document.getElementById("timerSound");
             const timerEndSound = document.getElementById("timerEndSound");
 
+            // Deze functie wordt opgeroepen om het geluid te triggeren in Firebase
+            function triggerSound(action) {
+                const soundTriggerRef = firebase.database().ref('soundTrigger');
+                soundTriggerRef.set(action); // Zet het geluidsevent (timerStart of timerStop)
+            }
+
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
@@ -124,10 +130,8 @@
                     }
                 }, 1000);
 
-                // Speel het geluid af wanneer de timer start
-                timerSound.play().catch((error) => {
-                    console.log("Audio kon niet worden afgespeeld:", error);
-                });
+                // Geluid triggeren in Firebase voor de view=display pagina
+                triggerSound('timerStart');
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
@@ -135,13 +139,14 @@
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
-                // Stop het geluid op het apparaat in de 'view=display' modus
-                timerSound.pause();  // Stop het timer-geluid
-                timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
-                // Speel het stop geluid af
-                timerEndSound.play().catch((error) => {
-                    console.log("Stopgeluid kon niet worden afgespeeld:", error);
-                });
+                // Trigger stop geluid in Firebase voor de display pagina
+                triggerSound('timerStop');
+                
+                // Zet timer geluid terug naar begin (stoppen met spelen)
+                if (timerSound) {
+                    timerSound.pause();
+                    timerSound.currentTime = 0;
+                }
             }
 
             function resetTimer() {
