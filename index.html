@@ -113,7 +113,7 @@
                 selectedTimerRef.set(index);
             }
 
-            // Start de timer en speel het geluid af
+            // Start de timer en speel het geluid af via Firebase
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
                 intervals[geselecteerdeTimer] = setInterval(() => {
@@ -124,23 +124,19 @@
                     }
                 }, 1000);
 
-                // Speel het geluid af op de displaypagina via Firebase
+                // Zet de waarde voor 'playSound' in Firebase naar true om geluid af te spelen op de displaypagina
                 const playSoundRef = firebase.database().ref('playSound');
-                playSoundRef.set(true);  // Zet de waarde op true om geluid af te spelen
+                playSoundRef.set(true);  // Activeer het geluid
             }
 
-            // Stop de timer en stop het geluid, speel het stop geluid af
+            // Stop de timer en speel het stopgeluid af via Firebase
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
-                // Trigger het stopgeluid via Firebase voor de displaypagina
-                const stopSoundRef = firebase.database().ref('playStopSound');
-                stopSoundRef.set(true);  // Zet de waarde op true om stopgeluid af te spelen
-
-                // Stop het geluid op het apparaat in de 'view=display' modus
-                timerSound.pause();  // Stop het timer-geluid
-                timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
+                // Zet de waarde voor 'playStopSound' in Firebase naar true om stopgeluid af te spelen op de displaypagina
+                const playStopSoundRef = firebase.database().ref('playStopSound');
+                playStopSoundRef.set(true);  // Activeer het stopgeluid
             }
 
             function resetTimer() {
