@@ -135,16 +135,14 @@
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
-                // Stop het timer geluid op het apparaat in de 'view=display' modus
-                timerSound.pause();  // Stop het timer geluid
+                // Stop het timer geluid
+                timerSound.pause();
                 timerSound.currentTime = 0;  // Zet het timer geluid terug naar het begin
 
                 // Speel het stop geluid af na een korte vertraging
-                setTimeout(() => {
-                    stopSound.play().catch((error) => {
-                        console.log("Stop geluid kon niet worden afgespeeld:", error);
-                    });
-                }, 100);  // 100 milliseconden vertraging
+                stopSound.play().catch((error) => {
+                    console.log("Stop geluid kon niet worden afgespeeld:", error);
+                });
             }
 
             function resetTimer() {
@@ -463,12 +461,6 @@
     <!-- Voeg het audio element toe voor de stop geluidsafspeling -->
     <audio id="stopSound" preload="auto">
         <source src="https://raw.githubusercontent.com/Gurten7/Timer-ppt/main/timer-sound-end.mp3" type="audio/mp3">
-        Je browser ondersteunt het afspelen van audio niet.
-    </audio>
-
-    <!-- Voeg het audio element toe voor de timer geluidsafspeling -->
-    <audio id="timerSound" preload="auto">
-        <source src="https://raw.githubusercontent.com/Gurten7/Timer-ppt/main/timer-sound.mp3" type="audio/mp3">
         Je browser ondersteunt het afspelen van audio niet.
     </audio>
 
