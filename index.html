@@ -31,7 +31,6 @@
             // Audio elementen voor beide geluiden
             const timerSound = document.getElementById("timerSound");
             const timerEndSound = document.getElementById("timerEndSound");
-            const finaleSound = document.getElementById("finaleSound");  // Het finale geluid
 
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
@@ -114,7 +113,7 @@
                 selectedTimerRef.set(index);
             }
 
-            // Start de timer en speel het geluid af
+            // Start de timer en speel het geluid af via Firebase
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
                 intervals[geselecteerdeTimer] = setInterval(() => {
@@ -122,32 +121,22 @@
                         timers[geselecteerdeTimer]--;
                         updateWeergave();
                         updateDatabase();
-                    } else if (timers[geselecteerdeTimer] === 0) {
-                        // Timer is op 0, speel het finale geluid af
-                        finaleSound.play().catch((error) => {
-                            console.log("Finale geluid kon niet worden afgespeeld:", error);
-                        });
                     }
                 }, 1000);
 
-                // Speel het geluid af wanneer de timer start
-                timerSound.play().catch((error) => {
-                    console.log("Audio kon niet worden afgespeeld:", error);
-                });
+                // Zet 'playSound' in Firebase naar true om geluid af te spelen op de displaypagina
+                const playSoundRef = firebase.database().ref('playSound');
+                playSoundRef.set(true);  // Activeer geluid op de displaypagina
             }
 
-            // Stop de timer en stop het geluid, speel het stop geluid af
+            // Stop de timer en speel het stopgeluid af via Firebase
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
-                // Stop het geluid op het apparaat in de 'view=display' modus
-                timerSound.pause();  // Stop het timer-geluid
-                timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
-                // Speel het stop geluid af
-                timerEndSound.play().catch((error) => {
-                    console.log("Stopgeluid kon niet worden afgespeeld:", error);
-                });
+                // Zet 'playStopSound' in Firebase naar true om stopgeluid af te spelen op de displaypagina
+                const playStopSoundRef = firebase.database().ref('playStopSound');
+                playStopSoundRef.set(true);  // Activeer stopgeluid op de displaypagina
             }
 
             function resetTimer() {
@@ -472,10 +461,6 @@
         <source src="https://raw.githubusercontent.com/Gurten7/Timer-ppt/main/audio/timer-sound-end.mp3" type="audio/mp3">
         Je browser ondersteunt het afspelen van audio niet.
     </audio>
-    <audio id="finaleSound" preload="auto">
-        <source src="https://raw.githubusercontent.com/Gurten7/Timer-ppt/main/audio/Sound-finale.mp3" type="audio/mp3">
-        Je browser ondersteunt het afspelen van audio niet.
-    </audio>
 
     <div class="controls">
         <div class="row">
@@ -503,4 +488,3 @@
     </div>
 </body>
 </html>
-
