@@ -113,12 +113,6 @@
                 selectedTimerRef.set(index);
             }
 
-            // Deze functie stuurt een trigger naar Firebase om het geluid af te spelen op de 'view=display' pagina
-            function triggerSound(action) {
-                const soundTriggerRef = firebase.database().ref('soundTrigger');
-                soundTriggerRef.set(action); // Zet de actie in Firebase
-            }
-
             // Start de timer en speel het geluid af
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
@@ -130,8 +124,14 @@
                     }
                 }, 1000);
 
-                // Verstuur een trigger naar Firebase om het geluid af te spelen op de 'view=display' pagina
-                triggerSound('timerStart');
+                // Speel het geluid af op de tweede pagina via Firebase
+                const playSoundRef = firebase.database().ref('playSound');
+                playSoundRef.set(true);  // Zet de waarde op true om geluid af te spelen
+
+                // Speel het geluid af in de huidige browser
+                timerSound.play().catch((error) => {
+                    console.log("Audio kon niet worden afgespeeld:", error);
+                });
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
@@ -143,7 +143,9 @@
                 timerSound.pause();  // Stop het timer-geluid
                 timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
                 // Speel het stop geluid af
-                triggerSound('timerStop');
+                timerEndSound.play().catch((error) => {
+                    console.log("Stopgeluid kon niet worden afgespeeld:", error);
+                });
             }
 
             function resetTimer() {
@@ -495,4 +497,3 @@
     </div>
 </body>
 </html>
-
