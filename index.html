@@ -113,10 +113,12 @@
                 timerSound.pause();
                 timerSound.currentTime = 0; // Zet het timer geluid terug naar het begin
 
-                // Speel het stop geluid af
-                stopSound.play().catch((error) => {
-                    console.log("Stop geluid kon niet worden afgespeeld:", error);
-                });
+                // Speel het stop geluid af na een korte vertraging
+                setTimeout(() => {
+                    stopSound.play().catch((error) => {
+                        console.log("Stop geluid kon niet worden afgespeeld:", error);
+                    });
+                }, 100);  // 100 milliseconden vertraging
             }
 
             function resetTimer() {
