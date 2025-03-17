@@ -28,7 +28,7 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Audio elementen voor timer geluiden
+            // Audio elementen voor de geluiden
             const timerSound = document.getElementById("timerSound");
             const stopSound = document.getElementById("stopSound");
 
@@ -124,27 +124,25 @@
                     }
                 }, 1000);
 
-                // Speel het timer geluid af wanneer de timer start
+                // Speel het timer sound geluid af wanneer de timer start
                 timerSound.play().catch((error) => {
                     console.log("Audio kon niet worden afgespeeld:", error);
                 });
             }
 
-            // Stop de timer en speel het stop geluid af zonder het timer geluid te stoppen
+            // Stop de timer en speel het stopgeluid af
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
-                // Speel het stop geluid af
+                // Stop het timer sound geluid
+                timerSound.pause();
+                timerSound.currentTime = 0; // Zet het timer geluid terug naar het begin
+
+                // Speel het stop geluid direct af
                 stopSound.play().catch((error) => {
                     console.log("Stop geluid kon niet worden afgespeeld:", error);
                 });
-
-                // Zorg ervoor dat het stop geluid en het timer geluid tegelijk kunnen spelen
-                if (!timerSound.paused) {
-                    timerSound.pause();  // Stop het timer geluid, maar laat het stoppen zonder opnieuw af te spelen
-                    timerSound.currentTime = 0; // Zet het timer geluid terug naar het begin
-                }
             }
 
             function resetTimer() {
@@ -465,6 +463,7 @@
         <source src="https://raw.githubusercontent.com/Gurten7/Timer-ppt/main/timer-sound.mp3" type="audio/mp3">
         Je browser ondersteunt het afspelen van audio niet.
     </audio>
+
     <audio id="stopSound" preload="auto">
         <source src="https://raw.githubusercontent.com/Gurten7/Timer-ppt/main/timer-sound-end.mp3" type="audio/mp3">
         Je browser ondersteunt het afspelen van audio niet.
