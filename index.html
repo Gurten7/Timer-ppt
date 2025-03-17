@@ -336,18 +336,9 @@
                 selecteerTimer(parseInt(event.target.value));
             });
 
-            document.getElementById("startBtn").addEventListener("click", () => {
-                firebase.database().ref('action').set('start');
-            });
-
-            document.getElementById("stopBtn").addEventListener("click", () => {
-                firebase.database().ref('action').set('stop');
-            });
-
-            document.getElementById("resetBtn").addEventListener("click", () => {
-                firebase.database().ref('action').set('reset');
-            });
-
+            document.getElementById("startBtn").addEventListener("click", startTimer);
+            document.getElementById("stopBtn").addEventListener("click", stopTimer);
+            document.getElementById("resetBtn").addEventListener("click", resetTimer);
             document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
             document.getElementById("setTimeBtn").addEventListener("click", stelAangepasteTijdIn);
 
