@@ -4,19 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>De Slimste Kameraad</title>
-    <!-- Oude versie van Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script defer>
         document.addEventListener("DOMContentLoaded", () => {
             const firebaseConfig = {
-                apiKey: "", // Geen API Key nodig zonder Web App
+                apiKey: "", 
                 authDomain: "slimste-kameraad-timer.firebaseapp.com",
                 databaseURL: "https://slimste-kameraad-timer-default-rtdb.europe-west1.firebasedatabase.app",
                 projectId: "slimste-kameraad-timer",
                 storageBucket: "slimste-kameraad-timer.appspot.com",
                 messagingSenderId: "37865286019",
-                appId: "" // Geen Web App ID nodig
+                appId: "" 
             };
 
             const app = firebase.initializeApp(firebaseConfig);
@@ -28,14 +27,16 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Audio elementen voor beide geluiden
             const timerSound = document.getElementById("timerSound");
             const timerEndSound = document.getElementById("timerEndSound");
-            const finaleSound = document.getElementById("finaleSound");  // Het finale geluid
+            const finaleSound = document.getElementById("finaleSound");
 
+            // Haal de view op uit de URL (of stel standaard in op 'controller')
+            const params = new URLSearchParams(window.location.search);
+            const view = params.get('view') || 'controller';
+
+            // Verberg of toon elementen op basis van de view-parameter
             function hideIfNeeded() {
-                const params = new URLSearchParams(window.location.search);
-                const view = params.get('view');
                 if (view === 'display') {
                     const elementsToHide = document.querySelectorAll('.hide-if-needed');
                     elementsToHide.forEach(el => {
@@ -114,7 +115,6 @@
                 selectedTimerRef.set(index);
             }
 
-            // Start de timer en speel het geluid af
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
                 intervals[geselecteerdeTimer] = setInterval(() => {
@@ -123,34 +123,37 @@
                         updateWeergave();
                         updateDatabase();
                     } else if (timers[geselecteerdeTimer] === 0) {
-                        // Timer is op 0, stop het timer-geluid en speel het finale geluid af
-                        timerSound.pause();  // Stop het timer-geluid
-                        timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
+                        timerSound.pause();
+                        timerSound.currentTime = 0;
                         finaleSound.play().catch((error) => {
                             console.log("Finale geluid kon niet worden afgespeeld:", error);
                         });
                     }
                 }, 1000);
 
-                // Speel het geluid af wanneer de timer start
                 timerSound.play().catch((error) => {
-                    console.log("Audio kon niet worden afgespeeld:", error);
+                    console.log("Audio kan niet worden afgespeeld:", error);
                 });
+
+                // Update de timerstatus in Firebase
+                const timerStatusRef = firebase.database().ref('timerStatus');
+                timerStatusRef.set("running");
             }
 
-            // Stop de timer en stop het geluid, speel het stop geluid af
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
-                // Stop het timer-geluid
-                timerSound.pause();  // Stop het timer-geluid
-                timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
+                timerSound.pause();
+                timerSound.currentTime = 0;
                 
-                // Speel het stop geluid af
                 timerEndSound.play().catch((error) => {
                     console.log("Stopgeluid kon niet worden afgespeeld:", error);
                 });
+
+                // Update de timerstatus in Firebase
+                const timerStatusRef = firebase.database().ref('timerStatus');
+                timerStatusRef.set("stopped");
             }
 
             function resetTimer() {
@@ -310,7 +313,6 @@
                     }
                 });
 
-                // Voeg de timerVisibility toe in Firebase
                 const visibilityRef = firebase.database().ref('timerVisibility');
                 visibilityRef.once('value', (snapshot) => {
                     if (!snapshot.exists()) {
@@ -326,7 +328,7 @@
 
             checkAndInitializeDatabase();
             syncTimers();
-            syncVisibility();  // Voeg deze regel toe
+            syncVisibility(); 
 
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
