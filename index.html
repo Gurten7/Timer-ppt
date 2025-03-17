@@ -9,13 +9,13 @@
     <script defer>
         document.addEventListener("DOMContentLoaded", () => {
             const firebaseConfig = {
-                apiKey: "", // Geen API Key nodig zonder Web App
+                apiKey: "", 
                 authDomain: "slimste-kameraad-timer.firebaseapp.com",
                 databaseURL: "https://slimste-kameraad-timer-default-rtdb.europe-west1.firebasedatabase.app",
                 projectId: "slimste-kameraad-timer",
                 storageBucket: "slimste-kameraad-timer.appspot.com",
                 messagingSenderId: "37865286019",
-                appId: "" // Geen Web App ID nodig
+                appId: "" 
             };
 
             const app = firebase.initializeApp(firebaseConfig);
@@ -27,7 +27,7 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Audio elementen voor de geluiden
+            // Audio elementen voor timer geluid en stopgeluid
             const timerSound = document.getElementById("timerSound");
             const stopSound = document.getElementById("stopSound");
 
@@ -36,41 +36,18 @@
                 const view = params.get('view');
                 if (view === 'display') {
                     const elementsToHide = document.querySelectorAll('.hide-if-needed');
-                    elementsToHide.forEach(el => {
-                        el.style.display = 'none';
-                    });
-
-                    document.querySelectorAll(".timer").forEach((el) => {
-                        el.style.pointerEvents = "none";
-                    });
-
-                    document.querySelectorAll(".team-name").forEach((el) => {
-                        el.style.pointerEvents = "none";
-                    });
-
+                    elementsToHide.forEach(el => el.style.display = 'none');
+                    document.querySelectorAll(".timer").forEach((el) => el.style.pointerEvents = "none");
+                    document.querySelectorAll(".team-name").forEach((el) => el.style.pointerEvents = "none");
                     const teamInputElements = document.querySelectorAll(".team-input");
-                    teamInputElements.forEach((el) => {
-                        el.setAttribute("disabled", "true");
-                    });
-
+                    teamInputElements.forEach((el) => el.setAttribute("disabled", "true"));
                 } else {
                     const elementsToShow = document.querySelectorAll('.hide-if-needed');
-                    elementsToShow.forEach(el => {
-                        el.style.display = 'block';
-                    });
-
-                    document.querySelectorAll(".timer").forEach((el) => {
-                        el.style.pointerEvents = "auto";
-                    });
-
-                    document.querySelectorAll(".team-name").forEach((el) => {
-                        el.style.pointerEvents = "auto";
-                    });
-
+                    elementsToShow.forEach(el => el.style.display = 'block');
+                    document.querySelectorAll(".timer").forEach((el) => el.style.pointerEvents = "auto");
+                    document.querySelectorAll(".team-name").forEach((el) => el.style.pointerEvents = "auto");
                     const teamInputElements = document.querySelectorAll(".team-input");
-                    teamInputElements.forEach((el) => {
-                        el.removeAttribute("disabled");
-                    });
+                    teamInputElements.forEach((el) => el.removeAttribute("disabled"));
                 }
             }
 
@@ -82,7 +59,6 @@
                     if (timerElement) {
                         timerElement.textContent = tijd;
                     }
-
                     const teamNaamEl = document.getElementById(`team-name-${index}`);
                     if (teamNaamEl) {
                         if (teamNaamEl.tagName.toLowerCase() === "input") {
@@ -97,7 +73,6 @@
                             teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index));
                         }
                     }
-
                     document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
                 });
             }
@@ -129,16 +104,16 @@
                 });
             }
 
-            // Stop de timer en speel het stopgeluid af
+            // Stop de timer, stop het timer-geluid en speel het stop-geluid af
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
-                // Stop het timer sound geluid
+                // Stop het timer geluid
                 timerSound.pause();
                 timerSound.currentTime = 0; // Zet het timer geluid terug naar het begin
 
-                // Speel het stop geluid direct af
+                // Speel het stop geluid af
                 stopSound.play().catch((error) => {
                     console.log("Stop geluid kon niet worden afgespeeld:", error);
                 });
@@ -184,7 +159,6 @@
 
             function maakTeamnaamBewerkbaar(index) {
                 let naamLabel = document.getElementById(`team-name-${index}`);
-
                 if (naamLabel && naamLabel.tagName.toLowerCase() !== "input") {
                     let inputVeld = document.createElement("input");
                     inputVeld.type = "text";
@@ -301,7 +275,6 @@
                     }
                 });
 
-                // Voeg de timerVisibility toe in Firebase
                 const visibilityRef = firebase.database().ref('timerVisibility');
                 visibilityRef.once('value', (snapshot) => {
                     if (!snapshot.exists()) {
@@ -317,7 +290,7 @@
 
             checkAndInitializeDatabase();
             syncTimers();
-            syncVisibility();  // Voeg deze regel toe
+            syncVisibility();
 
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
@@ -457,12 +430,13 @@
         </div>
     </div>
 
-    <!-- Voeg de audio elementen toe -->
+    <!-- Voeg het audio element toe -->
     <audio id="timerSound" preload="auto">
         <source src="https://raw.githubusercontent.com/Gurten7/Timer-ppt/main/timer-sound.mp3" type="audio/mp3">
         Je browser ondersteunt het afspelen van audio niet.
     </audio>
 
+    <!-- Voeg het stop geluid toe -->
     <audio id="stopSound" preload="auto">
         <source src="https://raw.githubusercontent.com/Gurten7/Timer-ppt/main/timer-sound-end.mp3" type="audio/mp3">
         Je browser ondersteunt het afspelen van audio niet.
