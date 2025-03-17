@@ -28,6 +28,10 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
+            // Audio element voor timer geluid
+            const timerSound = document.getElementById("timerSound");
+            const stopSound = document.getElementById("stopSound");
+
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
@@ -120,34 +124,25 @@
                     }
                 }, 1000);
 
-                // Speel het timer geluid af
-                const timerSound = document.getElementById("timerSound");
-                if (timerSound && timerSound.paused) {
-                    timerSound.play().catch((error) => {
-                        console.log("Audio kon niet worden afgespeeld:", error);
-                    });
-                }
+                // Speel het geluid af wanneer de timer start
+                timerSound.play().catch((error) => {
+                    console.log("Audio kon niet worden afgespeeld:", error);
+                });
             }
 
-            // Stop de timer en speel het stop geluid af
+            // Stop de timer en stop het geluid
             function stopTimer() {
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
-                // Stop het timer geluid en reset het
-                const timerSound = document.getElementById("timerSound");
-                if (timerSound) {
-                    timerSound.pause();
-                    timerSound.currentTime = 0;
-                }
+                // Stop het geluid op het apparaat in de 'view=display' modus
+                timerSound.pause();  // Stop het geluid
+                timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
 
                 // Speel het stop geluid af
-                const stopSound = document.getElementById("stopSound");
-                if (stopSound && stopSound.paused) {
-                    stopSound.play().catch((error) => {
-                        console.log("Stop geluid kon niet worden afgespeeld:", error);
-                    });
-                }
+                stopSound.play().catch((error) => {
+                    console.log("Stop geluid kon niet worden afgespeeld:", error);
+                });
             }
 
             function resetTimer() {
@@ -462,6 +457,16 @@
             <div id="timer3">60</div>
         </div>
     </div>
+
+    <!-- Voeg de audio elementen toe -->
+    <audio id="timerSound" preload="auto">
+        <source src="https://raw.githubusercontent.com/Gurten7/Timer-ppt/main/timer-sound.mp3" type="audio/mp3">
+        Je browser ondersteunt het afspelen van audio niet.
+    </audio>
+    <audio id="stopSound" preload="auto">
+        <source src="https://raw.githubusercontent.com/Gurten7/Timer-ppt/main/timer-sound-end.mp3" type="audio/mp3">
+        Je browser ondersteunt het afspelen van audio niet.
+    </audio>
 
     <div class="controls">
         <div class="row">
