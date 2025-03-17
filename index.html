@@ -32,12 +32,6 @@
             const timerSound = document.getElementById("timerSound");
             const timerEndSound = document.getElementById("timerEndSound");
 
-            // Deze functie wordt opgeroepen om het geluid te triggeren in Firebase
-            function triggerSound(action) {
-                const soundTriggerRef = firebase.database().ref('soundTrigger');
-                soundTriggerRef.set(action); // Zet het geluidsevent (timerStart of timerStop)
-            }
-
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
                 const view = params.get('view');
@@ -119,6 +113,12 @@
                 selectedTimerRef.set(index);
             }
 
+            // Deze functie stuurt een trigger naar Firebase om het geluid af te spelen op de 'view=display' pagina
+            function triggerSound(action) {
+                const soundTriggerRef = firebase.database().ref('soundTrigger');
+                soundTriggerRef.set(action); // Zet de actie in Firebase
+            }
+
             // Start de timer en speel het geluid af
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return;
@@ -130,7 +130,7 @@
                     }
                 }, 1000);
 
-                // Geluid triggeren in Firebase voor de view=display pagina
+                // Verstuur een trigger naar Firebase om het geluid af te spelen op de 'view=display' pagina
                 triggerSound('timerStart');
             }
 
@@ -139,14 +139,11 @@
                 clearInterval(intervals[geselecteerdeTimer]);
                 intervals[geselecteerdeTimer] = null;
 
-                // Trigger stop geluid in Firebase voor de display pagina
+                // Stop het geluid op het apparaat in de 'view=display' modus
+                timerSound.pause();  // Stop het timer-geluid
+                timerSound.currentTime = 0;  // Zet het geluid terug naar het begin
+                // Speel het stop geluid af
                 triggerSound('timerStop');
-                
-                // Zet timer geluid terug naar begin (stoppen met spelen)
-                if (timerSound) {
-                    timerSound.pause();
-                    timerSound.currentTime = 0;
-                }
             }
 
             function resetTimer() {
@@ -498,3 +495,4 @@
     </div>
 </body>
 </html>
+
