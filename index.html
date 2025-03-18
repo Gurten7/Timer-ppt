@@ -156,10 +156,28 @@
             }
 
             function resetTimer() {
-                timers = [60, 60, 60, 60];
-                finaleGeluidGespeeld = false; // Reset de finaleGeluidGespeeld variabele bij resetten van de timer
-                updateWeergave();
-                updateDatabase();
+                timers = [60, 60, 60, 60];  // Zet de timers terug naar 60 seconden
+                finaleGeluidGespeeld = false;  // Reset de finaleGeluidGespeeld variabele
+                updateWeergave();  // Werk de weergave bij op basis van de nieuwe timerwaarden
+                updateDatabase();  // Werk de timerwaarden bij in de database
+
+                // Stop alle lopende intervallen
+                intervals.forEach((interval, index) => {
+                    if (interval) {
+                        clearInterval(interval);  // Stop het interval van de timer
+                        intervals[index] = null;   // Zet het interval terug naar null
+                    }
+                });
+
+                // Stop het timer-geluid en zet het weer terug naar het begin
+                timerSound.pause();
+                timerSound.currentTime = 0;
+                timerEndSound.pause();
+                timerEndSound.currentTime = 0;
+
+                // Zet het finale geluid terug naar het begin
+                finaleSound.pause();
+                finaleSound.currentTime = 0;
             }
 
             function pasTijdAan(aantal) {
