@@ -131,6 +131,7 @@
                             console.log("Finale geluid kon niet worden afgespeeld:", error);
                         });
                         finaleGeluidGespeeld = true;  // Zet de variabele om aan te geven dat het finale geluid is afgespeeld
+                        updateDatabase();  // Update de geluidstatus naar Firebase
                     }
                 }, 1000);
 
@@ -138,6 +139,7 @@
                 timerSound.play().catch((error) => {
                     console.log("Audio kon niet worden afgespeeld:", error);
                 });
+                updateDatabase();  // Update de geluidstatus naar Firebase
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
@@ -153,6 +155,7 @@
                 timerEndSound.play().catch((error) => {
                     console.log("Stopgeluid kon niet worden afgespeeld:", error);
                 });
+                updateDatabase();  // Update de geluidstatus naar Firebase
             }
 
             function resetTimer() {
@@ -240,92 +243,44 @@
                     team3: teamNamen[2],
                     team4: teamNamen[3]
                 });
+
+                // Voeg geluidstatussen toe voor synchronisatie
+                const soundsRef = firebase.database().ref('sounds');
+                soundsRef.set({
+                    isTimerSoundPlaying: timerSound.currentTime > 0 && !timerSound.paused,
+                    isTimerEndSoundPlaying: timerEndSound.currentTime > 0 && !timerEndSound.paused,
+                    isFinaleSoundPlaying: finaleSound.currentTime > 0 && !finaleSound.paused
+                });
             }
 
-            function syncTimers() {
-                const timersRef = firebase.database().ref('timers');
-                timersRef.on('value', (snapshot) => {
+            function syncSounds() {
+                const soundsRef = firebase.database().ref('sounds');
+
+                // Luister naar veranderingen in de geluidstatus
+                soundsRef.on('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
-                        timers = [data.team1, data.team2, data.team3, data.team4];
-                        updateWeergave();
-                    }
-                });
-
-                const teamNamesRef = firebase.database().ref('teamNames');
-                teamNamesRef.on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        teamNamen = [data.team1, data.team2, data.team3, data.team4];
-                        updateWeergave();
-                    }
-                });
-
-                const selectedTimerRef = firebase.database().ref('selectedTimer');
-                selectedTimerRef.on('value', (snapshot) => {
-                    const selectedTimer = snapshot.val();
-                    if (selectedTimer !== null) {
-                        selecteerTimer(selectedTimer);
+                        if (data.isTimerSoundPlaying && timerSound.paused) {
+                            timerSound.play().catch((error) => {
+                                console.log("Audio kon niet worden afgespeeld:", error);
+                            });
+                        }
+                        if (data.isTimerEndSoundPlaying && timerEndSound.paused) {
+                            timerEndSound.play().catch((error) => {
+                                console.log("Audio kon niet worden afgespeeld:", error);
+                            });
+                        }
+                        if (data.isFinaleSoundPlaying && finaleSound.paused) {
+                            finaleSound.play().catch((error) => {
+                                console.log("Audio kon niet worden afgespeeld:", error);
+                            });
+                        }
                     }
                 });
             }
 
-            function syncVisibility() {
-                const visibilityRef = firebase.database().ref('timerVisibility');
-                visibilityRef.on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        zichtbareTimers = [data.timer1, data.timer2, data.timer3, data.timer4];
-                        updateWeergave();
-                    }
-                });
-            }
-
-            function checkAndInitializeDatabase() {
-                const timersRef = firebase.database().ref('timers');
-                timersRef.once('value', (snapshot) => {
-                    if (!snapshot.exists()) {
-                        timersRef.set({
-                            team1: 60,
-                            team2: 60,
-                            team3: 60,
-                            team4: 60
-                        });
-                    }
-                });
-
-                const teamNamesRef = firebase.database().ref('teamNames');
-                teamNamesRef.once('value', (snapshot) => {
-                    if (!snapshot.exists()) {
-                        teamNamesRef.set({
-                            team1: "Team 1",
-                            team2: "Team 2",
-                            team3: "Team 3",
-                            team4: "Team 4"
-                        });
-                    }
-                });
-
-                const selectedTimerRef = firebase.database().ref('selectedTimer');
-                selectedTimerRef.once('value', (snapshot) => {
-                    if (!snapshot.exists()) {
-                        selectedTimerRef.set(0);  
-                    }
-                });
-
-                // Voeg de timerVisibility toe in Firebase
-                const visibilityRef = firebase.database().ref('timerVisibility');
-                visibilityRef.once('value', (snapshot) => {
-                    if (!snapshot.exists()) {
-                        visibilityRef.set({
-                            timer1: true,
-                            timer2: true,
-                            timer3: true,
-                            timer4: true
-                        });
-                    }
-                });
-            }
+            // Sync geluiden tussen verschillende browsers
+            syncSounds();
 
             checkAndInitializeDatabase();
             syncTimers();
