@@ -28,51 +28,90 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Audio elementen voor de geluiden
+            // Audio elementen voor beide geluiden
             const timerSound = document.getElementById("timerSound");
             const timerEndSound = document.getElementById("timerEndSound");
-            const finaleSound = document.getElementById("finaleSound");
+            const finaleSound = document.getElementById("finaleSound");  // Het finale geluid
 
-            // Synchroniseer het geluid van de timer
-            function syncSound() {
-                const soundRef = firebase.database().ref('timerSoundPlaying');
-                soundRef.on('value', (snapshot) => {
-                    const soundPlaying = snapshot.val();
-                    if (soundPlaying) {
-                        timerSound.play().catch((error) => {
-                            console.log("Audio kon niet worden afgespeeld:", error);
-                        });
-                    } else {
-                        timerSound.pause();
-                        timerSound.currentTime = 0;
-                    }
-                });
+            function hideIfNeeded() {
+                const params = new URLSearchParams(window.location.search);
+                const view = params.get('view');
+                if (view === 'display') {
+                    const elementsToHide = document.querySelectorAll('.hide-if-needed');
+                    elementsToHide.forEach(el => {
+                        el.style.display = 'none';
+                    });
 
-                const endSoundRef = firebase.database().ref('timerEndSoundPlaying');
-                endSoundRef.on('value', (snapshot) => {
-                    const endSoundPlaying = snapshot.val();
-                    if (endSoundPlaying) {
-                        timerEndSound.play().catch((error) => {
-                            console.log("Stopgeluid kon niet worden afgespeeld:", error);
-                        });
-                    } else {
-                        timerEndSound.pause();
-                        timerEndSound.currentTime = 0;
-                    }
-                });
+                    document.querySelectorAll(".timer").forEach((el) => {
+                        el.style.pointerEvents = "none";
+                    });
 
-                const finaleSoundRef = firebase.database().ref('finaleSoundPlaying');
-                finaleSoundRef.on('value', (snapshot) => {
-                    const finaleSoundPlaying = snapshot.val();
-                    if (finaleSoundPlaying) {
-                        finaleSound.play().catch((error) => {
-                            console.log("Finale geluid kon niet worden afgespeeld:", error);
-                        });
-                    } else {
-                        finaleSound.pause();
-                        finaleSound.currentTime = 0;
+                    document.querySelectorAll(".team-name").forEach((el) => {
+                        el.style.pointerEvents = "none";
+                    });
+
+                    const teamInputElements = document.querySelectorAll(".team-input");
+                    teamInputElements.forEach((el) => {
+                        el.setAttribute("disabled", "true");
+                    });
+
+                } else {
+                    const elementsToShow = document.querySelectorAll('.hide-if-needed');
+                    elementsToShow.forEach(el => {
+                        el.style.display = 'block';
+                    });
+
+                    document.querySelectorAll(".timer").forEach((el) => {
+                        el.style.pointerEvents = "auto";
+                    });
+
+                    document.querySelectorAll(".team-name").forEach((el) => {
+                        el.style.pointerEvents = "auto";
+                    });
+
+                    const teamInputElements = document.querySelectorAll(".team-input");
+                    teamInputElements.forEach((el) => {
+                        el.removeAttribute("disabled");
+                    });
+                }
+            }
+
+            hideIfNeeded();
+
+            function updateWeergave() {
+                timers.forEach((tijd, index) => {
+                    const timerElement = document.getElementById(`timer${index}`);
+                    if (timerElement) {
+                        timerElement.textContent = tijd;
                     }
+
+                    const teamNaamEl = document.getElementById(`team-name-${index}`);
+                    if (teamNaamEl) {
+                        if (teamNaamEl.tagName.toLowerCase() === "input") {
+                            let nieuwNaamDiv = document.createElement("div");
+                            nieuwNaamDiv.id = `team-name-${index}`;
+                            nieuwNaamDiv.classList.add("team-name");
+                            nieuwNaamDiv.textContent = teamNamen[index];
+                            nieuwNaamDiv.addEventListener("click", () => maakTeamnaamBewerkbaar(index));
+                            teamNaamEl.replaceWith(nieuwNaamDiv);
+                        } else {
+                            teamNaamEl.textContent = teamNamen[index];
+                            teamNaamEl.addEventListener("click", () => maakTeamnaamBewerkbaar(index));
+                        }
+                    }
+
+                    document.getElementById(`timer-container-${index}`).style.display = zichtbareTimers[index] ? "block" : "none";
                 });
+            }
+
+            function selecteerTimer(index) {
+                document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
+                geselecteerdeTimer = index;
+                document.getElementById(`timer-container-${index}`).classList.add("selected");
+                document.getElementById("timerSelect").value = index;
+
+                const selectedTimerRef = firebase.database().ref('selectedTimer');
+                selectedTimerRef.set(index);
             }
 
             // Start de timer en speel het geluid af
@@ -84,19 +123,12 @@
                         updateWeergave();
                         updateDatabase();
                     } else if (timers[geselecteerdeTimer] === 0) {
-                        // Stop het timer-geluid en speel het finale geluid af
+                        // Timer is op 0, stop het timer-geluid en speel het finale geluid af
                         timerSound.pause();  // Stop het timer-geluid
                         timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
                         finaleSound.play().catch((error) => {
                             console.log("Finale geluid kon niet worden afgespeeld:", error);
                         });
-
-                        // Synchroniseer het stopgeluid en finale geluid in Firebase
-                        const endSoundRef = firebase.database().ref('timerEndSoundPlaying');
-                        endSoundRef.set(true); // Zet de stopgeluid status naar true
-
-                        const finaleSoundRef = firebase.database().ref('finaleSoundPlaying');
-                        finaleSoundRef.set(true); // Zet de finale geluid status naar true
                     }
                 }, 1000);
 
@@ -107,7 +139,7 @@
 
                 // Synchroniseer het geluid in Firebase
                 const soundRef = firebase.database().ref('timerSoundPlaying');
-                soundRef.set(true); // Zet de timer-geluid status naar true
+                soundRef.set(true);
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
@@ -118,18 +150,17 @@
                 // Stop het timer-geluid
                 timerSound.pause();  // Stop het timer-geluid
                 timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
-
+                
                 // Speel het stop geluid af
                 timerEndSound.play().catch((error) => {
                     console.log("Stopgeluid kon niet worden afgespeeld:", error);
                 });
 
                 // Synchroniseer de stopgeluid in Firebase
-                const endSoundRef = firebase.database().ref('timerEndSoundPlaying');
-                endSoundRef.set(true); // Zet de stopgeluid status naar true
+                const soundRef = firebase.database().ref('timerSoundPlaying');
+                soundRef.set(false);
             }
 
-            // Reset de timer
             function resetTimer() {
                 timers = [60, 60, 60, 60];
                 updateWeergave();
@@ -255,6 +286,21 @@
                 });
             }
 
+            function syncSound() {
+                const soundRef = firebase.database().ref('timerSoundPlaying');
+                soundRef.on('value', (snapshot) => {
+                    const soundPlaying = snapshot.val();
+                    if (soundPlaying) {
+                        timerSound.play().catch((error) => {
+                            console.log("Audio kon niet worden afgespeeld:", error);
+                        });
+                    } else {
+                        timerSound.pause();
+                        timerSound.currentTime = 0;
+                    }
+                });
+            }
+
             function checkAndInitializeDatabase() {
                 const timersRef = firebase.database().ref('timers');
                 timersRef.once('value', (snapshot) => {
@@ -300,25 +346,11 @@
                     }
                 });
 
-                // Voeg de timerSoundPlaying, timerEndSoundPlaying en finaleSoundPlaying toe in Firebase
+                // Voeg de timerSoundPlaying toe in Firebase
                 const soundRef = firebase.database().ref('timerSoundPlaying');
                 soundRef.once('value', (snapshot) => {
                     if (!snapshot.exists()) {
                         soundRef.set(false); // Initialiseer de waarde als "false"
-                    }
-                });
-
-                const endSoundRef = firebase.database().ref('timerEndSoundPlaying');
-                endSoundRef.once('value', (snapshot) => {
-                    if (!snapshot.exists()) {
-                        endSoundRef.set(false); // Initialiseer de waarde als "false"
-                    }
-                });
-
-                const finaleSoundRef = firebase.database().ref('finaleSoundPlaying');
-                finaleSoundRef.once('value', (snapshot) => {
-                    if (!snapshot.exists()) {
-                        finaleSoundRef.set(false); // Initialiseer de waarde als "false"
                     }
                 });
             }
@@ -326,7 +358,7 @@
             checkAndInitializeDatabase();
             syncTimers();
             syncVisibility();  // Voeg deze regel toe
-            syncSound(); // Voeg deze regel toe om de geluiden te synchroniseren
+            syncSound(); // Voeg deze regel toe om het geluid te synchroniseren
 
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
