@@ -161,7 +161,17 @@
                         timers[geselecteerdeTimer]--;
                         updateWeergave();
                         updateDatabase();
-                    } else if (timers[geselecteerdeTimer] === 0 && !finaleGeluidGespeeld) {
+                    } else 
+                    if (timers[geselecteerdeTimer] === 0 && !finaleGeluidGespeeld) {
+                        timerSound.pause();
+                        timerSound.currentTime = 0;
+                        
+                        // Synchroniseer via Firebase zodat het finale-geluid overal tegelijk start
+                        syncAudioStatus('finaleSound', 'play');
+                        
+                        finaleGeluidGespeeld = true;
+                    }
+
                         timerSound.pause();  // Stop het timer-geluid
                         timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
                         finaleSound.play().catch((error) => {
@@ -400,7 +410,23 @@
             });
 
             document.getElementById("startBtn").addEventListener("click", startTimer);
+            
+            function stopTimer() {
+                clearInterval(intervals[geselecteerdeTimer]);
+                intervals[geselecteerdeTimer] = null;
+
+                timerSound.pause();
+                timerSound.currentTime = 0;
+
+                playAudio(timerEndSound);
+
+                syncAudioStatus('timerEndSound', 'play');
+
+                timerRunningRef.set(false);
+            }
+
             document.getElementById("stopBtn").addEventListener("click", stopTimer);
+
             document.getElementById("resetBtn").addEventListener("click", resetTimer);
             document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
             document.getElementById("setTimeBtn").addEventListener("click", stelAangepasteTijdIn);
