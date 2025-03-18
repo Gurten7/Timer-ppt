@@ -147,16 +147,15 @@
                         updateWeergave();
                         updateDatabase();
                     } else if (timers[geselecteerdeTimer] === 0 && !finaleGeluidGespeeld) {
-                        // Timer is op 0 en het finale geluid is nog niet afgespeeld
-                        timerSound.pause();  // Stop het timer-geluid
-                        timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
-                        finaleSoundRef.set(true);  // Zet finale geluid op true in Firebase
+                        // Stel het finale geluid in Firebase in
+                        timerSoundRef.set(true);  // Zet timer geluid aan via Firebase
+                        finaleSoundRef.set(true);  // Zet finale geluid aan via Firebase
                         finaleGeluidGespeeld = true;  // Zet de variabele om aan te geven dat het finale geluid is afgespeeld
                     }
                 }, 1000);
 
                 // Speel het geluid af wanneer de timer start
-                timerSoundRef.set(true);  // Zet timer geluid op true in Firebase
+                timerSoundRef.set(true);  // Zet timer geluid aan via Firebase
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
