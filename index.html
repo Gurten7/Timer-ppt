@@ -37,6 +37,7 @@
             // Verwijzingen naar Firebase om geluiden te synchroniseren
             const timerSoundRef = firebase.database().ref('playTimerSound');
             const finaleSoundRef = firebase.database().ref('playFinaleSound');
+            const timerStatusRef = firebase.database().ref('timerStatus'); // Nieuwe referentie voor de status van de timer
 
             // Functie om het geluid af te spelen via Firebase synchronisatie
             timerSoundRef.on('value', (snapshot) => {
@@ -54,6 +55,18 @@
                         console.log("Finale geluid kon niet worden afgespeeld:", error);
                     });
                     finaleSoundRef.set(false);  // Zet het terug naar false nadat het geluid is afgespeeld
+                }
+            });
+
+            // Synchroniseer de status van de timer (starten, stoppen, resetten) met Firebase
+            timerStatusRef.on('value', (snapshot) => {
+                const status = snapshot.val();
+                if (status === 'start') {
+                    startTimer();
+                } else if (status === 'stop') {
+                    stopTimer();
+                } else if (status === 'reset') {
+                    resetTimer();
                 }
             });
 
@@ -375,9 +388,18 @@
                 selecteerTimer(parseInt(event.target.value));
             });
 
-            document.getElementById("startBtn").addEventListener("click", startTimer);
-            document.getElementById("stopBtn").addEventListener("click", stopTimer);
-            document.getElementById("resetBtn").addEventListener("click", resetTimer);
+            document.getElementById("startBtn").addEventListener("click", () => {
+                // Zet de status naar 'start' in Firebase
+                timerStatusRef.set('start');
+            });
+            document.getElementById("stopBtn").addEventListener("click", () => {
+                // Zet de status naar 'stop' in Firebase
+                timerStatusRef.set('stop');
+            });
+            document.getElementById("resetBtn").addEventListener("click", () => {
+                // Zet de status naar 'reset' in Firebase
+                timerStatusRef.set('reset');
+            });
             document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
             document.getElementById("setTimeBtn").addEventListener("click", stelAangepasteTijdIn);
 
