@@ -299,9 +299,9 @@
             function slaNieuweTeamnaamOp(index, nieuweNaam) {
                 if (nieuweNaam.trim() !== "") {
                     teamNamen[index] = nieuweNaam;
+                    updateWeergave();
+                    updateDatabase();
                 }
-                updateWeergave();
-                updateDatabase();
             }
 
             function updateDatabase() {
