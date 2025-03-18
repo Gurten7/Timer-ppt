@@ -27,7 +27,7 @@
             let intervals = [null, null, null, null];
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
-            let finaleGeluidGespeeld = false;
+            let finaleGeluidGespeeld = [false, false, false, false]; // Array om te controleren of finale-sound al is afgespeeld
 
             // Audio elementen voor beide geluiden
             const timerSound = document.getElementById("timerSound");
@@ -170,16 +170,18 @@
                         timers[geselecteerdeTimer]--;
                         updateWeergave();
                         updateDatabase();
-                    } else if (timers[geselecteerdeTimer] === 0 && !finaleGeluidGespeeld) {
+                    } else if (timers[geselecteerdeTimer] === 0) {
                         // Stop het timer-geluid als de timer op 0 komt
                         timerSound.pause();  // Stop het timer-geluid
                         timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
 
-                        // Speel het finale geluid af
-                        finaleSound.play().catch((error) => {
-                            console.log("Finale geluid kon niet worden afgespeeld:", error);
-                        });
-                        finaleGeluidGespeeld = true;  // Zet de variabele om aan te geven dat het finale geluid is afgespeeld
+                        // Speel het finale geluid af (1x per timer)
+                        if (!finaleGeluidGespeeld[geselecteerdeTimer]) {
+                            finaleSound.play().catch((error) => {
+                                console.log("Finale geluid kon niet worden afgespeeld:", error);
+                            });
+                            finaleGeluidGespeeld[geselecteerdeTimer] = true; // Zorg ervoor dat het niet opnieuw wordt afgespeeld
+                        }
                     }
                 }, 1000);
 
@@ -202,7 +204,7 @@
 
             function resetTimer() {
                 timers = [60, 60, 60, 60];  // Zet de timers terug naar 60 seconden
-                finaleGeluidGespeeld = false;  // Reset de finaleGeluidGespeeld variabele
+                finaleGeluidGespeeld = [false, false, false, false];  // Reset de finaleGeluidGespeeld variabele voor elke timer
                 updateWeergave();  // Werk de weergave bij op basis van de nieuwe timerwaarden
                 updateDatabase();  // Werk de timerwaarden bij in de database
 
