@@ -31,7 +31,7 @@
             // Audio elementen voor beide geluiden
             const timerSound = document.getElementById("timerSound");
             const timerEndSound = document.getElementById("timerEndSound");
-            const finaleSound = document.getElementById("finaleSound");  // Het finale geluid
+            const finaleSound = document.getElementById("finaleSound");
 
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
@@ -129,6 +129,9 @@
                         finaleSound.play().catch((error) => {
                             console.log("Finale geluid kon niet worden afgespeeld:", error);
                         });
+
+                        // Sync het stoppen van het geluid via Firebase
+                        firebase.database().ref('audioStatus').set('stopped');
                     }
                 }, 1000);
 
@@ -136,6 +139,9 @@
                 timerSound.play().catch((error) => {
                     console.log("Audio kon niet worden afgespeeld:", error);
                 });
+
+                // Sync het starten van het geluid via Firebase
+                firebase.database().ref('audioStatus').set('playing');
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
@@ -151,6 +157,9 @@
                 timerEndSound.play().catch((error) => {
                     console.log("Stopgeluid kon niet worden afgespeeld:", error);
                 });
+
+                // Sync het stoppen van het geluid via Firebase
+                firebase.database().ref('audioStatus').set('stopped');
             }
 
             function resetTimer() {
@@ -265,15 +274,22 @@
                         selecteerTimer(selectedTimer);
                     }
                 });
-            }
 
-            function syncVisibility() {
-                const visibilityRef = firebase.database().ref('timerVisibility');
-                visibilityRef.on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        zichtbareTimers = [data.timer1, data.timer2, data.timer3, data.timer4];
-                        updateWeergave();
+                const audioStatusRef = firebase.database().ref('audioStatus');
+                audioStatusRef.on('value', (snapshot) => {
+                    const status = snapshot.val();
+                    if (status === 'playing') {
+                        // Start het geluid als het in een andere browser is gestart
+                        timerSound.play().catch((error) => {
+                            console.log("Audio kon niet worden afgespeeld:", error);
+                        });
+                    } else if (status === 'stopped') {
+                        // Stop het geluid als het in een andere browser is gestopt
+                        timerSound.pause();
+                        timerSound.currentTime = 0;
+                        finaleSound.play().catch((error) => {
+                            console.log("Finale geluid kon niet worden afgespeeld:", error);
+                        });
                     }
                 });
             }
@@ -322,11 +338,18 @@
                         });
                     }
                 });
+
+                // Voeg de audioStatus toe in Firebase
+                const audioStatusRef = firebase.database().ref('audioStatus');
+                audioStatusRef.once('value', (snapshot) => {
+                    if (!snapshot.exists()) {
+                        audioStatusRef.set('stopped');
+                    }
+                });
             }
 
             checkAndInitializeDatabase();
             syncTimers();
-            syncVisibility();  // Voeg deze regel toe
 
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
