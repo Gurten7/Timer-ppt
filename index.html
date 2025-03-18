@@ -388,18 +388,21 @@
                 selecteerTimer(parseInt(event.target.value));
             });
 
+            // Zet de status naar 'start' in Firebase
             document.getElementById("startBtn").addEventListener("click", () => {
-                // Zet de status naar 'start' in Firebase
                 timerStatusRef.set('start');
             });
+
+            // Zet de status naar 'stop' in Firebase
             document.getElementById("stopBtn").addEventListener("click", () => {
-                // Zet de status naar 'stop' in Firebase
                 timerStatusRef.set('stop');
             });
+
+            // Zet de status naar 'reset' in Firebase
             document.getElementById("resetBtn").addEventListener("click", () => {
-                // Zet de status naar 'reset' in Firebase
                 timerStatusRef.set('reset');
             });
+
             document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
             document.getElementById("setTimeBtn").addEventListener("click", stelAangepasteTijdIn);
 
