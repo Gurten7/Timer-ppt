@@ -359,7 +359,13 @@
                 selecteerTimer(parseInt(event.target.value));
             });
 
-            document.getElementById("startBtn").addEventListener("click", startTimer);
+            // Voeg hier de setTimeout toe om het geluid niet te blokkeren
+            document.getElementById("startBtn").addEventListener("click", () => {
+                setTimeout(() => {
+                    startTimer();
+                }, 100);  // Wacht 100 milliseconden
+            });
+
             document.getElementById("stopBtn").addEventListener("click", stopTimer);
             document.getElementById("resetBtn").addEventListener("click", resetTimer);
             document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
