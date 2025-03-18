@@ -27,12 +27,35 @@
             let intervals = [null, null, null, null];
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
-            let finaleGeluidGespeeld = false; // Nieuwe variabele om bij te houden of het finale geluid al is afgespeeld
+            let finaleGeluidGespeeld = false;
 
             // Audio elementen voor beide geluiden
             const timerSound = document.getElementById("timerSound");
             const timerEndSound = document.getElementById("timerEndSound");
-            const finaleSound = document.getElementById("finaleSound");  // Het finale geluid
+            const finaleSound = document.getElementById("finaleSound");
+
+            // Verwijzingen naar Firebase om geluiden te synchroniseren
+            const timerSoundRef = firebase.database().ref('playTimerSound');
+            const finaleSoundRef = firebase.database().ref('playFinaleSound');
+
+            // Functie om het geluid af te spelen via Firebase synchronisatie
+            timerSoundRef.on('value', (snapshot) => {
+                if (snapshot.val() === true) {
+                    timerSound.play().catch((error) => {
+                        console.log("Audio kon niet worden afgespeeld:", error);
+                    });
+                    timerSoundRef.set(false);  // Zet het terug naar false nadat het geluid is afgespeeld
+                }
+            });
+
+            finaleSoundRef.on('value', (snapshot) => {
+                if (snapshot.val() === true) {
+                    finaleSound.play().catch((error) => {
+                        console.log("Finale geluid kon niet worden afgespeeld:", error);
+                    });
+                    finaleSoundRef.set(false);  // Zet het terug naar false nadat het geluid is afgespeeld
+                }
+            });
 
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
@@ -127,17 +150,13 @@
                         // Timer is op 0 en het finale geluid is nog niet afgespeeld
                         timerSound.pause();  // Stop het timer-geluid
                         timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
-                        finaleSound.play().catch((error) => {
-                            console.log("Finale geluid kon niet worden afgespeeld:", error);
-                        });
+                        finaleSoundRef.set(true);  // Zet finale geluid op true in Firebase
                         finaleGeluidGespeeld = true;  // Zet de variabele om aan te geven dat het finale geluid is afgespeeld
                     }
                 }, 1000);
 
                 // Speel het geluid af wanneer de timer start
-                timerSound.play().catch((error) => {
-                    console.log("Audio kon niet worden afgespeeld:", error);
-                });
+                timerSoundRef.set(true);  // Zet timer geluid op true in Firebase
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
