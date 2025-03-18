@@ -136,6 +136,10 @@
                 timerSound.play().catch((error) => {
                     console.log("Audio kon niet worden afgespeeld:", error);
                 });
+
+                // Synchroniseer het geluid in Firebase
+                const soundRef = firebase.database().ref('timerSoundPlaying');
+                soundRef.set(true);
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
@@ -151,6 +155,10 @@
                 timerEndSound.play().catch((error) => {
                     console.log("Stopgeluid kon niet worden afgespeeld:", error);
                 });
+
+                // Synchroniseer de stopgeluid in Firebase
+                const soundRef = firebase.database().ref('timerSoundPlaying');
+                soundRef.set(false);
             }
 
             function resetTimer() {
@@ -278,6 +286,21 @@
                 });
             }
 
+            function syncSound() {
+                const soundRef = firebase.database().ref('timerSoundPlaying');
+                soundRef.on('value', (snapshot) => {
+                    const soundPlaying = snapshot.val();
+                    if (soundPlaying) {
+                        timerSound.play().catch((error) => {
+                            console.log("Audio kon niet worden afgespeeld:", error);
+                        });
+                    } else {
+                        timerSound.pause();
+                        timerSound.currentTime = 0;
+                    }
+                });
+            }
+
             function checkAndInitializeDatabase() {
                 const timersRef = firebase.database().ref('timers');
                 timersRef.once('value', (snapshot) => {
@@ -322,11 +345,20 @@
                         });
                     }
                 });
+
+                // Voeg de timerSoundPlaying toe in Firebase
+                const soundRef = firebase.database().ref('timerSoundPlaying');
+                soundRef.once('value', (snapshot) => {
+                    if (!snapshot.exists()) {
+                        soundRef.set(false); // Initialiseer de waarde als "false"
+                    }
+                });
             }
 
             checkAndInitializeDatabase();
             syncTimers();
             syncVisibility();  // Voeg deze regel toe
+            syncSound(); // Voeg deze regel toe om het geluid te synchroniseren
 
             document.querySelectorAll(".timer").forEach((el, index) => {
                 el.addEventListener("click", () => selecteerTimer(index));
