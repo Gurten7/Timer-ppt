@@ -28,7 +28,7 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Audio elementen voor beide geluiden
+            // Audio elementen voor de geluiden
             const timerSound = document.getElementById("timerSound");
             const timerEndSound = document.getElementById("timerEndSound");
             const finaleSound = document.getElementById("finaleSound");  // Het finale geluid
@@ -129,6 +129,14 @@
                         finaleSound.play().catch((error) => {
                             console.log("Finale geluid kon niet worden afgespeeld:", error);
                         });
+
+                        // Synchroniseer het finale geluid in Firebase
+                        const finaleSoundRef = firebase.database().ref('finaleSoundPlaying');
+                        finaleSoundRef.set(true);
+
+                        // Synchroniseer het stopgeluid in Firebase
+                        const endSoundRef = firebase.database().ref('timerEndSoundPlaying');
+                        endSoundRef.set(true);
                     }
                 }, 1000);
 
@@ -157,8 +165,8 @@
                 });
 
                 // Synchroniseer de stopgeluid in Firebase
-                const soundRef = firebase.database().ref('timerSoundPlaying');
-                soundRef.set(false);
+                const endSoundRef = firebase.database().ref('timerEndSoundPlaying');
+                endSoundRef.set(true);
             }
 
             function resetTimer() {
@@ -299,6 +307,32 @@
                         timerSound.currentTime = 0;
                     }
                 });
+
+                const endSoundRef = firebase.database().ref('timerEndSoundPlaying');
+                endSoundRef.on('value', (snapshot) => {
+                    const endSoundPlaying = snapshot.val();
+                    if (endSoundPlaying) {
+                        timerEndSound.play().catch((error) => {
+                            console.log("Stopgeluid kon niet worden afgespeeld:", error);
+                        });
+                    } else {
+                        timerEndSound.pause();
+                        timerEndSound.currentTime = 0;
+                    }
+                });
+
+                const finaleSoundRef = firebase.database().ref('finaleSoundPlaying');
+                finaleSoundRef.on('value', (snapshot) => {
+                    const finaleSoundPlaying = snapshot.val();
+                    if (finaleSoundPlaying) {
+                        finaleSound.play().catch((error) => {
+                            console.log("Finale geluid kon niet worden afgespeeld:", error);
+                        });
+                    } else {
+                        finaleSound.pause();
+                        finaleSound.currentTime = 0;
+                    }
+                });
             }
 
             function checkAndInitializeDatabase() {
@@ -346,11 +380,25 @@
                     }
                 });
 
-                // Voeg de timerSoundPlaying toe in Firebase
+                // Voeg de timerSoundPlaying, timerEndSoundPlaying en finaleSoundPlaying toe in Firebase
                 const soundRef = firebase.database().ref('timerSoundPlaying');
                 soundRef.once('value', (snapshot) => {
                     if (!snapshot.exists()) {
                         soundRef.set(false); // Initialiseer de waarde als "false"
+                    }
+                });
+
+                const endSoundRef = firebase.database().ref('timerEndSoundPlaying');
+                endSoundRef.once('value', (snapshot) => {
+                    if (!snapshot.exists()) {
+                        endSoundRef.set(false); // Initialiseer de waarde als "false"
+                    }
+                });
+
+                const finaleSoundRef = firebase.database().ref('finaleSoundPlaying');
+                finaleSoundRef.once('value', (snapshot) => {
+                    if (!snapshot.exists()) {
+                        finaleSoundRef.set(false); // Initialiseer de waarde als "false"
                     }
                 });
             }
