@@ -28,10 +28,13 @@
             let geselecteerdeTimer = 0;
             let zichtbareTimers = [true, true, true, true];
 
-            // Audio elementen voor beide geluiden
+            // Audio elementen voor de geluiden
             const timerSound = document.getElementById("timerSound");
             const timerEndSound = document.getElementById("timerEndSound");
             const finaleSound = document.getElementById("finaleSound");  // Het finale geluid
+
+            // Vlag om te controleren of het finale geluid al is afgespeeld
+            let finaleSoundPlayed = false;
 
             function hideIfNeeded() {
                 const params = new URLSearchParams(window.location.search);
@@ -126,9 +129,12 @@
                         // Timer is op 0, stop het timer-geluid en speel het finale geluid af
                         timerSound.pause();  // Stop het timer-geluid
                         timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
-                        finaleSound.play().catch((error) => {
-                            console.log("Finale geluid kon niet worden afgespeeld:", error);
-                        });
+                        if (!finaleSoundPlayed) {
+                            finaleSound.play().catch((error) => {
+                                console.log("Finale geluid kon niet worden afgespeeld:", error);
+                            });
+                            finaleSoundPlayed = true;  // Markeer dat het finale geluid is afgespeeld
+                        }
                     }
                 }, 1000);
 
