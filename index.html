@@ -351,25 +351,11 @@
                     }
                 });
 
-                // Voeg de timerSoundPlaying, timerEndSoundPlaying en finaleSoundPlaying toe in Firebase
+                // Voeg de timerSoundPlaying toe in Firebase
                 const soundRef = firebase.database().ref('timerSoundPlaying');
                 soundRef.once('value', (snapshot) => {
                     if (!snapshot.exists()) {
                         soundRef.set(false); // Initialiseer de waarde als "false"
-                    }
-                });
-
-                const endSoundRef = firebase.database().ref('timerEndSoundPlaying');
-                endSoundRef.once('value', (snapshot) => {
-                    if (!snapshot.exists()) {
-                        endSoundRef.set(false); // Initialiseer de waarde als "false"
-                    }
-                });
-
-                const finaleSoundRef = firebase.database().ref('finaleSoundPlaying');
-                finaleSoundRef.once('value', (snapshot) => {
-                    if (!snapshot.exists()) {
-                        finaleSoundRef.set(false); // Initialiseer de waarde als "false"
                     }
                 });
             }
