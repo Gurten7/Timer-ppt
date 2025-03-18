@@ -60,6 +60,16 @@
                         el.setAttribute("disabled", "true");
                     });
 
+                    // Speel het geluid alleen af in de display modus
+                    if (timerSound && finaleSound && timerEndSound) {
+                        timerSound.pause();  // Stop het geluid
+                        timerSound.currentTime = 0; // Zet het timer-geluid terug naar het begin
+                        finaleSound.pause(); // Stop het finale geluid
+                        finaleSound.currentTime = 0; // Zet het finale geluid terug naar het begin
+                        timerEndSound.pause(); // Stop het stop geluid
+                        timerEndSound.currentTime = 0; // Zet het stop geluid terug naar het begin
+                    }
+
                 } else {
                     const elementsToShow = document.querySelectorAll('.hide-if-needed');
                     elementsToShow.forEach(el => {
@@ -129,18 +139,26 @@
                         updateDatabase();
                     } else if (timers[geselecteerdeTimer] === 0) {
                         // Timer is op 0, stop het timer-geluid en speel het finale geluid af
-                        timerSound.pause();  // Stop het timer-geluid
-                        timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
-                        finaleSound.play().catch((error) => {
-                            console.log("Finale geluid kon niet worden afgespeeld:", error);
-                        });
+                        const params = new URLSearchParams(window.location.search);
+                        const view = params.get('view');
+                        if (view === 'display') {
+                            timerSound.pause();  // Stop het timer-geluid
+                            timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
+                            finaleSound.play().catch((error) => {
+                                console.log("Finale geluid kon niet worden afgespeeld:", error);
+                            });
+                        }
                     }
                 }, 1000);
 
-                // Speel het geluid af wanneer de timer start
-                timerSound.play().catch((error) => {
-                    console.log("Audio kon niet worden afgespeeld:", error);
-                });
+                // Speel het geluid af wanneer de timer start, alleen in display modus
+                const params = new URLSearchParams(window.location.search);
+                const view = params.get('view');
+                if (view === 'display') {
+                    timerSound.play().catch((error) => {
+                        console.log("Audio kon niet worden afgespeeld:", error);
+                    });
+                }
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
@@ -149,13 +167,16 @@
                 intervals[geselecteerdeTimer] = null;
 
                 // Stop het timer-geluid
-                timerSound.pause();  // Stop het timer-geluid
-                timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
-                
-                // Speel het stop geluid af
-                timerEndSound.play().catch((error) => {
-                    console.log("Stopgeluid kon niet worden afgespeeld:", error);
-                });
+                const params = new URLSearchParams(window.location.search);
+                const view = params.get('view');
+                if (view === 'display') {
+                    timerSound.pause();  // Stop het timer-geluid
+                    timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
+                    // Speel het stop geluid af
+                    timerEndSound.play().catch((error) => {
+                        console.log("Stopgeluid kon niet worden afgespeeld:", error);
+                    });
+                }
             }
 
             function resetTimer() {
