@@ -42,6 +42,11 @@
                         el.style.display = 'none';
                     });
 
+                    // Zorg ervoor dat de start- en stopknoppen zichtbaar blijven in de 'display' modus
+                    document.querySelectorAll("#startBtn, #stopBtn").forEach(el => {
+                        el.style.display = 'inline-block';  // Zorg ervoor dat de knoppen zichtbaar blijven
+                    });
+
                     document.querySelectorAll(".timer").forEach((el) => {
                         el.style.pointerEvents = "none";
                     });
