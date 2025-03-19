@@ -162,17 +162,9 @@
                 selectedTimerRef.set(index);
             }
 
-            // Variabele om bij te houden of de timer actief is
-            let isTimerActief = false;
-
             // Start de timer en speel het geluid af
             function startTimer() {
-                if (intervals[geselecteerdeTimer] || isTimerActief) return; // Voorkom starten als er al een timer loopt
-                isTimerActief = true;  // Zet timer actief op true
-
-                // De timer-selectie uitschakelen
-                document.getElementById("timerSelect").disabled = true;
-
+                if (intervals[geselecteerdeTimer]) return;
                 intervals[geselecteerdeTimer] = setInterval(() => {
                     if (timers[geselecteerdeTimer] > 0) {
                         timers[geselecteerdeTimer]--;
@@ -184,11 +176,19 @@
                         timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
 
                         // Speel het finale geluid af (1x per timer)
-                        finaleSound.play().catch((error) => {
-                            console.log("Finale geluid kon niet worden afgespeeld:", error);
-                        });
+                        if (!finaleGeluidGespeeld[geselecteerdeTimer]) {
+                            finaleSound.play().catch((error) => {
+                                console.log("Finale geluid kon niet worden afgespeeld:", error);
+                            });
+                            finaleGeluidGespeeld[geselecteerdeTimer] = true; // Zorg ervoor dat het niet opnieuw wordt afgespeeld
+                        }
                     }
                 }, 1000);
+
+                // Blokkeer de andere timers door pointer-events uit te schakelen
+                document.querySelectorAll(".timer").forEach(el => {
+                    el.style.pointerEvents = "none";
+                });
 
                 // Speel het timer-geluid af
                 timerSoundRef.set(true);  // Zet timer geluid aan via Firebase
@@ -202,14 +202,14 @@
                 // Stop het timer-geluid
                 timerSound.pause();  // Stop het timer-geluid
                 timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
-
-                // Zet de timer-selectie weer aan
-                document.getElementById("timerSelect").disabled = false;
-
-                isTimerActief = false;  // Zet timer actief op false
-
+                
                 // Zet het stopgeluid aan via Firebase
                 stopSoundRef.set(true);  // Zet het stopgeluid aan in Firebase
+
+                // Zet de pointer-events weer aan voor de timers
+                document.querySelectorAll(".timer").forEach(el => {
+                    el.style.pointerEvents = "auto";
+                });
             }
 
             function resetTimer() {
@@ -236,10 +236,10 @@
                 finaleSound.pause();
                 finaleSound.currentTime = 0;
 
-                // Zet de timer-selectie weer aan
-                document.getElementById("timerSelect").disabled = false;
-
-                isTimerActief = false;  // Zet timer actief op false
+                // Zet de pointer-events weer aan voor de timers
+                document.querySelectorAll(".timer").forEach(el => {
+                    el.style.pointerEvents = "auto";
+                });
             }
 
             function pasTijdAan(aantal) {
@@ -299,9 +299,9 @@
             function slaNieuweTeamnaamOp(index, nieuweNaam) {
                 if (nieuweNaam.trim() !== "") {
                     teamNamen[index] = nieuweNaam;
-                    updateWeergave();
-                    updateDatabase();
                 }
+                updateWeergave();
+                updateDatabase();
             }
 
             function updateDatabase() {
