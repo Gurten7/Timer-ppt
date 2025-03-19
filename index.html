@@ -153,18 +153,37 @@
             }
 
             function selecteerTimer(index) {
+                if (intervals[geselecteerdeTimer]) {
+                    // Stop de lopende timer voordat een nieuwe timer geselecteerd wordt
+                    clearInterval(intervals[geselecteerdeTimer]);
+                    intervals[geselecteerdeTimer] = null;
+
+                    // Stop het timer-geluid
+                    timerSound.pause();  
+                    timerSound.currentTime = 0;  
+                    
+                    // Zet de finaleGeluidGespeeld flag terug naar false voor de timer die gestopt is
+                    finaleGeluidGespeeld[geselecteerdeTimer] = false;
+                }
+
                 document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
                 geselecteerdeTimer = index;
                 document.getElementById(`timer-container-${index}`).classList.add("selected");
                 document.getElementById("timerSelect").value = index;
 
+                // Reset de pointer-events voor alle timers
+                document.querySelectorAll(".timer").forEach(el => {
+                    el.style.pointerEvents = "auto";
+                });
+
+                // Markeer de geselecteerde timer
                 const selectedTimerRef = firebase.database().ref('selectedTimer');
                 selectedTimerRef.set(index);
             }
 
             // Start de timer en speel het geluid af
             function startTimer() {
-                if (intervals[geselecteerdeTimer]) return;
+                if (intervals[geselecteerdeTimer]) return; // Voorkom dubbele timers
                 intervals[geselecteerdeTimer] = setInterval(() => {
                     if (timers[geselecteerdeTimer] > 0) {
                         timers[geselecteerdeTimer]--;
@@ -172,29 +191,21 @@
                         updateDatabase();
                     } else if (timers[geselecteerdeTimer] === 0) {
                         // Stop het timer-geluid als de timer op 0 komt
-                        timerSound.pause();  // Stop het timer-geluid
-                        timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
+                        timerSound.pause();
+                        timerSound.currentTime = 0;
 
                         // Speel het timer-geluid af
-                        timerSoundRef.set(true);  // Zet timer geluid aan via Firebase
+                        timerSoundRef.set(true);
 
                         // Speel het finale geluid af (1x per timer)
                         if (!finaleGeluidGespeeld[geselecteerdeTimer]) {
                             finaleSound.play().catch((error) => {
                                 console.log("Finale geluid kon niet worden afgespeeld:", error);
                             });
-                            finaleGeluidGespeeld[geselecteerdeTimer] = true; // Zorg ervoor dat het niet opnieuw wordt afgespeeld
+                            finaleGeluidGespeeld[geselecteerdeTimer] = true;
                         }
                     }
                 }, 1000);
-
-                // Blokkeer de andere timers door pointer-events uit te schakelen
-                document.querySelectorAll(".timer").forEach(el => {
-                    el.style.pointerEvents = "none";
-                });
-
-                // Zet de finaleGeluidGespeeld vlag terug naar false wanneer de timer opnieuw wordt gestart
-                finaleGeluidGespeeld[geselecteerdeTimer] = false;  // Finale geluid kan opnieuw afspelen als timer opnieuw start
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
@@ -203,11 +214,11 @@
                 intervals[geselecteerdeTimer] = null;
 
                 // Stop het timer-geluid
-                timerSound.pause();  // Stop het timer-geluid
-                timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
-                
+                timerSound.pause();
+                timerSound.currentTime = 0;
+
                 // Zet het stopgeluid aan via Firebase
-                stopSoundRef.set(true);  // Zet het stopgeluid aan in Firebase
+                stopSoundRef.set(true);
 
                 // Zet de pointer-events weer aan voor de timers
                 document.querySelectorAll(".timer").forEach(el => {
