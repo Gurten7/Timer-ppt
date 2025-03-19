@@ -175,6 +175,9 @@
                         timerSound.pause();  // Stop het timer-geluid
                         timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
 
+                        // Speel het timer-geluid af
+                        timerSoundRef.set(true);  // Zet timer geluid aan via Firebase
+
                         // Speel het finale geluid af (1x per timer)
                         if (!finaleGeluidGespeeld[geselecteerdeTimer]) {
                             finaleSound.play().catch((error) => {
@@ -190,8 +193,8 @@
                     el.style.pointerEvents = "none";
                 });
 
-                // Speel het timer-geluid af
-                timerSoundRef.set(true);  // Zet timer geluid aan via Firebase
+                // Zet de finaleGeluidGespeeld vlag terug naar false wanneer de timer opnieuw wordt gestart
+                finaleGeluidGespeeld[geselecteerdeTimer] = false;  // Finale geluid kan opnieuw afspelen als timer opnieuw start
             }
 
             // Stop de timer en stop het geluid, speel het stop geluid af
@@ -313,6 +316,7 @@
                     team4: timers[3]
                 });
 
+                // Teamnamen ook opslaan in Firebase
                 const teamNamesRef = firebase.database().ref('teamNames');
                 teamNamesRef.set({
                     team1: teamNamen[0],
@@ -332,12 +336,13 @@
                     }
                 });
 
+                // Teamnamen ophalen uit Firebase
                 const teamNamesRef = firebase.database().ref('teamNames');
                 teamNamesRef.on('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
                         teamNamen = [data.team1, data.team2, data.team3, data.team4];
-                        updateWeergave();
+                        updateWeergave(); // Werk de weergave bij met de teamnamen uit Firebase
                     }
                 });
 
