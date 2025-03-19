@@ -153,6 +153,7 @@
             }
 
             function selecteerTimer(index) {
+                // Als er al een actieve timer is, stop die timer eerst
                 if (intervals[geselecteerdeTimer]) {
                     // Stop de lopende timer voordat een nieuwe timer geselecteerd wordt
                     clearInterval(intervals[geselecteerdeTimer]);
@@ -166,14 +167,17 @@
                     finaleGeluidGespeeld[geselecteerdeTimer] = false;
                 }
 
+                // Zorg ervoor dat de geselecteerde timer geen invloed heeft op andere timers
                 document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
                 geselecteerdeTimer = index;
                 document.getElementById(`timer-container-${index}`).classList.add("selected");
                 document.getElementById("timerSelect").value = index;
 
-                // Reset de pointer-events voor alle timers
-                document.querySelectorAll(".timer").forEach(el => {
-                    el.style.pointerEvents = "auto";
+                // Reset de pointer-events voor alle timers (schakel ze uit voor alle timers behalve de geselecteerde)
+                document.querySelectorAll(".timer").forEach((el, i) => {
+                    if (i !== geselecteerdeTimer) {
+                        el.style.pointerEvents = "none";  // Blokkeer interactie met andere timers
+                    }
                 });
 
                 // Markeer de geselecteerde timer
@@ -184,6 +188,8 @@
             // Start de timer en speel het geluid af
             function startTimer() {
                 if (intervals[geselecteerdeTimer]) return; // Voorkom dubbele timers
+
+                // Start de geselecteerde timer
                 intervals[geselecteerdeTimer] = setInterval(() => {
                     if (timers[geselecteerdeTimer] > 0) {
                         timers[geselecteerdeTimer]--;
@@ -220,7 +226,7 @@
                 // Zet het stopgeluid aan via Firebase
                 stopSoundRef.set(true);
 
-                // Zet de pointer-events weer aan voor de timers
+                // Zet de pointer-events weer aan voor alle timers
                 document.querySelectorAll(".timer").forEach(el => {
                     el.style.pointerEvents = "auto";
                 });
