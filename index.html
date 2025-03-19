@@ -153,6 +153,8 @@
             }
 
             function selecteerTimer(index) {
+                if (intervals[geselecteerdeTimer]) return;  // Disable timer change if a timer is running
+
                 document.querySelectorAll(".timer").forEach(el => el.classList.remove("selected"));
                 geselecteerdeTimer = index;
                 document.getElementById(`timer-container-${index}`).classList.add("selected");
@@ -164,29 +166,25 @@
 
             // Start de timer en speel het geluid af
             function startTimer() {
-                if (intervals[geselecteerdeTimer]) return;
+                if (intervals[geselecteerdeTimer]) return;  // Prevent overlapping intervals
                 intervals[geselecteerdeTimer] = setInterval(() => {
                     if (timers[geselecteerdeTimer] > 0) {
                         timers[geselecteerdeTimer]--;
                         updateWeergave();
                         updateDatabase();
                     } else if (timers[geselecteerdeTimer] === 0) {
-                        // Stop het timer-geluid als de timer op 0 komt
-                        timerSound.pause();  // Stop het timer-geluid
-                        timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
+                        clearInterval(intervals[geselecteerdeTimer]);  // Stop the interval when timer hits 0
+                        intervals[geselecteerdeTimer] = null;
 
-                        // Speel het timer-geluid af
-                        timerSoundRef.set(true);  // Zet timer geluid aan via Firebase
-
-                        // Speel het finale geluid af (1x per timer)
-                        if (!finaleGeluidGespeeld[geselecteerdeTimer]) {
-                            finaleSound.play().catch((error) => {
-                                console.log("Finale geluid kon niet worden afgespeeld:", error);
-                            });
-                            finaleGeluidGespeeld[geselecteerdeTimer] = true; // Zorg ervoor dat het niet opnieuw wordt afgespeeld
-                        }
+                        // Play the stop sound and reset timer sound
+                        timerSound.pause();
+                        timerSound.currentTime = 0;
+                        timerEndSound.play().catch((error) => console.log("Stop sound error:", error));
                     }
                 }, 1000);
+
+                // Start the timer sound and play it in sync with the timer
+                timerSound.play().catch((error) => console.log("Timer sound error:", error));
 
                 // Blokkeer de andere timers door pointer-events uit te schakelen
                 document.querySelectorAll(".timer").forEach(el => {
@@ -203,11 +201,9 @@
                 intervals[geselecteerdeTimer] = null;
 
                 // Stop het timer-geluid
-                timerSound.pause();  // Stop het timer-geluid
-                timerSound.currentTime = 0;  // Zet het timer-geluid terug naar het begin
-                
-                // Zet het stopgeluid aan via Firebase
-                stopSoundRef.set(true);  // Zet het stopgeluid aan in Firebase
+                timerSound.pause();
+                timerSound.currentTime = 0;
+                timerEndSound.play().catch((error) => console.log("Stop sound error:", error));
 
                 // Zet de pointer-events weer aan voor de timers
                 document.querySelectorAll(".timer").forEach(el => {
