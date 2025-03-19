@@ -176,14 +176,22 @@
                         clearInterval(intervals[geselecteerdeTimer]);  // Stop the interval when timer hits 0
                         intervals[geselecteerdeTimer] = null;
 
-                        // Play the stop sound and reset timer sound
+                        // Stop het timer-geluid
                         timerSound.pause();
                         timerSound.currentTime = 0;
+
+                        // Speel het finale geluid af als het nog niet is afgespeeld
+                        if (!finaleGeluidGespeeld[geselecteerdeTimer]) {
+                            finaleSound.play().catch((error) => console.log("Finale geluid kan niet worden afgespeeld:", error));
+                            finaleGeluidGespeeld[geselecteerdeTimer] = true; // Markeer als finale geluid is afgespeeld
+                        }
+
+                        // Speel het stop geluid af
                         timerEndSound.play().catch((error) => console.log("Stop sound error:", error));
                     }
                 }, 1000);
 
-                // Start the timer sound and play it in sync with the timer
+                // Start het timer geluid
                 timerSound.play().catch((error) => console.log("Timer sound error:", error));
 
                 // Blokkeer de andere timers door pointer-events uit te schakelen
@@ -211,6 +219,7 @@
                 });
             }
 
+            // Reset de timers en herstelt alle instellingen naar de beginstatus
             function resetTimer() {
                 timers = [60, 60, 60, 60];  // Zet de timers terug naar 60 seconden
                 finaleGeluidGespeeld = [false, false, false, false];  // Reset de finaleGeluidGespeeld variabele voor elke timer
