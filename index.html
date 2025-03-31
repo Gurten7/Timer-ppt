@@ -441,47 +441,67 @@ finaleGeluidGespeeld = [false, false, false, false];
                 });
             }
 
-            checkAndInitializeDatabase();
-            syncTimers();
-            syncVisibility();  // Voeg deze regel toe
+checkAndInitializeDatabase();
+syncTimers();
+syncVisibility();
 
-            const isDisplayMode = new URLSearchParams(window.location.search).get("view") === "display";
+const isDisplayMode = new URLSearchParams(window.location.search).get("view") === "display";
 
-            if (!isDisplayMode) {
-            document.querySelectorAll(".timer").forEach((el, index) => {
-            el.addEventListener("click", () => selecteerTimer(index));
-            });
-            }
+// Timer aanklikbaar alleen op editpagina
+if (!isDisplayMode) {
+    document.querySelectorAll(".timer").forEach((el, index) => {
+        el.addEventListener("click", () => selecteerTimer(index));
+    });
 
-            document.getElementById("timerSelect").addEventListener("change", (event) => {
-                selecteerTimer(parseInt(event.target.value));
-            });
+    // Dropdown werkt alleen op editpagina
+    document.getElementById("timerSelect").addEventListener("change", (event) => {
+        selecteerTimer(parseInt(event.target.value));
+    });
+} else {
+    // Op displaypagina dropdown blokkeren
+    document.getElementById("timerSelect").setAttribute("disabled", "true");
+}
 
-            // Zet de status naar 'start' in Firebase
-            document.getElementById("startBtn").addEventListener("click", () => {
-                timerStatusRef.set('start');
-            });
+// Start knop
+document.getElementById("startBtn").addEventListener("click", () => {
+    timerStatusRef.set('start');
 
-            // Zet de status naar 'stop' in Firebase
-            document.getElementById("stopBtn").addEventListener("click", () => {
-                timerStatusRef.set('stop');
-            });
+    // Blokkeer dropdown tijdens lopende timer
+    document.getElementById("timerSelect").setAttribute("disabled", "true");
+});
 
-            // Zet de status naar 'reset' in Firebase
-            document.getElementById("resetBtn").addEventListener("click", () => {
-                timerStatusRef.set('reset');
-            });
+// Stop knop
+document.getElementById("stopBtn").addEventListener("click", () => {
+    timerStatusRef.set('stop');
 
-            document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
-            document.getElementById("setTimeBtn").addEventListener("click", stelAangepasteTijdIn);
+    // Activeer dropdown na stoppen
+    if (!isDisplayMode) {
+        document.getElementById("timerSelect").removeAttribute("disabled");
+    }
+});
 
-            document.querySelectorAll(".adjust-time").forEach(button => {
-                button.addEventListener("click", () => pasTijdAan(parseInt(button.dataset.amount)));
-            });
+// Reset knop
+document.getElementById("resetBtn").addEventListener("click", () => {
+    timerStatusRef.set('reset');
 
-            selecteerTimer(0);
-            updateWeergave();
-        });
+    // Activeer dropdown na reset
+    if (!isDisplayMode) {
+        document.getElementById("timerSelect").removeAttribute("disabled");
+    }
+});
+
+// Andere knoppen
+document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
+document.getElementById("setTimeBtn").addEventListener("click", stelAangepasteTijdIn);
+
+document.querySelectorAll(".adjust-time").forEach(button => {
+    button.addEventListener("click", () => pasTijdAan(parseInt(button.dataset.amount)));
+});
+
+// Selecteer eerste timer standaard
+selecteerTimer(0);
+updateWeergave();
+
     </script>
     <style>
     body {
