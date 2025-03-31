@@ -251,6 +251,7 @@
         if (data) {
           teamNamen = [data.team1, data.team2, data.team3, data.team4];
           updateWeergave();
+          selecteerTimer(geselecteerdeTimer);
         }
       });
       firebase.database().ref("selectedTimer").on("value", (snapshot) => {
@@ -281,8 +282,6 @@
     syncTimers();
     syncVisibility();
     hideIfNeeded();
-    selecteerTimer(0);
-    updateWeergave();
 
     if (!isDisplayMode) {
       document.querySelectorAll(".timer").forEach((el, index) => {
