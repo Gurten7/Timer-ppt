@@ -445,9 +445,13 @@ finaleGeluidGespeeld = [false, false, false, false];
             syncTimers();
             syncVisibility();  // Voeg deze regel toe
 
+            const isDisplayMode = new URLSearchParams(window.location.search).get("view") === "display";
+
+            if (!isDisplayMode) {
             document.querySelectorAll(".timer").forEach((el, index) => {
-                el.addEventListener("click", () => selecteerTimer(index));
+            el.addEventListener("click", () => selecteerTimer(index));
             });
+            }
 
             document.getElementById("timerSelect").addEventListener("change", (event) => {
                 selecteerTimer(parseInt(event.target.value));
