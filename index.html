@@ -301,27 +301,32 @@ finaleGeluidGespeeld = [false, false, false, false];
                 }
             }
 
-            function maakTeamnaamBewerkbaar(index) {
-                let naamLabel = document.getElementById(`team-name-${index}`);
+   function maakTeamnaamBewerkbaar(index) {
+    let naamLabel = document.getElementById(`team-name-${index}`);
 
-                if (naamLabel && naamLabel.tagName.toLowerCase() !== "input") {
-                    let inputVeld = document.createElement("input");
-                    inputVeld.type = "text";
-                    inputVeld.value = teamNamen[index];
-                    inputVeld.classList.add("team-input");
-                    inputVeld.style.fontSize = "30px";
-                    inputVeld.style.width = "80%";
-                    naamLabel.replaceWith(inputVeld);
-                    inputVeld.focus();
+    if (naamLabel && naamLabel.tagName.toLowerCase() !== "input") {
+        let inputVeld = document.createElement("input");
+        inputVeld.type = "text";
+        inputVeld.value = teamNamen[index];
+        inputVeld.classList.add("team-input");
+        inputVeld.style.fontSize = "30px";
+        inputVeld.style.width = "80%";
+        inputVeld.style.textAlign = "center";
 
-                    inputVeld.addEventListener("blur", () => slaNieuweTeamnaamOp(index, inputVeld.value));
-                    inputVeld.addEventListener("keydown", (event) => {
-                        if (event.key === "Enter") {
-                            slaNieuweTeamnaamOp(index, inputVeld.value);
-                        }
-                    });
-                }
+        naamLabel.replaceWith(inputVeld);
+        inputVeld.focus();
+
+        inputVeld.addEventListener("blur", () => {
+            slaNieuweTeamnaamOp(index, inputVeld.value);
+        });
+
+        inputVeld.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                inputVeld.blur(); // Triggert ook blur, dus slaat dan ook op
             }
+        });
+    }
+}
 
             function slaNieuweTeamnaamOp(index, nieuweNaam) {
                 if (nieuweNaam.trim() !== "") {
@@ -496,7 +501,7 @@ finaleGeluidGespeeld = [false, false, false, false];
     }
 
     .timer {
-        width: 300px;
+        width: 360px;
         height: 300px;
         border: 6px solid white;
         display: flex;
@@ -511,13 +516,14 @@ finaleGeluidGespeeld = [false, false, false, false];
         text-align: center;
     }
 
-    .team-name {
-        font-size: 30px;
-        font-weight: bold;
-        color: white;
-        cursor: pointer;
-        margin-bottom: 20px;
-    }
+.team-name {
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    margin-bottom: 20px;
+    text-align: center;
+}
 
     .team-input {
         font-size: 30px;
@@ -570,15 +576,11 @@ finaleGeluidGespeeld = [false, false, false, false];
     }
 
     /* Responsieve styling alleen voor NIET-display mode */
-    @media (max-width: 768px) {
+   @media (max-width: 768px) {
     body:not(.display-mode) .timer {
-        width: 230px;
+        width: 260px;
         height: 230px;
         font-size: 50px;
-    }
-
-    body:not(.display-mode) .timer-container {
-        flex-direction: row;
     }
 
     body:not(.display-mode) .team-name {
@@ -587,6 +589,10 @@ finaleGeluidGespeeld = [false, false, false, false];
 
     body:not(.display-mode) .controls {
         width: 90%;
+    }
+
+    body:not(.display-mode) .timer-container {
+        flex-direction: row;
     }
 
     body:not(.display-mode) button {
