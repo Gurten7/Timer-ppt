@@ -485,7 +485,7 @@
     .timer {
         width: 300px;
         height: 300px;
-        border: 6px solid #FFAA00;
+        border: 6px solid #F8AF00;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -531,7 +531,7 @@
     }
 
     button {
-        background-color: #FFAA00;
+        background-color: #F8AF00;
         color: black;
         border: none;
         padding: 10px;
@@ -542,43 +542,23 @@
     }
 
     .selected {
-        border: 8px solid #FFAA00;
+        border: 8px solid #F8AF00;
     }
 
+    /* Alleen voor view=display */
     body.display-mode {
-        padding: 40px;
+        padding: 60px 20px;
     }
 
     .display-mode .timer-container {
-    margin: 60px auto;
-    max-width: 1000px;
-    padding: 0 20px;
-}
-
-    @media (max-width: 768px) {
-        .timer-container {
-            flex-direction: row;
-        }
-
-        .timer {
-            width: 230px;
-            height: 230px;
-            font-size: 50px;
-        }
-
-        .team-name {
-            font-size: 18px;
-        }
-
-        .controls {
-            width: 90%;
-        }
-
-        button {
-            font-size: 12px;
-        }
+        margin: 60px auto;
+        max-width: 1000px;
+        padding: 0 20px;
     }
-</style>
+
+    /* Responsieve styling alleen voor NIET-display mode */
+    @media (max-width: 768px) {
+        body:not(.display-mode) .timer {
 </head>
 <body>
     <h1>De Slimste Kameraad</h1>
