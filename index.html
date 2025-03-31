@@ -9,6 +9,12 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script defer>
         document.addEventListener("DOMContentLoaded", () => {
+         
+            const params = new URLSearchParams(window.location.search);
+                if (params.get("view") === "display") {
+                document.body.classList.add("display-mode");
+            }
+            
             const firebaseConfig = {
                 apiKey: "", // Geen API Key nodig zonder Web App
                 authDomain: "slimste-kameraad-timer.firebaseapp.com",
@@ -456,100 +462,122 @@
         });
     </script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #650409;
-        }
-        h1 {
-            font-size: 80px;
-            display: none;
-        }
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #650409;
+    }
+
+    h1 {
+        font-size: 80px;
+        display: none;
+    }
+
+    .timer-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 20px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+    .timer {
+        width: 300px;
+        height: 300px;
+        border: 6px solid #FFAA00;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 70px;
+        font-weight: bold;
+        color: white;
+        background-color: #650409;
+        border-radius: 20px;
+        text-align: center;
+    }
+
+    .team-name {
+        font-size: 30px;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+
+    .team-input {
+        font-size: 30px;
+        font-weight: bold;
+        width: 80%;
+        text-align: center;
+        border: none;
+        outline: none;
+    }
+
+    .controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-top: 60px;
+    }
+
+    .row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    button {
+        background-color: #FFAA00;
+        color: black;
+        border: none;
+        padding: 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        width: auto;
+        max-width: 120px;
+    }
+
+    .selected {
+        border: 8px solid #FFAA00;
+    }
+
+    body.display-mode {
+        padding: 40px;
+    }
+
+    .display-mode .timer-container {
+        margin: 40px auto;
+        max-width: 95vw;
+    }
+
+    @media (max-width: 768px) {
         .timer-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-        }
-        .timer {
-            width: 300px;
-            height: 300px;
-            border: 6px solid white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 70px;
-            font-weight: bold;
-            color: white;
-            background-color: #650409;
-            border-radius: 20px;
-            text-align: center;
-        }
-        .team-name {
-            font-size: 30px;
-            font-weight: bold;
-            color: solid white;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-        .team-input {
-            font-size: 30px;
-            font-weight: bold;
-            width: 80%;
-            text-align: center;
-            border: none;
-            outline: none;
-        }
-        .controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-top: 60px;
-        }
-        .row {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        button {
-            background-color: #FFAA00;
-            color: black;
-            border: none
-            padding: 10px;
-            font-size: 14px;
-            border-radius: 5px;
-            width: auto;
-            max-width: 120px;
-        }
-        .selected {
-            border: 8px solid #FFAA00;
+            flex-direction: row;
         }
 
-        @media (max-width: 768px) {
-            .timer-container {
-                flex-direction: row;
-            }
-            .timer {
-                width: 230px;
-                height: 230px;
-                font-size: 50px;
-            }
-            .team-name {
-                font-size: 18px;
-            }
-            .controls {
-                width: 90%;
-            }
-            button {
-                font-size: 12px;
-            }
+        .timer {
+            width: 230px;
+            height: 230px;
+            font-size: 50px;
         }
-    </style>
+
+        .team-name {
+            font-size: 18px;
+        }
+
+        .controls {
+            width: 90%;
+        }
+
+        button {
+            font-size: 12px;
+        }
+    }
+</style>
 </head>
 <body>
     <h1>De Slimste Kameraad</h1>
