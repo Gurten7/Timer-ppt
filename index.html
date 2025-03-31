@@ -442,7 +442,51 @@ finaleGeluidGespeeld = [false, false, false, false];
             }
 
 checkAndInitializeDatabase();
+syncTimers();checkAndInitializeDatabase();
 syncTimers();
+syncVisibility();
+
+const isDisplayMode = new URLSearchParams(window.location.search).get("view") === "display";
+
+// Alleen init interactiviteit op editpagina
+if (!isDisplayMode) {
+    document.querySelectorAll(".timer").forEach((el, index) => {
+        el.addEventListener("click", () => selecteerTimer(index));
+    });
+
+    document.getElementById("timerSelect").addEventListener("change", (event) => {
+        selecteerTimer(parseInt(event.target.value));
+    });
+
+    document.getElementById("startBtn").addEventListener("click", () => {
+        timerStatusRef.set('start');
+        document.getElementById("timerSelect").setAttribute("disabled", "true");
+    });
+
+    document.getElementById("stopBtn").addEventListener("click", () => {
+        timerStatusRef.set('stop');
+        document.getElementById("timerSelect").removeAttribute("disabled");
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+        timerStatusRef.set('reset');
+        document.getElementById("timerSelect").removeAttribute("disabled");
+    });
+
+    document.getElementById("toggleBtn").addEventListener("click", toggleTimerZichtbaarheid);
+    document.getElementById("setTimeBtn").addEventListener("click", stelAangepasteTijdIn);
+
+    document.querySelectorAll(".adjust-time").forEach(button => {
+        button.addEventListener("click", () => pasTijdAan(parseInt(button.dataset.amount)));
+    });
+} else {
+    // Extra zekerheid dat dropdown geblokkeerd is
+    document.getElementById("timerSelect").setAttribute("disabled", "true");
+}
+
+selecteerTimer(0);
+updateWeergave();
+
 syncVisibility();
 
 const isDisplayMode = new URLSearchParams(window.location.search).get("view") === "display";
