@@ -209,21 +209,34 @@
                 finaleGeluidGespeeld[geselecteerdeTimer] = false;  // Finale geluid kan opnieuw afspelen als timer opnieuw start
             }
 
-            // Stop de timer en stop het geluid, speel het stop geluid af
-            function stopTimer() {
-                clearInterval(intervals[geselecteerdeTimer]);
-                intervals[geselecteerdeTimer] = null;
+            // Aangepaste stopTimer functie
+function stopTimer() {
+    clearInterval(intervals[geselecteerdeTimer]);
+    intervals[geselecteerdeTimer] = null;
 
-                // Stop het timer-geluid
-                timerSound.pause();
-                timerSound.currentTime = 0;
-                timerEndSound.play().catch((error) => console.log("Stop sound error:", error));
+    // Stop het timer-geluid
+    timerSound.pause();
+    timerSound.currentTime = 0;
 
-                // Zet de pointer-events weer aan voor de timers
-                document.querySelectorAll(".timer").forEach(el => {
-                    el.style.pointerEvents = "auto";
-                });
-            }
+    // Speel het stopgeluid pas af als timerSound gestopt is
+    setTimeout(() => {
+        timerEndSound.play().catch((error) => console.log("Stop sound error:", error));
+    }, 100);
+
+    // Zet de pointer-events weer aan voor de timers
+    document.querySelectorAll(".timer").forEach(el => {
+        el.style.pointerEvents = "auto";
+    });
+}
+
+// In startTimer (controleer of dit stuk er al in staat bij timer === 0):
+if (!finaleGeluidGespeeld[geselecteerdeTimer]) {
+    finaleSound.play().catch((error) => console.log("Finale geluid kan niet worden afgespeeld:", error));
+    finaleGeluidGespeeld[geselecteerdeTimer] = true;
+}
+
+// Bij resetTimer (controleer dat dit erin staat):
+finaleGeluidGespeeld = [false, false, false, false];
 
             // Reset de timers en herstelt alle instellingen naar de beginstatus
             function resetTimer() {
