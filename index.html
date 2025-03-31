@@ -576,7 +576,7 @@ finaleGeluidGespeeld = [false, false, false, false];
     }
 
     /* Responsieve styling alleen voor NIET-display mode */
-   @media (max-width: 768px) {
+  @media (max-width: 768px) {
     body:not(.display-mode) .timer {
         width: 260px;
         height: 230px;
@@ -599,6 +599,14 @@ finaleGeluidGespeeld = [false, false, false, false];
         font-size: 12px;
     }
 }
+
+/* ✨ Altijd voor view=display, onafhankelijk van schermformaat */
+body.display-mode .timer {
+    width: 260px;
+    height: 230px;
+    font-size: 50px;
+}
+
 </style>
 </head>
 <body>
