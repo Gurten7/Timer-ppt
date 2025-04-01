@@ -119,9 +119,9 @@
       firebase.database().ref("selectedTimer").set(index);
     }
 
-    function startTimer() {
+   function startTimer() {
   if (timerIsRunning || intervals[geselecteerdeTimer]) {
-    console.log("Timer is al gestart, dubbele trigger voorkomen.");
+    console.log("⛔ Timer is al gestart, dubbele trigger voorkomen.");
     return;
   }
 
@@ -144,6 +144,7 @@
         finaleSound.play().catch(console.log);
         finaleGeluidGespeeld[geselecteerdeTimer] = true;
       }
+
       timerEndSound.play().catch(console.log);
     }
   }, 1000);
@@ -153,17 +154,22 @@
   finaleGeluidGespeeld[geselecteerdeTimer] = false;
 }
 
-    function stopTimer() {
+function stopTimer() {
   clearInterval(intervals[geselecteerdeTimer]);
   intervals[geselecteerdeTimer] = null;
-  timerIsRunning = false; // ✅ Zet de vlag terug zodat start weer mag
+  timerIsRunning = false;
+
   timerSound.pause();
   timerSound.currentTime = 0;
-  setTimeout(() => timerEndSound.play().catch(console.log), 100);
+
+  setTimeout(() => {
+    timerEndSound.play().catch(console.log);
+  }, 100);
+
   document.querySelectorAll(".timer").forEach(el => el.style.pointerEvents = "auto");
 }
 
-      function resetTimer() {
+function resetTimer() {
   // Zet alle timers terug naar 60 seconden
   timers = [60, 60, 60, 60];
 
@@ -196,19 +202,6 @@
 
   console.log("🔁 Timer is gereset.");
 }
-
-      [timerSound, timerEndSound, finaleSound].forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-      });
-      document.querySelectorAll(".timer").forEach(el => el.style.pointerEvents = "auto");
-    }
-
-    function pasTijdAan(aantal) {
-      timers[geselecteerdeTimer] = Math.max(0, timers[geselecteerdeTimer] + aantal);
-      updateWeergave();
-      updateDatabase();
-    }
 
     function toggleTimerZichtbaarheid() {
       zichtbareTimers[geselecteerdeTimer] = !zichtbareTimers[geselecteerdeTimer];
