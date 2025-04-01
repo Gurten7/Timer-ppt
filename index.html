@@ -33,6 +33,7 @@
     let geselecteerdeTimer = 0;
     let zichtbareTimers = [true, true, true, true];
     let finaleGeluidGespeeld = [false, false, false, false];
+    let timerIsRunning = false;
 
     const timerSound = document.getElementById("timerSound");
     const timerEndSound = document.getElementById("timerEndSound");
@@ -119,49 +120,83 @@
     }
 
     function startTimer() {
-      if (intervals[geselecteerdeTimer]) return;
-      intervals[geselecteerdeTimer] = setInterval(() => {
-        if (timers[geselecteerdeTimer] > 0) {
-          timers[geselecteerdeTimer]--;
-          updateWeergave();
-          updateDatabase();
-        } else if (timers[geselecteerdeTimer] === 0) {
-          clearInterval(intervals[geselecteerdeTimer]);
-          intervals[geselecteerdeTimer] = null;
-          timerSound.pause();
-          timerSound.currentTime = 0;
-          if (!finaleGeluidGespeeld[geselecteerdeTimer]) {
-            finaleSound.play().catch(console.log);
-            finaleGeluidGespeeld[geselecteerdeTimer] = true;
-          }
-          timerEndSound.play().catch(console.log);
-        }
-      }, 1000);
-      timerSound.play().catch(console.log);
-      document.querySelectorAll(".timer").forEach(el => el.style.pointerEvents = "none");
-      finaleGeluidGespeeld[geselecteerdeTimer] = false;
-    }
+  if (timerIsRunning || intervals[geselecteerdeTimer]) {
+    console.log("Timer is al gestart, dubbele trigger voorkomen.");
+    return;
+  }
 
-    function stopTimer() {
+  console.log(`⏳ Start timer ${geselecteerdeTimer}`);
+  timerIsRunning = true;
+
+  intervals[geselecteerdeTimer] = setInterval(() => {
+    if (timers[geselecteerdeTimer] > 0) {
+      timers[geselecteerdeTimer]--;
+      updateWeergave();
+      updateDatabase();
+    } else if (timers[geselecteerdeTimer] === 0) {
       clearInterval(intervals[geselecteerdeTimer]);
       intervals[geselecteerdeTimer] = null;
       timerSound.pause();
       timerSound.currentTime = 0;
-      setTimeout(() => timerEndSound.play().catch(console.log), 100);
-      document.querySelectorAll(".timer").forEach(el => el.style.pointerEvents = "auto");
-    }
+      timerIsRunning = false;
 
-    function resetTimer() {
-      timers = [60, 60, 60, 60];
-      finaleGeluidGespeeld = [false, false, false, false];
-      updateWeergave();
-      updateDatabase();
-      intervals.forEach((interval, index) => {
-        if (interval) {
-          clearInterval(interval);
-          intervals[index] = null;
-        }
-      });
+      if (!finaleGeluidGespeeld[geselecteerdeTimer]) {
+        finaleSound.play().catch(console.log);
+        finaleGeluidGespeeld[geselecteerdeTimer] = true;
+      }
+      timerEndSound.play().catch(console.log);
+    }
+  }, 1000);
+
+  timerSound.play().catch(console.log);
+  document.querySelectorAll(".timer").forEach(el => el.style.pointerEvents = "none");
+  finaleGeluidGespeeld[geselecteerdeTimer] = false;
+}
+
+    function stopTimer() {
+  clearInterval(intervals[geselecteerdeTimer]);
+  intervals[geselecteerdeTimer] = null;
+  timerIsRunning = false; // ✅ Zet de vlag terug zodat start weer mag
+  timerSound.pause();
+  timerSound.currentTime = 0;
+  setTimeout(() => timerEndSound.play().catch(console.log), 100);
+  document.querySelectorAll(".timer").forEach(el => el.style.pointerEvents = "auto");
+}
+
+      function resetTimer() {
+  // Zet alle timers terug naar 60 seconden
+  timers = [60, 60, 60, 60];
+
+  // Zet de vlaggen voor finale geluiden terug
+  finaleGeluidGespeeld = [false, false, false, false];
+
+  // Zorg dat je opnieuw kunt starten
+  timerIsRunning = false;
+
+  // Werk de weergave en Firebase bij
+  updateWeergave();
+  updateDatabase();
+
+  // Stop eventuele lopende timers
+  intervals.forEach((interval, index) => {
+    if (interval) {
+      clearInterval(interval);
+      intervals[index] = null;
+    }
+  });
+
+  // Stop en reset alle audio
+  [timerSound, timerEndSound, finaleSound].forEach(audio => {
+    audio.pause();
+    audio.currentTime = 0;
+  });
+
+  // Zet klikbaarheid van timers weer aan (alleen in editmode)
+  document.querySelectorAll(".timer").forEach(el => el.style.pointerEvents = "auto");
+
+  console.log("🔁 Timer is gereset.");
+}
+
       [timerSound, timerEndSound, finaleSound].forEach(audio => {
         audio.pause();
         audio.currentTime = 0;
