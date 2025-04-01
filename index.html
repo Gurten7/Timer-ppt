@@ -14,6 +14,19 @@
       document.body.classList.add("display-mode");
     }
 
+  // ✅ Audio-initialisatie overlay (tegen NotAllowedError)
+  document.getElementById("audio-init-overlay").addEventListener("click", () => {
+    [timerSound, timerEndSound, finaleSound].forEach(audio => {
+      audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }).catch(console.log);
+    });
+    document.getElementById("audio-init-overlay").style.display = "none";
+  });
+
+  // 🔽 daarna volgt je firebaseConfig + de rest van je script
+
     const firebaseConfig = {
       apiKey: "",
       authDomain: "slimste-kameraad-timer.firebaseapp.com",
@@ -203,6 +216,12 @@ function resetTimer() {
   console.log("🔁 Timer is gereset.");
 }
 
+   function pasTijdAan(aantal) {
+  timers[geselecteerdeTimer] = Math.max(0, timers[geselecteerdeTimer] + aantal);
+  updateWeergave();
+  updateDatabase();
+}
+          
     function toggleTimerZichtbaarheid() {
       zichtbareTimers[geselecteerdeTimer] = !zichtbareTimers[geselecteerdeTimer];
       updateWeergave();
@@ -469,6 +488,10 @@ body.display-mode .timer {
 </style>
 </head>
 <body>
+    <div id="audio-init-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;opacity:0.9;z-index:9999;color:#fff;display:flex;justify-content:center;align-items:center;font-size:24px;cursor:pointer;">
+  Klik om te starten
+</div>
+
     <h1>De Slimste Kameraad</h1>
     <div class="timer-container">
         <div class="timer" id="timer-container-0">
