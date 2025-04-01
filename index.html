@@ -159,6 +159,9 @@
       }
 
       timerEndSound.play().catch(console.log);
+
+      // Zorg dat de timers weer vrijgegeven worden zodra ze op 0 staan
+      document.querySelectorAll(".timer").forEach(el => el.style.pointerEvents = "auto");
     }
   }, 1000);
 
